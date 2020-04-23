@@ -49,7 +49,6 @@ func (t transPort) close() {
 	t.uds.Close()
 }
 
-// ResponseMsg experiment
 type responseMsg struct {
 	ID     int              `json:"id"`
 	Error  *errors.LsmError `json:"error"`
