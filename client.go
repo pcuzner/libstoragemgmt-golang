@@ -57,6 +57,24 @@ func (c ClientConnection) Close() error {
 	return ourError
 }
 
+// Systems returns systems information
+func (c ClientConnection) Systems() ([]System, error) {
+	var args = make(map[string]interface{})
+	var systems []System
+	var systemsJSON, err = c.tp.invoke("systems", args)
+	if err != nil {
+		return systems, err
+	}
+	var systemUnmarshal = json.Unmarshal(systemsJSON, &systems)
+	if systemUnmarshal != nil {
+		return systems, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Plugin returned unexpected system data %s", string(systemsJSON))}
+	}
+
+	return systems, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
