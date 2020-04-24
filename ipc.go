@@ -55,32 +55,30 @@ type responseMsg struct {
 	Result json.RawMessage  `json:"result"`
 }
 
-func (t *transPort) invoke(cmd string, args map[string]interface{}) ([]byte, error) {
+func (t *transPort) invoke(cmd string, args map[string]interface{}, result interface{}) error {
 	var msg = make(map[string]interface{})
 	msg["method"] = cmd
 	msg["id"] = 100
 	args["flags"] = 0
 	msg["params"] = args
 
-	var empty = make([]byte, 0)
-
 	var msgSerialized, serialError = json.Marshal(msg)
 	if serialError != nil {
-		return empty, &errors.LsmError{
+		return &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Errors serializing parameters %w\n", serialError)}
 	}
 
 	var sendError = t.send(string(msgSerialized))
 	if sendError != nil {
-		return empty, &errors.LsmError{
+		return &errors.LsmError{
 			Code:    errors.TransPortComunication,
 			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
 	}
 
 	var reply, replyError = t.recv()
 	if replyError != nil {
-		return empty, &errors.LsmError{
+		return &errors.LsmError{
 			Code:    errors.TransPortComunication,
 			Message: fmt.Sprintf("Error reading from unix domain socket %w\n", replyError)}
 	}
@@ -88,20 +86,29 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}) ([]byte, err
 	var what responseMsg
 	var replyUnmarsal = json.Unmarshal(reply, &what)
 	if replyUnmarsal != nil {
-		return empty, &errors.LsmError{
+		return &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Unparsable response from plugin %w\n", replyUnmarsal)}
 	}
 
 	if what.Error != nil {
-		return empty, what.Error
+		return what.Error
 	}
 
 	if what.Result != nil {
-		return what.Result, nil
+		// We have a result, parse and return it.
+		var unmarshalResult = json.Unmarshal(what.Result, &result)
+		if unmarshalResult != nil {
+			return &errors.LsmError{
+				Code: errors.PluginBug,
+				Message: fmt.Sprintf("Plugin returned unexpected response form for (%s) data (%s)",
+					cmd, string(what.Result))}
+		}
+
+		return nil
 	}
 
-	return empty, &errors.LsmError{
+	return &errors.LsmError{
 		Code:    errors.PluginBug,
 		Message: fmt.Sprintf("Unexpected response from plugin %s\n", reply)}
 

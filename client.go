@@ -3,7 +3,6 @@
 package libstoragemgmt
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
@@ -41,7 +40,8 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 	args["uri"] = uri
 	args["timeout"] = timeout
 
-	var _, libError = transport.invoke("plugin_register", args)
+	var result string
+	var libError = transport.invoke("plugin_register", args, &result)
 	if libError != nil {
 		return nil, libError
 	}
@@ -52,7 +52,8 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 // Close instructs the plugin to shutdown and exist.
 func (c *ClientConnection) Close() error {
 	var args = make(map[string]interface{})
-	var _, ourError = c.tp.invoke("plugin_unregister", args)
+	var result string
+	var ourError = c.tp.invoke("plugin_unregister", args, &result)
 	c.tp.close()
 	return ourError
 }
@@ -61,17 +62,10 @@ func (c *ClientConnection) Close() error {
 func (c *ClientConnection) Systems() ([]System, error) {
 	var args = make(map[string]interface{})
 	var systems []System
-	var systemsJSON, err = c.tp.invoke("systems", args)
+	var err = c.tp.invoke("systems", args, &systems)
 	if err != nil {
 		return systems, err
 	}
-	var systemUnmarshal = json.Unmarshal(systemsJSON, &systems)
-	if systemUnmarshal != nil {
-		return systems, &errors.LsmError{
-			Code:    errors.PluginBug,
-			Message: fmt.Sprintf("Plugin returned unexpected system data %s", string(systemsJSON))}
-	}
-
 	return systems, nil
 }
 
@@ -95,20 +89,18 @@ func AvailablePlugins() ([]PluginInfo, error) {
 		}
 
 		var args = make(map[string]interface{})
-		var reply, invokeError = trans.invoke("plugin_info", args)
+		var info []string
+		var invokeError = trans.invoke("plugin_info", args, &info)
 
 		trans.close()
 
 		if invokeError != nil {
 			return pluginInfos, invokeError
 		}
-
-		var info []string
-		var infoError = json.Unmarshal(reply, &info)
-		if infoError != nil {
-
-		}
-		pluginInfos = append(pluginInfos, PluginInfo{Description: info[0], Version: info[1], Name: pluginPath})
+		pluginInfos = append(pluginInfos, PluginInfo{
+			Description: info[0],
+			Version:     info[1],
+			Name:        pluginPath})
 	}
 
 	return pluginInfos, nil
