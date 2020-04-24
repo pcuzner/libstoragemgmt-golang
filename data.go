@@ -39,3 +39,19 @@ type Volume struct {
 	SystemID    string  `json:"system_id"`
 	PoolID      string  `json:"pool_id"`
 }
+
+// Pool represents the unit of storage where block
+// devices and/or file systems are created from.
+type Pool struct {
+	class              string `json:"class"`
+	ID                 string `json:"id"`
+	Name               string `json:"name"`
+	ElementType        uint64 `json:"element_type"`
+	UnsupportedActions uint64 `json:"unsupported_actions"`
+	TotalSpace         uint64 `json:"total_space"`
+	FreeSpace          uint64 `json:"free_space"`
+	Status             uint64 `json:"status"`
+	StatusInfo         string `json:"status_info"`
+	pluginData         string `json:"plugin_data"`
+	SystemID           string `json:"system_id"`
+}

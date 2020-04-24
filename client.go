@@ -80,6 +80,18 @@ func (c *ClientConnection) Volumes() ([]Volume, error) {
 	return volumes, nil
 }
 
+// Pools returns the units of storage that block devices and FS
+// can be created from.
+func (c *ClientConnection) Pools() ([]Pool, error) {
+	var args = make(map[string]interface{})
+	var pools []Pool
+	var err = c.tp.invoke("pools", args, &pools)
+	if err != nil {
+		return pools, err
+	}
+	return pools, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
