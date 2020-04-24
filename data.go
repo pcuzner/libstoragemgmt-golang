@@ -88,18 +88,92 @@ type Volume struct {
 // Pool represents the unit of storage where block
 // devices and/or file systems are created from.
 type Pool struct {
-	class              string `json:"class"`
-	ID                 string `json:"id"`
-	Name               string `json:"name"`
-	ElementType        uint64 `json:"element_type"`
-	UnsupportedActions uint64 `json:"unsupported_actions"`
-	TotalSpace         uint64 `json:"total_space"`
-	FreeSpace          uint64 `json:"free_space"`
-	Status             uint64 `json:"status"`
-	StatusInfo         string `json:"status_info"`
-	pluginData         string `json:"plugin_data"`
-	SystemID           string `json:"system_id"`
+	class              string              `json:"class"`
+	ID                 string              `json:"id"`
+	Name               string              `json:"name"`
+	ElementType        PoolElementType     `json:"element_type"`
+	UnsupportedActions PoolUnsupportedType `json:"unsupported_actions"`
+	TotalSpace         uint64              `json:"total_space"`
+	FreeSpace          uint64              `json:"free_space"`
+	Status             PoolStatusType      `json:"status"`
+	StatusInfo         string              `json:"status_info"`
+	pluginData         string              `json:"plugin_data"`
+	SystemID           string              `json:"system_id"`
 }
+
+// PoolElementType type used to describe what things can be created from pool
+type PoolElementType uint64
+
+// PoolUnsupportedType type used to describe what actions are unsupported
+type PoolUnsupportedType uint64
+
+// PoolStatusType type used to describe the status of pool
+type PoolStatusType uint64
+
+const (
+
+	// PoolElementPool This pool could allocate space for sub pool.
+	PoolElementPool PoolElementType = 1 << 1
+
+	// PoolElementTypeVolume This pool can be used for volume creation.
+	PoolElementTypeVolume PoolElementType = 1 << 2
+
+	// PoolElementTypeFs this pool can be used to for FS creation.
+	PoolElementTypeFs PoolElementType = 1 << 3
+
+	// PoolElementTypeDelta this pool can hold delta data for snapshots.
+	PoolElementTypeDelta PoolElementType = 1 << 4
+
+	// PoolElementTypeVolumeFull this pool could be used to create fully allocated volume.
+	PoolElementTypeVolumeFull PoolElementType = 1 << 5
+
+	// PoolElementTypeVolumeThin this pool could be used to create thin provisioned volume.
+	PoolElementTypeVolumeThin PoolElementType = 1 << 6
+
+	// PoolElementTypeSysReserved this pool is reserved for internal use.
+	PoolElementTypeSysReserved PoolElementType = 1 << 10
+
+	// PoolUnsupportedVolumeGrow this pool does not allow growing volumes
+	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1
+
+	// PoolUnsupportedVolumeShink this pool does not allow shrinking volumes
+	PoolUnsupportedVolumeShink PoolUnsupportedType = 1 << 1
+
+	// PoolStatusUnknown Plugin failed to query pool status.
+	PoolStatusUnknown PoolStatusType = 1
+
+	// PoolStatusOk The data of this pool is accessible with no data loss. But it might
+	// be set with PoolStatusDegraded to indicate redundancy loss.
+	PoolStatusOk PoolStatusType = 1 << 1
+
+	// PoolStatusOther Vendor specific status, check Pool.StatusInfo for more information.
+	PoolStatusOther PoolStatusType = 1 << 2
+
+	// PoolStatusDegraded indicates pool has lost data redundancy.
+	PoolStatusDegraded PoolStatusType = 1 << 4
+
+	// PoolStatusError indicates pool data is not accessible due to some members offline.
+	PoolStatusError PoolStatusType = 1 << 5
+
+	// PoolStatusStopped pool is stopped by administrator.
+	PoolStatusStopped PoolStatusType = 1 << 9
+
+	// PoolStatusStarting is reviving from STOPPED status. Pool data is not accessible yet.
+	PoolStatusStarting PoolStatusType = 1 << 10
+
+	// PoolStatusReconstructing pool is be reconstructing hash or mirror data.
+	PoolStatusReconstructing PoolStatusType = 1 << 12
+
+	// PoolStatusVerifying indicates array is running integrity check(s).
+	PoolStatusVerifying PoolStatusType = 1 << 13
+
+	// PoolStatusInitializing indicates pool is not accessible and performing initialization.
+	PoolStatusInitializing PoolStatusType = 1 << 14
+
+	// PoolStatusGrowing indicates pool is growing in size.  PoolStatusInfo can contain more
+	// information about this task.  If PoolStatusOk is set, data is still accessible.
+	PoolStatusGrowing PoolStatusType = 1 << 15
+)
 
 // Disk represents a physical device.
 type Disk struct {
