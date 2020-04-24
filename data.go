@@ -99,19 +99,19 @@ type Pool struct {
 
 // Disk represents a physical device.
 type Disk struct {
-	class       string       `json:"class"`
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	DiskType    DiskType     `json:"disk_type"`
-	BlockSize   uint64       `json:"block_size"`
-	NumOfBlocks uint64       `json:"num_of_blocks"`
-	Status      uint64       `json:"status"`
-	pluginData  string       `json:"plugin_data"`
-	SystemID    string       `json:"system_id"`
-	Location    string       `json:"location"`
-	Rpm         int          `json:"rpm"`
-	LinkType    DiskLinkType `json:"link_type"`
-	Vpd83       string       `json:"vpd83"`
+	class       string         `json:"class"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	DiskType    DiskType       `json:"disk_type"`
+	BlockSize   uint64         `json:"block_size"`
+	NumOfBlocks uint64         `json:"num_of_blocks"`
+	Status      DiskStatusType `json:"status"`
+	pluginData  string         `json:"plugin_data"`
+	SystemID    string         `json:"system_id"`
+	Location    string         `json:"location"`
+	Rpm         int            `json:"rpm"`
+	LinkType    DiskLinkType   `json:"link_type"`
+	Vpd83       string         `json:"vpd83"`
 }
 
 // DiskType is an enumerated type representing different types of disks.
@@ -202,47 +202,50 @@ const (
 	DiskLinkTypePciE = 11
 )
 
+// DiskStatusType base type for bitfield
+type DiskStatusType uint64
+
 // These constants are bitfields, eg. more than one bit can be set at the same time.
 const (
 	// DiskStatusUNKNOWN Plugin failed to query out the status of disk.
-	DiskStatusUNKNOWN uint64 = 1
+	DiskStatusUNKNOWN DiskStatusType = 1
 
 	// DiskStatusOk Disk is up and healthy.
-	DiskStatusOk uint64 = 1 << 1
+	DiskStatusOk DiskStatusType = 1 << 1
 
 	//DiskStatusOther Vendor specific status.
-	DiskStatusOther uint64 = 1 << 2
+	DiskStatusOther DiskStatusType = 1 << 2
 
 	//DiskStatusPredictiveFailure Disk is functional but will fail soon
-	DiskStatusPredictiveFailure uint64 = 1 << 3
+	DiskStatusPredictiveFailure DiskStatusType = 1 << 3
 
 	//DiskStatusError Disk is not functional
-	DiskStatusError uint64 = 1 << 4
+	DiskStatusError DiskStatusType = 1 << 4
 
 	//DiskStatusRemoved Disk was removed by administrator
-	DiskStatusRemoved uint64 = 1 << 5
+	DiskStatusRemoved DiskStatusType = 1 << 5
 
 	// DiskStatusStarting Disk is in the process of becomming ready.
-	DiskStatusStarting uint64 = 1 << 6
+	DiskStatusStarting DiskStatusType = 1 << 6
 
 	// DiskStatusStopping Disk is shutting down.
-	DiskStatusStopping uint64 = 1 << 7
+	DiskStatusStopping DiskStatusType = 1 << 7
 
 	// DiskStatusStopped Disk is stopped by administrator.
-	DiskStatusStopped uint64 = 1 << 8
+	DiskStatusStopped DiskStatusType = 1 << 8
 
 	// DiskStatusInitializing Disk is not yet functional, could be initializing eg. RAID, zeroed or scrubed etc.
-	DiskStatusInitializing uint64 = 1 << 9
+	DiskStatusInitializing DiskStatusType = 1 << 9
 
 	// DiskStatusMaintenanceMode In maintenance for bad sector scan, integrity check and etc
-	DiskStatusMaintenanceMode uint64 = 1 << 10
+	DiskStatusMaintenanceMode DiskStatusType = 1 << 10
 
 	// DiskStatusSpareDisk Disk is configured as a spare disk.
-	DiskStatusSpareDisk uint64 = 1 << 11
+	DiskStatusSpareDisk DiskStatusType = 1 << 11
 
 	// DiskStatusReconstruct Disk is reconstructing its data.
-	DiskStatusReconstruct uint64 = 1 << 12
+	DiskStatusReconstruct DiskStatusType = 1 << 12
 
 	// DiskStatusFree Disk is not holding any data and it not designated as a spare.
-	DiskStatusFree uint64 = 1 << 13
+	DiskStatusFree DiskStatusType = 1 << 13
 )
