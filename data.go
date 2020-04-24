@@ -15,18 +15,22 @@ type PluginInfo struct {
 // * A software solutions running on commidity hardware
 // * A Linux system running NFS Service
 type System struct {
-	class        string         `json:"class"`
-	ID           string         `json:"id"`
-	Name         string         `json:"name"`
-	Status       uint32         `json:"status"`
-	StatusInfo   string         `json:"statis_info"`
-	pluginData   string         `json:"plugin_data"`
-	FwVersion    string         `json:"fw_version"`
-	ReadCachePct int8           `json:"read_cache_pct"`
-	SystemMode   SystemModeType `json:"mode"`
+	class        string           `json:"class"`
+	ID           string           `json:"id"`
+	Name         string           `json:"name"`
+	Status       SystemStatusType `json:"status"`
+	StatusInfo   string           `json:"statis_info"`
+	pluginData   string           `json:"plugin_data"`
+	FwVersion    string           `json:"fw_version"`
+	ReadCachePct int8             `json:"read_cache_pct"`
+	SystemMode   SystemModeType   `json:"mode"`
 }
 
+// SystemModeType type representing system mode.
 type SystemModeType int8
+
+// SystemStatusType type representing system status.
+type SystemStatusType uint32
 
 const (
 	// SystemReadCachePctNoSupport System read cache percentage not supported.
@@ -36,22 +40,22 @@ const (
 	SystemReadCachePctUnknown int8 = -1
 
 	// SystemStatusUnknown System status is unknown.
-	SystemStatusUnknown uint32 = 1
+	SystemStatusUnknown SystemStatusType = 1
 
 	// SystemStatusOk  System status is OK.
-	SystemStatusOk uint32 = 1 << 1
+	SystemStatusOk SystemStatusType = 1 << 1
 
 	// SystemStatusError System is in error state.
-	SystemStatusError uint32 = 1 << 2
+	SystemStatusError SystemStatusType = 1 << 2
 
 	// SystemStatusDegraded System is degraded in some way
-	SystemStatusDegraded uint32 = 1 << 3
+	SystemStatusDegraded SystemStatusType = 1 << 3
 
 	// SystemStatusPredictiveFailure System has potential failure.
-	SystemStatusPredictiveFailure uint32 = 1 << 4
+	SystemStatusPredictiveFailure SystemStatusType = 1 << 4
 
 	// SystemStatusOther Vendor specific status.
-	SystemStatusOther uint32 = 1 << 5
+	SystemStatusOther SystemStatusType = 1 << 5
 
 	// SystemModeUnknown Plugin failed to query system mode.
 	SystemModeUnknown SystemModeType = -2
