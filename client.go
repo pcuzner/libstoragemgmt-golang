@@ -50,7 +50,7 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 }
 
 // Close instructs the plugin to shutdown and exist.
-func (c ClientConnection) Close() error {
+func (c *ClientConnection) Close() error {
 	var args = make(map[string]interface{})
 	var _, ourError = c.tp.invoke("plugin_unregister", args)
 	c.tp.close()
@@ -58,7 +58,7 @@ func (c ClientConnection) Close() error {
 }
 
 // Systems returns systems information
-func (c ClientConnection) Systems() ([]System, error) {
+func (c *ClientConnection) Systems() ([]System, error) {
 	var args = make(map[string]interface{})
 	var systems []System
 	var systemsJSON, err = c.tp.invoke("systems", args)

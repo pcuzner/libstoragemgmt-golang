@@ -55,7 +55,7 @@ type responseMsg struct {
 	Result json.RawMessage  `json:"result"`
 }
 
-func (t transPort) invoke(cmd string, args map[string]interface{}) ([]byte, error) {
+func (t *transPort) invoke(cmd string, args map[string]interface{}) ([]byte, error) {
 	var msg = make(map[string]interface{})
 	msg["method"] = cmd
 	msg["id"] = 100
@@ -107,7 +107,7 @@ func (t transPort) invoke(cmd string, args map[string]interface{}) ([]byte, erro
 
 }
 
-func (t transPort) send(msg string) error {
+func (t *transPort) send(msg string) error {
 
 	var toSend = fmt.Sprintf("%010d%s", len(msg), msg)
 
@@ -116,7 +116,7 @@ func (t transPort) send(msg string) error {
 	return writeExact(t.uds, []byte(toSend))
 }
 
-func (t transPort) recv() ([]byte, error) {
+func (t *transPort) recv() ([]byte, error) {
 	var hdrLenBuf = make([]byte, headerLen)
 	var readError = readExact(t.uds, hdrLenBuf)
 
