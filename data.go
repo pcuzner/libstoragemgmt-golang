@@ -15,16 +15,57 @@ type PluginInfo struct {
 // * A software solutions running on commidity hardware
 // * A Linux system running NFS Service
 type System struct {
-	class        string `json:"class"`
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Status       uint32 `json:"status"`
-	StatusInfo   string `json:"statis_info"`
-	pluginData   string `json:"plugin_data"`
-	FwVersion    string `json:"fw_version"`
-	ReadCachePct int8   `json:"read_cache_pct"`
-	SystemMode   int8   `json:"mode"`
+	class        string         `json:"class"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Status       uint32         `json:"status"`
+	StatusInfo   string         `json:"statis_info"`
+	pluginData   string         `json:"plugin_data"`
+	FwVersion    string         `json:"fw_version"`
+	ReadCachePct int8           `json:"read_cache_pct"`
+	SystemMode   SystemModeType `json:"mode"`
 }
+
+type SystemModeType int8
+
+const (
+	// SystemReadCachePctNoSupport System read cache percentage not supported.
+	SystemReadCachePctNoSupport int8 = -2
+
+	// SystemReadCachePctUnknown System read cache percentage unknown.
+	SystemReadCachePctUnknown int8 = -1
+
+	// SystemStatusUnknown System status is unknown.
+	SystemStatusUnknown uint32 = 1
+
+	// SystemStatusOk  System status is OK.
+	SystemStatusOk uint32 = 1 << 1
+
+	// SystemStatusError System is in error state.
+	SystemStatusError uint32 = 1 << 2
+
+	// SystemStatusDegraded System is degraded in some way
+	SystemStatusDegraded uint32 = 1 << 3
+
+	// SystemStatusPredictiveFailure System has potential failure.
+	SystemStatusPredictiveFailure uint32 = 1 << 4
+
+	// SystemStatusOther Vendor specific status.
+	SystemStatusOther uint32 = 1 << 5
+
+	// SystemModeUnknown Plugin failed to query system mode.
+	SystemModeUnknown SystemModeType = -2
+
+	// SystemModeNoSupport Plugin does not support querying system mode.
+	SystemModeNoSupport SystemModeType = -1
+
+	//SystemModeHardwareRaid The storage system is a hardware RAID card
+	SystemModeHardwareRaid SystemModeType = 0
+
+	// SystemModeHba The physical disks can be exposed to OS directly without any
+	// configurations.
+	SystemModeHba SystemModeType = 1
+)
 
 // Volume represents a storage volume, aka. a logical unit
 type Volume struct {
