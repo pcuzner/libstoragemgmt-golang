@@ -56,7 +56,7 @@ type Pool struct {
 	SystemID           string `json:"system_id"`
 }
 
-// Disks represents a physical device.
+// Disk represents a physical device.
 type Disk struct {
 	class       string       `json:"class"`
 	ID          string       `json:"id"`
