@@ -55,3 +55,20 @@ type Pool struct {
 	pluginData         string `json:"plugin_data"`
 	SystemID           string `json:"system_id"`
 }
+
+// Disks represents a physical device.
+type Disk struct {
+	class       string `json:"class"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	DiskType    int    `json:"disk_type"`
+	BlockSize   uint64 `json:"block_size"`
+	NumOfBlocks uint64 `json:"num_of_blocks"`
+	Status      uint64 `json:"status"`
+	pluginData  string `json:"plugin_data"`
+	SystemID    string `json:"system_id"`
+	Location    string `json:"location"`
+	Rpm         int    `json:"rpm"`
+	LinkType    int    `json:"link_type"`
+	Vpd83       string `json:"vpd83"`
+}

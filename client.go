@@ -92,6 +92,17 @@ func (c *ClientConnection) Pools() ([]Pool, error) {
 	return pools, nil
 }
 
+// Disks returns disks that are present.
+func (c *ClientConnection) Disks() ([]Disk, error) {
+	var args = make(map[string]interface{})
+	var disks []Disk
+	var err = c.tp.invoke("disks", args, &disks)
+	if err != nil {
+		return disks, err
+	}
+	return disks, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
