@@ -58,3 +58,13 @@ func checkDaemonExists() bool {
 
 	return present
 }
+
+// LsmBool is used to express booleans as we use 0 == false, 1 = true
+// for the JSON RPC interface.
+type LsmBool bool
+
+// UnmarshalJSON used for custom JSON serialization
+func (bit *LsmBool) UnmarshalJSON(b []byte) error {
+	*bit = LsmBool(string(b) == "1")
+	return nil
+}

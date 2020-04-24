@@ -69,6 +69,17 @@ func (c *ClientConnection) Systems() ([]System, error) {
 	return systems, nil
 }
 
+// Volumes returns block device information
+func (c *ClientConnection) Volumes() ([]Volume, error) {
+	var args = make(map[string]interface{})
+	var volumes []Volume
+	var err = c.tp.invoke("volumes", args, &volumes)
+	if err != nil {
+		return volumes, err
+	}
+	return volumes, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
