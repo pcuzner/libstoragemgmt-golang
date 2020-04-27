@@ -103,6 +103,17 @@ func (c *ClientConnection) Disks() ([]Disk, error) {
 	return disks, nil
 }
 
+// FileSystems returns pools that are present.
+func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
+	var args = make(map[string]interface{})
+	var fileSystems []FileSystem
+	var err = c.tp.invoke("fs", args, &fileSystems)
+	if err != nil {
+		return fileSystems, err
+	}
+	return fileSystems, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
