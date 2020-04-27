@@ -225,16 +225,17 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 		return JobStatusError, 0, statusMe
 	}
 
-	if status == JobStatusInprogress {
+	switch status {
+	case JobStatusInprogress:
 		var percent uint8
 		var percentError = json.Unmarshal(result[1], &percent)
 		if percentError != nil {
 			return JobStatusError, 0, percentError
 		}
 		return status, percent, nil
-	} else if status == JobStatusComplete {
+	case JobStatusComplete:
 		return status, 100, json.Unmarshal(result[2], returnedResult)
-	} else if status == JobStatusError {
+	case JobStatusError:
 		// Error
 		var error errors.LsmError
 		var checkErrorE = json.Unmarshal(result[2], &error)
@@ -244,7 +245,7 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 		return JobStatusError, 0, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: "job_status returned error status with no error information"}
-	} else {
+	default:
 		return JobStatusError, 0, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Invalid status type returned %v", status)}
