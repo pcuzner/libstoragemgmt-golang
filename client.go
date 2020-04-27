@@ -136,6 +136,17 @@ func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	return accessGroups, nil
 }
 
+// TargetPorts returns target ports that are present.
+func (c *ClientConnection) TargetPorts() ([]TargetPort, error) {
+	var args = make(map[string]interface{})
+	var targetPorts []TargetPort
+	var err = c.tp.invoke("target_ports", args, &targetPorts)
+	if err != nil {
+		return targetPorts, err
+	}
+	return targetPorts, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()

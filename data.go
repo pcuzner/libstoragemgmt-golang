@@ -364,7 +364,7 @@ type AccessGroup struct {
 	SystemID      string        `json:"system_id"`
 }
 
-// Enumerated type of initiators
+// InitiatorType is enumerated type of initiators
 type InitiatorType int
 
 const (
@@ -382,4 +382,35 @@ const (
 
 	// InitiatorTypeMixed this access group contains more than 1 type of initiator
 	InitiatorTypeMixed InitiatorType = 7
+)
+
+// TargetPort represents information about target ports.
+type TargetPort struct {
+	class           string   `json:"class"`
+	ID              string   `json:"id"`
+	PortType        PortType `json:"port_type"`
+	ServiceAddress  string   `json:"service_address"`
+	NetworkAddress  string   `json:"network_address"`
+	PhysicalAddress string   `json:"physical_address"`
+	PhysicalName    string   `json:"physical_name"`
+	pluginData      string   `json:plugin_data"`
+	SystemID        string   `json:"system_id"`
+}
+
+// PortType in enumerated type of port
+type PortType int32
+
+const (
+
+	// PortTypeOther is a vendor specific port type
+	PortTypeOther PortType = 1
+
+	// PortTypeFc indicates FC port type
+	PortTypeFc PortType = 2
+
+	// PortTypeFCoE indicates FC over Ethernet type
+	PortTypeFCoE PortType = 3
+
+	// PortTypeIscsi indicates FC over iSCSI type
+	PortTypeIscsi PortType = 4
 )
