@@ -285,6 +285,13 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 			time.Sleep(time.Millisecond * 250)
 			continue
 		} else if status == JobStatusComplete {
+			var freeError = c.JobFree(jobID)
+			if freeError != nil {
+				return &errors.LsmError{
+					Code: errors.PluginBug,
+					Message: fmt.Sprintf(
+						"We successfully waited for job %s, but got an error freeing it: %s", jobID, freeError)}
+			}
 			break
 		}
 	}
