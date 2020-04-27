@@ -353,3 +353,33 @@ type NfsExport struct {
 	Options     string   `json:"options"`
 	plugin_data string   `json:"plugin_data"`
 }
+
+type AccessGroup struct {
+	class         string        `json:"class"`
+	ID            string        `json:"id"`
+	Name          string        `json:"name"`
+	InitIDs       []string      `json:"init_ids"`
+	InitiatorType InitiatorType `json:"init_type"`
+	pluginData    string        `json:plugin_data"`
+	SystemID      string        `json:"system_id"`
+}
+
+// Enumerated type of initiators
+type InitiatorType int
+
+const (
+	// InitiatorTypeUnknown plugin failed to query initiator type
+	InitiatorTypeUnknown InitiatorType = 0
+
+	// InitiatorTypeOther vendor specific initiator type
+	InitiatorTypeOther InitiatorType = 1
+
+	// InitiatorTypeWwpn FC or FCoE WWPN
+	InitiatorTypeWwpn InitiatorType = 2
+
+	// InitiatorTypeIscsiIqn iSCSI IQN
+	InitiatorTypeIscsiIqn InitiatorType = 5
+
+	// InitiatorTypeMixed this access group contains more than 1 type of initiator
+	InitiatorTypeMixed InitiatorType = 7
+)

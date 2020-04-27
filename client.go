@@ -125,6 +125,17 @@ func (c *ClientConnection) NfsExports() ([]NfsExport, error) {
 	return nfsExports, nil
 }
 
+// AccessGroups returns access groups  that are present.
+func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
+	var args = make(map[string]interface{})
+	var accessGroups []AccessGroup
+	var err = c.tp.invoke("access_groups", args, &accessGroups)
+	if err != nil {
+		return accessGroups, err
+	}
+	return accessGroups, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
