@@ -49,6 +49,43 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 	return &ClientConnection{tp: *transport, PluginName: pluginName, Timeout: timeout}, nil
 }
 
+// AvailablePlugins retrieves all the available plugins.
+func AvailablePlugins() ([]PluginInfo, error) {
+	var udsPath = udsPath()
+
+	if _, err := os.Stat(udsPath); os.IsNotExist(err) {
+		return make([]PluginInfo, 0), &errors.LsmError{
+			Code:    errors.DameonNotRunning,
+			Message: fmt.Sprintf("LibStorageMgmt daemon is not running for socket folder %s", udsPath),
+			Data:    ""}
+	}
+
+	var pluginInfos []PluginInfo
+	for _, pluginPath := range getPlugins(udsPath) {
+
+		var trans, transError = newTransport(pluginPath, true)
+		if transError != nil {
+			return nil, transError
+		}
+
+		var args = make(map[string]interface{})
+		var info []string
+		var invokeError = trans.invoke("plugin_info", args, &info)
+
+		trans.close()
+
+		if invokeError != nil {
+			return pluginInfos, invokeError
+		}
+		pluginInfos = append(pluginInfos, PluginInfo{
+			Description: info[0],
+			Version:     info[1],
+			Name:        pluginPath})
+	}
+
+	return pluginInfos, nil
+}
+
 // Close instructs the plugin to shutdown and exist.
 func (c *ClientConnection) Close() error {
 	var args = make(map[string]interface{})
@@ -156,41 +193,4 @@ func (c *ClientConnection) Batteries() ([]Battery, error) {
 		return batteries, err
 	}
 	return batteries, nil
-}
-
-// AvailablePlugins retrieves all the available plugins.
-func AvailablePlugins() ([]PluginInfo, error) {
-	var udsPath = udsPath()
-
-	if _, err := os.Stat(udsPath); os.IsNotExist(err) {
-		return make([]PluginInfo, 0), &errors.LsmError{
-			Code:    errors.DameonNotRunning,
-			Message: fmt.Sprintf("LibStorageMgmt daemon is not running for socket folder %s", udsPath),
-			Data:    ""}
-	}
-
-	var pluginInfos []PluginInfo
-	for _, pluginPath := range getPlugins(udsPath) {
-
-		var trans, transError = newTransport(pluginPath, true)
-		if transError != nil {
-			return nil, transError
-		}
-
-		var args = make(map[string]interface{})
-		var info []string
-		var invokeError = trans.invoke("plugin_info", args, &info)
-
-		trans.close()
-
-		if invokeError != nil {
-			return pluginInfos, invokeError
-		}
-		pluginInfos = append(pluginInfos, PluginInfo{
-			Description: info[0],
-			Version:     info[1],
-			Name:        pluginPath})
-	}
-
-	return pluginInfos, nil
 }
