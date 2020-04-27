@@ -286,3 +286,19 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 	return nil
 }
 
+// VolumeCreate creates a block device.
+func (c *ClientConnection) VolumeCreate(
+	pool *Pool,
+	volumeName string,
+	size uint64,
+	provisioning int, // TODO: Make this a type
+	returnedVolume interface{}) (string, error) {
+	var args = make(map[string]interface{})
+	args["pool"] = *pool
+	args["volume_name"] = volumeName
+	args["size_bytes"] = size
+	args["provisioning"] = provisioning
+
+	var result [2]json.RawMessage
+	return getJobOrResult(c.tp.invoke("volume_create", args, &result), result, returnedVolume)
+}

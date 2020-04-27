@@ -103,7 +103,7 @@ const (
 // Pool represents the unit of storage where block
 // devices and/or file systems are created from.
 type Pool struct {
-	class              string              `json:"class"`
+	Class              string              `json:"class"`
 	ID                 string              `json:"id"`
 	Name               string              `json:"name"`
 	ElementType        PoolElementType     `json:"element_type"`
@@ -112,7 +112,7 @@ type Pool struct {
 	FreeSpace          uint64              `json:"free_space"`
 	Status             PoolStatusType      `json:"status"`
 	StatusInfo         string              `json:"status_info"`
-	pluginData         string              `json:"plugin_data"`
+	PluginData         string              `json:"plugin_data"`
 	SystemID           string              `json:"system_id"`
 }
 
