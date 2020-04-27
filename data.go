@@ -340,6 +340,7 @@ type FileSystem struct {
 	PoolID     string `json:"pool_id"`
 }
 
+// NfsExport represents exported file systems over NFS.
 type NfsExport struct {
 	class       string   `json:"class"`
 	ID          string   `json:"id"`
@@ -354,6 +355,7 @@ type NfsExport struct {
 	plugin_data string   `json:"plugin_data"`
 }
 
+// AccessGroup represents a collection of initiators.
 type AccessGroup struct {
 	class         string        `json:"class"`
 	ID            string        `json:"id"`
