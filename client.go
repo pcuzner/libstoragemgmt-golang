@@ -251,20 +251,24 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 	}
 }
 
-func getJobOrResult(err error, returned [2]json.RawMessage, result interface{}) (string, error) {
+func (c *ClientConnection) getJobOrResult(err error, returned [2]json.RawMessage, sync bool, result interface{}) (*string, error) {
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var job string
 	var um = json.Unmarshal(returned[0], &job)
 	if um == nil {
-		// We have a job
-		return job, nil
+		// We have a job, but want to wait for result, so do so.
+		if sync {
+			return nil, c.JobWait(job, result)
+		}
+
+		return &job, nil
 	}
 	// We have the result
 	var umO = json.Unmarshal(returned[1], result)
-	return "", umO
+	return nil, umO
 }
 
 // JobWait waits for the job to finish and retrieves the end result in "returnedResult".
@@ -286,13 +290,15 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 	return nil
 }
 
-// VolumeCreate creates a block device.
+// VolumeCreate creates a block device, returns job id, error.
+// If job id and error are nil, then returnedVolume has newly created volume.
 func (c *ClientConnection) VolumeCreate(
 	pool *Pool,
 	volumeName string,
 	size uint64,
 	provisioning VolumeProvisionType,
-	returnedVolume interface{}) (string, error) {
+	sync bool,
+	returnedVolume interface{}) (*string, error) {
 	var args = make(map[string]interface{})
 	args["pool"] = *pool
 	args["volume_name"] = volumeName
@@ -300,5 +306,5 @@ func (c *ClientConnection) VolumeCreate(
 	args["provisioning"] = provisioning
 
 	var result [2]json.RawMessage
-	return getJobOrResult(c.tp.invoke("volume_create", args, &result), result, returnedVolume)
+	return c.getJobOrResult(c.tp.invoke("volume_create", args, &result), result, sync, returnedVolume)
 }
