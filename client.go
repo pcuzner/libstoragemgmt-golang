@@ -114,6 +114,17 @@ func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
 	return fileSystems, nil
 }
 
+// NfsExports returns nfs exports  that are present.
+func (c *ClientConnection) NfsExports() ([]NfsExport, error) {
+	var args = make(map[string]interface{})
+	var nfsExports []NfsExport
+	var err = c.tp.invoke("exports", args, &nfsExports)
+	if err != nil {
+		return nfsExports, err
+	}
+	return nfsExports, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()

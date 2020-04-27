@@ -339,3 +339,17 @@ type FileSystem struct {
 	SystemID   string `json:"system_id"`
 	PoolID     string `json:"pool_id"`
 }
+
+type NfsExport struct {
+	class       string   `json:"class"`
+	ID          string   `json:"id"`
+	FsID        string   `json:"fs_id"`
+	ExportPath  string   `json:"export_path"`
+	Auth        string   `json:"auth"`
+	Root        []string `json:"root"`
+	Rw          []string `json:"rw"`
+	Ro          []string `json:"ro"`
+	AnonUid     int64    `json:"anonuid"`
+	Options     string   `json:"options"`
+	plugin_data string   `json:"plugin_data"`
+}
