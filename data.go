@@ -100,6 +100,23 @@ const (
 	JobStatusError JobStatusType = 3
 )
 
+// VolumeProvisionType enumerated type for volume creation provisioning
+type VolumeProvisionType int
+
+const (
+	// VolumeProvisionTypeUnknown provision type unknown
+	VolumeProvisionTypeUnknown VolumeProvisionType = -1
+
+	// VolumeProvisionTypeThin thin provision volume
+	VolumeProvisionTypeThin VolumeProvisionType = 1
+
+	// VolumeProvisionTypeFull fully provision volume
+	VolumeProvisionTypeFull VolumeProvisionType = 2
+
+	// VolumeProvisionTypeDefault use the default for the storage provider
+	VolumeProvisionTypeDefault VolumeProvisionType = 3
+)
+
 // Pool represents the unit of storage where block
 // devices and/or file systems are created from.
 type Pool struct {

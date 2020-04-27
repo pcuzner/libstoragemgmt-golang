@@ -291,7 +291,7 @@ func (c *ClientConnection) VolumeCreate(
 	pool *Pool,
 	volumeName string,
 	size uint64,
-	provisioning int, // TODO: Make this a type
+	provisioning VolumeProvisionType,
 	returnedVolume interface{}) (string, error) {
 	var args = make(map[string]interface{})
 	args["pool"] = *pool
