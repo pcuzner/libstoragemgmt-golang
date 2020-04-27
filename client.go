@@ -147,6 +147,17 @@ func (c *ClientConnection) TargetPorts() ([]TargetPort, error) {
 	return targetPorts, nil
 }
 
+// Batteries returns batteries that are present
+func (c *ClientConnection) Batteries() ([]Battery, error) {
+	var args = make(map[string]interface{})
+	var batteries []Battery
+	var err = c.tp.invoke("batteries", args, &batteries)
+	if err != nil {
+		return batteries, err
+	}
+	return batteries, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()

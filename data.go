@@ -416,3 +416,58 @@ const (
 	// PortTypeIscsi indicates FC over iSCSI type
 	PortTypeIscsi PortType = 4
 )
+
+// Battery represents a battery in the system.
+type Battery struct {
+	class       string        `json:"class"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	BatteryType BatteryType   `json:"type"`
+	pluginData  string        `json:plugin_data"`
+	Status      BatteryStatus `json:"status"`
+	SystemID    string        `json:"system_id"`
+}
+
+// BatteryType indicates enumerated type of battery
+type BatteryType int32
+
+// BatteryStatus indicates bitfield for status of battery
+type BatteryStatus uint64
+
+const (
+	// BatteryTypeUnknown plugin failed to detect battery type
+	BatteryTypeUnknown BatteryType = 1
+
+	// BatteryTypeOther vendor specific battery type
+	BatteryTypeOther BatteryType = 2
+
+	// BatteryTypeChemical indicates li-ion etc.
+	BatteryTypeChemical BatteryType = 3
+
+	// BatteryTypeCapacitor indicates capacitor
+	BatteryTypeCapacitor BatteryType = 4
+
+	// BatteryStatusUnknown plugin failed to query battery status
+	BatteryStatusUnknown BatteryStatus = 1
+
+	// BatteryStatusOther vendor specific status
+	BatteryStatusOther BatteryStatus = 1 << 1
+
+	// BatteryStatusOk indicated battery is healthy and operational
+	BatteryStatusOk BatteryStatus = 1 << 2
+
+	// BatteryStatusDischarging indicates battery is discharging
+	BatteryStatusDischarging BatteryStatus = 1 << 3
+
+	// BatteryStatusCharging battery is charging
+	BatteryStatusCharging BatteryStatus = 1 << 4
+
+	// BatteryStatusLearning indicated battery system is optimizing battery use
+	BatteryStatusLearning BatteryStatus = 1 << 5
+
+	// BatteryStatusDegraded indicated battery should be checked and/or replaced
+	BatteryStatusDegraded BatteryStatus = 1 << 6
+
+	// BatteryStatusError indicates battery is in bad state
+	BatteryStatusError = 1 << 7
+)
