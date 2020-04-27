@@ -85,6 +85,21 @@ type Volume struct {
 	PoolID      string  `json:"pool_id"`
 }
 
+// JobStatusType is enumerated type returned from Job control
+type JobStatusType uint32
+
+const (
+
+	// JobStatusInprogress indicated job is in progress
+	JobStatusInprogress JobStatusType = 1
+
+	// JobStatusComplete indicates job is complete
+	JobStatusComplete JobStatusType = 2
+
+	// JobStatusError indicated job has errored
+	JobStatusError JobStatusType = 3
+)
+
 // Pool represents the unit of storage where block
 // devices and/or file systems are created from.
 type Pool struct {

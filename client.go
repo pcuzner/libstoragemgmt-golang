@@ -3,9 +3,11 @@
 package libstoragemgmt
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
 )
@@ -194,3 +196,93 @@ func (c *ClientConnection) Batteries() ([]Battery, error) {
 	}
 	return batteries, nil
 }
+
+// JobFree instructs the plugin to release resources for the job that was returned.
+func (c *ClientConnection) JobFree(jobID string) error {
+	var args = make(map[string]interface{})
+	args["job_id"] = jobID
+	var result string
+	var err = c.tp.invoke("job_free", args, &result)
+	return err
+}
+
+// JobStatus instructs the plugin to return the status of the specified job.  The returned values are
+// the current job status, percent complete, and any errors that occured.  Always check error first as if it's
+// set the other two are meaningless.
+func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (JobStatusType, uint8, error) {
+	var args = make(map[string]interface{})
+	args["job_id"] = jobID
+
+	var result [3]json.RawMessage
+	var jobError = c.tp.invoke("job_status", args, &result)
+	if jobError != nil {
+		return JobStatusError, 0, jobError
+	}
+
+	var status JobStatusType
+	var statusMe = json.Unmarshal(result[0], &status)
+	if statusMe != nil {
+		return JobStatusError, 0, statusMe
+	}
+
+	if status == JobStatusInprogress {
+		var percent uint8
+		var percentError = json.Unmarshal(result[1], &percent)
+		if percentError != nil {
+			return JobStatusError, 0, percentError
+		}
+		return status, percent, nil
+	} else if status == JobStatusComplete {
+		return status, 100, json.Unmarshal(result[2], returnedResult)
+	} else if status == JobStatusError {
+		// Error
+		var error errors.LsmError
+		var checkErrorE = json.Unmarshal(result[2], &error)
+		if checkErrorE != nil {
+			return JobStatusError, 0, checkErrorE
+		}
+		return JobStatusError, 0, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: "job_status returned error status with no error information"}
+	} else {
+		return JobStatusError, 0, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Invalid status type returned %v", status)}
+	}
+}
+
+func getJobOrResult(err error, returned [2]json.RawMessage, result interface{}) (string, error) {
+	if err != nil {
+		return "", err
+	}
+
+	var job string
+	var um = json.Unmarshal(returned[0], &job)
+	if um == nil {
+		// We have a job
+		return job, nil
+	}
+	// We have the result
+	var umO = json.Unmarshal(returned[1], result)
+	return "", umO
+}
+
+// JobWait waits for the job to finish and retrieves the end result in "returnedResult".
+func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) error {
+
+	for true {
+		var status, _, err = c.JobStatus(jobID, returnedResult)
+		if err != nil {
+			return err
+		}
+
+		if status == JobStatusInprogress {
+			time.Sleep(time.Millisecond * 250)
+			continue
+		} else if status == JobStatusComplete {
+			break
+		}
+	}
+	return nil
+}
+
