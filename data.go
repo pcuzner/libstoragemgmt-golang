@@ -350,7 +350,7 @@ type NfsExport struct {
 	Root        []string `json:"root"`
 	Rw          []string `json:"rw"`
 	Ro          []string `json:"ro"`
-	AnonUid     int64    `json:"anonuid"`
+	AnonUID     int64    `json:"anonuid"`
 	Options     string   `json:"options"`
 	plugin_data string   `json:"plugin_data"`
 }
