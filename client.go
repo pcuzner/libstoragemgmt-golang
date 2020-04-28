@@ -51,6 +51,17 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 	return &ClientConnection{tp: *transport, PluginName: pluginName, Timeout: timeout}, nil
 }
 
+// PluginInfo information about the current plugin
+func (c *ClientConnection) PluginInfo() (*PluginInfo, error) {
+	var args = make(map[string]interface{})
+	var info []string
+	var invokeError = c.tp.invoke("plugin_info", args, &info)
+	if invokeError != nil {
+		return nil, invokeError
+	}
+	return &PluginInfo{Description: info[0], Version: info[1], Name: c.PluginName}, nil
+}
+
 // AvailablePlugins retrieves all the available plugins.
 func AvailablePlugins() ([]PluginInfo, error) {
 	var udsPath = udsPath()
