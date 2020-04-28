@@ -208,7 +208,8 @@ func (c *ClientConnection) JobFree(jobID string) error {
 
 // JobStatus instructs the plugin to return the status of the specified job.  The returned values are
 // the current job status, percent complete, and any errors that occured.  Always check error first as if it's
-// set the other two are meaningless.
+// set the other two are meaningless.  If checking on the status of an operation that doesn't return a result
+// or you are not wanting the result, pass nil.
 func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (JobStatusType, uint8, error) {
 	var args = make(map[string]interface{})
 	args["job_id"] = jobID
@@ -234,7 +235,12 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 		}
 		return status, percent, nil
 	case JobStatusComplete:
-		return status, 100, json.Unmarshal(result[2], returnedResult)
+		// Some RPC calls with jobs do not return a value, thus the third item is
+		// "null"
+		if string(result[2]) != "null" && returnedResult != nil {
+			return status, 100, json.Unmarshal(result[2], returnedResult)
+		}
+		return status, 100, nil
 	case JobStatusError:
 		// Error
 		var error errors.LsmError
@@ -270,6 +276,24 @@ func (c *ClientConnection) getJobOrResult(err error, returned [2]json.RawMessage
 	// We have the result
 	var umO = json.Unmarshal(returned[1], result)
 	return nil, umO
+}
+
+func (c *ClientConnection) getJobOrNone(err error, returned json.RawMessage, sync bool) (*string, error) {
+	if err != nil {
+		return nil, err
+	}
+
+	var job string
+	var um = json.Unmarshal(returned, &job)
+	if um == nil {
+		// We have a job, but want to wait for result, so do so.
+		if sync {
+			return nil, c.JobWait(job, nil)
+		}
+
+		return &job, nil
+	}
+	return nil, um
 }
 
 // JobWait waits for the job to finish and retrieves the end result in "returnedResult".
@@ -315,4 +339,12 @@ func (c *ClientConnection) VolumeCreate(
 
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("volume_create", args, &result), result, sync, returnedVolume)
+}
+
+// VolumeDelete deletes a block device.
+func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error) {
+	var args = make(map[string]interface{})
+	args["volume"] = *vol
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("volume_delete", args, &result), result, sync)
 }
