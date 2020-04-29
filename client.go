@@ -371,3 +371,14 @@ func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
 	}
 	return &cap, nil
 }
+
+// VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
+func (c *ClientConnection) VolumeResize(
+	vol *Volume, newSizeBytes uint64, sync bool, returnedVolume interface{}) (*string, error) {
+	var args = make(map[string]interface{})
+	args["volume"] = *vol
+	args["new_size_bytes"] = newSizeBytes
+
+	var result [2]json.RawMessage
+	return c.getJobOrResult(c.tp.invoke("volume_resize", args, &result), result, sync, returnedVolume)
+}
