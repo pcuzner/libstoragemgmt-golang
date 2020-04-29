@@ -519,6 +519,17 @@ func (c *Capabilities) IsSupported(cap CapabilityType) bool {
 	return false
 }
 
+// IsSupportedSet is used to determine if 1 or more capabilities
+// are supported.
+func (c *Capabilities) IsSupportedSet(cap []CapabilityType) bool {
+	for _, i := range cap {
+		if !c.IsSupported(i) {
+			return false
+		}
+	}
+	return true
+}
+
 // CapabilityType Enumerated type for capabilities
 type CapabilityType uint32
 
