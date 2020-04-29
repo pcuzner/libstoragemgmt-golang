@@ -414,3 +414,18 @@ func (c *ClientConnection) VolumeRepRangeBlkSize(system *System) (uint32, error)
 	}
 	return blkSize, nil
 }
+
+// VolumeReplicateRange replicates a range of blocks on the same or different Volume
+func (c *ClientConnection) VolumeReplicateRange(
+	repType VolumeReplicateType, srcVol *Volume, dstVol *Volume,
+	ranges []BlockRange, sync bool) (*string, error) {
+
+	var args = make(map[string]interface{})
+	args["rep_type"] = repType
+	args["ranges"] = ranges
+	args["volume_src"] = *srcVol
+	args["volume_dest"] = *dstVol
+
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("volume_replicate_range", args, &result), result, sync)
+}
