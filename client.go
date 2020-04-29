@@ -392,7 +392,7 @@ func (c *ClientConnection) VolumeReplicate(
 	if optionalPool != nil {
 		args["pool"] = *optionalPool
 	} else {
-		args["pool"] = "null"
+		args["pool"] = nil
 	}
 	args["volume_src"] = *sourceVolume
 	args["rep_type"] = repType
