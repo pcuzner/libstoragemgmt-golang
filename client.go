@@ -401,3 +401,16 @@ func (c *ClientConnection) VolumeReplicate(
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("volume_replicate", args, &result), result, sync, returnedVolume)
 }
+
+// VolumeRepRangeBlkSize block size for replicating a range of blocks
+func (c *ClientConnection) VolumeRepRangeBlkSize(system *System) (uint32, error) {
+	var args = make(map[string]interface{})
+	args["system"] = *system
+
+	var blkSize uint32
+	var invokeError = c.tp.invoke("volume_replicate_range_block_size", args, &blkSize)
+	if invokeError != nil {
+		return 0, invokeError
+	}
+	return blkSize, nil
+}
