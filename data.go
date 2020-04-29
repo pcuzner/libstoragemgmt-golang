@@ -15,12 +15,12 @@ type PluginInfo struct {
 // * A software solutions running on commidity hardware
 // * A Linux system running NFS Service
 type System struct {
-	class        string           `json:"class"`
+	Class        string           `json:"class"`
 	ID           string           `json:"id"`
 	Name         string           `json:"name"`
 	Status       SystemStatusType `json:"status"`
-	StatusInfo   string           `json:"statis_info"`
-	pluginData   string           `json:"plugin_data"`
+	StatusInfo   string           `json:"status_info"`
+	PluginData   string           `json:"plugin_data"`
 	FwVersion    string           `json:"fw_version"`
 	ReadCachePct int8             `json:"read_cache_pct"`
 	SystemMode   SystemModeType   `json:"mode"`
@@ -502,4 +502,251 @@ const (
 
 	// BatteryStatusError indicates battery is in bad state
 	BatteryStatusError = 1 << 7
+)
+
+// Capabilities representation
+type Capabilities struct {
+	class string `json:"class"`
+	Cap   string `json:"cap"`
+}
+
+// IsSupported used to determine if a capability is supported
+func (c *Capabilities) IsSupported(cap CapabilityType) bool {
+	var capIdx = int32(cap) * 2
+	if c.Cap[capIdx:capIdx+2] == "01" {
+		return true
+	}
+	return false
+}
+
+// CapabilityType Enumerated type for capabilities
+type CapabilityType uint32
+
+const (
+	// CapVolumes supports retrieving Volumes
+	CapVolumes CapabilityType = 20
+
+	// CapVolumeCreate supports VolumeCreate
+	CapVolumeCreate CapabilityType = 21
+
+	// CapVolumeCResize supports VolumeResize
+	CapVolumeCResize CapabilityType = 22
+
+	// CapVolumeCReplicate supports VolumeReplicate
+	CapVolumeCReplicate CapabilityType = 23
+
+	// CapVolumeCReplicateClone supports volume replication via clone
+	CapVolumeCReplicateClone CapabilityType = 24
+
+	// CapVolumeCReplicateCopy supports volume replication via copy
+	CapVolumeCReplicateCopy CapabilityType = 25
+
+	// CapVolumeCReplicateMirrorAsync supports volume replication via async. mirror
+	CapVolumeCReplicateMirrorAsync CapabilityType = 26
+
+	// CapVolumeCReplicateMirrorSync supports volume replication via sync. mirror
+	CapVolumeCReplicateMirrorSync CapabilityType = 27
+
+	// CapVolumeCopyRangeBlockSize supports reporting of what block size to be used in Copy Range
+	CapVolumeCopyRangeBlockSize CapabilityType = 28
+
+	// CapVolumeCopyRange supports copying a range of a Volume
+	CapVolumeCopyRange CapabilityType = 29
+
+	// CapVolumeCopyRangeClone supports a range clone of a volume
+	CapVolumeCopyRangeClone CapabilityType = 30
+
+	// CapVolumeCopyRangeCopy supports a range copy of a volume
+	CapVolumeCopyRangeCopy CapabilityType = 31
+
+	// CapVolumeDelete supports volume deletion
+	CapVolumeDelete CapabilityType = 33
+
+	// CapVolumeEnable admin. volume enable
+	CapVolumeEnable CapabilityType = 34
+
+	// CapVolumeDisable admin. volume disable
+	CapVolumeDisable CapabilityType = 35
+
+	// CapVolumeMask support volume masking
+	CapVolumeMask CapabilityType = 36
+
+	// CapVolumeUnmask support volume unmasking
+	CapVolumeUnmask CapabilityType = 37
+
+	// CapAccessGroups supports AccessGroups
+	CapAccessGroups CapabilityType = 38
+
+	// CapAccessGroupCreateWwpn supports access group wwpn creation
+	CapAccessGroupCreateWwpn CapabilityType = 39
+
+	// CapAccessGroupDelete delete an access group
+	CapAccessGroupDelete CapabilityType = 40
+
+	// CapAccessGroupInitiatorAddWwpn support adding WWPN to an access group
+	CapAccessGroupInitiatorAddWwpn CapabilityType = 41
+
+	// CapAccessGroupInitiatorDel supports removal of an initiator from access group
+	CapAccessGroupInitiatorDel CapabilityType = 42
+
+	// CapVolumesMaskedToAg supports listing of volumes masked to access group
+	CapVolumesMaskedToAg CapabilityType = 43
+
+	// CapAgsGrantedToVol list access groups with access to volume
+	CapAgsGrantedToVol CapabilityType = 44
+
+	// CapHasChildDep indicates support for determing if volume has child dep.
+	CapHasChildDep CapabilityType = 45
+
+	// CapChildDepRm indiates support for removing child dep.
+	CapChildDepRm CapabilityType = 46
+
+	// CapAccessGroupCreateIscsiIqn supports ag creating with iSCSI initiator
+	CapAccessGroupCreateIscsiIqn CapabilityType = 47
+
+	// CapAccessGroupInitAddIscsiIqn supports adding iSCSI initiator
+	CapAccessGroupInitAddIscsiIqn CapabilityType = 48
+
+	// CapIscsiChapAuthSet support iSCSI CHAP setting
+	CapIscsiChapAuthSet CapabilityType = 53
+
+	// CapVolRaidInfo supports RAID information
+	CapVolRaidInfo CapabilityType = 54
+
+	// CapVolumeThin supports creating thinly provisioned Volumes.
+	CapVolumeThin CapabilityType = 55
+
+	// CapBatteries supports Batteries Call
+	CapBatteries CapabilityType = 56
+
+	// CapVolCacheInfo supports CacheInfo
+	CapVolCacheInfo CapabilityType = 57
+
+	// CapVolPhyDiskCacheSet support VolPhyDiskCacheSet
+	CapVolPhyDiskCacheSet CapabilityType = 58
+
+	// CapVolPhysicalDiskCacheSetSystemLevel supports VolPhyDiskCacheSet
+	CapVolPhysicalDiskCacheSetSystemLevel CapabilityType = 59
+
+	// CapVolWriteCacheSetEnable supports VolWriteCacheSet
+	CapVolWriteCacheSetEnable CapabilityType = 60
+
+	// CapVolWriteCacheSetAuto supports VolWriteCacheSet
+	CapVolWriteCacheSetAuto CapabilityType = 61
+
+	// CapVolWriteCacheSetDisabled supported VolWriteCacheSet
+	CapVolWriteCacheSetDisabled CapabilityType = 62
+
+	// CapVolWriteCacheSetImpactRead indicates the VolWriteCacheSet might also
+	// impact read cache policy.
+	CapVolWriteCacheSetImpactRead CapabilityType = 63
+
+	// CapVolWriteCacheSetWbImpactOther Indicate the VolWriteCacheSet with
+	// `wcp=Cache::Enabled` might impact other volumes in the same
+	// system.
+	CapVolWriteCacheSetWbImpactOther CapabilityType = 64
+
+	// CapVolReadCacheSet Support VolReadCacheSet()
+	CapVolReadCacheSet CapabilityType = 65
+
+	// VolReadCacheSetImpactWrite Indicates the VolReadCacheSet might
+	// also impact write cache policy.
+	VolReadCacheSetImpactWrite CapabilityType = 66
+
+	// CapFs support Fs listing.
+	CapFs CapabilityType = 100
+
+	// CapFsDelete supports  FsDelete
+	CapFsDelete CapabilityType = 101
+
+	// CapFsResize Support FsResize
+	CapFsResize CapabilityType = 102
+
+	// CapFsCreate support FsCreate
+	CapFsCreate CapabilityType = 103
+
+	// CapFsClone support FsClone
+	CapFsClone CapabilityType = 104
+
+	// CapFsFileClone support FsFileClone
+	CapFsFileClone CapabilityType = 105
+
+	// CapFsSnapshots support FsSnapshots
+	CapFsSnapshots CapabilityType = 106
+
+	// CapFsSnapshotCreate support FsSnapshotCreate
+	CapFsSnapshotCreate CapabilityType = 107
+
+	// CapFsSnapshotDelete support FfsSnapshotDelete
+	CapFsSnapshotDelete CapabilityType = 109
+
+	// CapFsSnapshotRestore support FsSnapshotRestore
+	CapFsSnapshotRestore CapabilityType = 110
+
+	// CapFsSnapshotRestoreSpecificFiles support FsSnapshotRestore with `files` argument.
+	CapFsSnapshotRestoreSpecificFiles CapabilityType = 111
+
+	// CapFsHasChildDep support FsHasChildDep
+	CapFsHasChildDep CapabilityType = 112
+
+	// CapFsChildDepRm support FsChildDepRm
+	CapFsChildDepRm CapabilityType = 113
+
+	// CapFsChildDepRmSpecificFiles support FsChildDepRm with `files` argument.
+	CapFsChildDepRmSpecificFiles CapabilityType = 114
+
+	// CapNfsExportAuthTypeList support NfsExpAuthTypeList
+	CapNfsExportAuthTypeList CapabilityType = 120
+
+	// CapNfsExports support NfsExports
+	CapNfsExports CapabilityType = 121
+
+	// CapFsExport support FsExport
+	CapFsExport CapabilityType = 122
+
+	// CapFsUnexport support FsUnexport
+	CapFsUnexport CapabilityType = 123
+
+	// CapFsExportCustomPath support FsExport
+	CapFsExportCustomPath CapabilityType = 124
+
+	// CapSysReadCachePctSet support SystemReadCachePctSet
+	CapSysReadCachePctSet CapabilityType = 158
+
+	// CapSysReadCachePctGet support Systems() `ReadCachePct` property
+	CapSysReadCachePctGet CapabilityType = 159
+
+	// CapSysFwVersionGet support Systems()  with valid `FwVersion` property.
+	CapSysFwVersionGet CapabilityType = 160
+
+	// CapSysModeGet support `Systems()` with valid `mode` property.
+	CapSysModeGet CapabilityType = 161
+
+	// CapDiskLocation support Disks with valid `Location` property.
+	CapDiskLocation CapabilityType = 163
+
+	// CapDiskRpm support `Disks()` with valid `Rpm` property.
+	CapDiskRpm CapabilityType = 164
+
+	// CapDiskLinkType support `Disks()` with valid `LinkType` property.
+	CapDiskLinkType CapabilityType = 165
+
+	// CapVolumeLed support `VolIdentLedOn()` and `VolIdentLedOff()`.
+	CapVolumeLed CapabilityType = 171
+
+	// CapTargetPorts Support TargetPorts()
+	CapTargetPorts CapabilityType = 216
+
+	// CapDisks support Disks()
+	CapDisks CapabilityType = 220
+
+	// CapPoolMemberInfo support `PoolMemberInfo()`
+	CapPoolMemberInfo CapabilityType = 221
+
+	// CapVolumeRaidCreate support `VolRaidCreateCapGet()` and
+	// VolRaidCreate().
+	CapVolumeRaidCreate CapabilityType = 222
+
+	//CapDiskVpd83Get support `Disks()` with valid `Vpd83` property.
+	CapDiskVpd83Get CapabilityType = 223
 )

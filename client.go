@@ -359,3 +359,15 @@ func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error)
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("volume_delete", args, &result), result, sync)
 }
+
+// Capabilities retrieve capabilities
+func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
+	var args = make(map[string]interface{})
+	args["system"] = *system
+	var cap Capabilities
+	var invokeError = c.tp.invoke("capabilities", args, &cap)
+	if invokeError != nil {
+		return nil, invokeError
+	}
+	return &cap, nil
+}
