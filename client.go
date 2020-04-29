@@ -382,3 +382,22 @@ func (c *ClientConnection) VolumeResize(
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("volume_resize", args, &result), result, sync, returnedVolume)
 }
+
+// VolumeReplicate makes a replicated image of existing Volume
+func (c *ClientConnection) VolumeReplicate(
+	optionalPool *Pool, repType VolumeReplicateType, sourceVolume *Volume, name string,
+	sync bool, returnedVolume interface{}) (*string, error) {
+
+	var args = make(map[string]interface{})
+	if optionalPool != nil {
+		args["pool"] = *optionalPool
+	} else {
+		args["pool"] = "null"
+	}
+	args["volume_src"] = *sourceVolume
+	args["rep_type"] = repType
+	args["name"] = name
+
+	var result [2]json.RawMessage
+	return c.getJobOrResult(c.tp.invoke("volume_replicate", args, &result), result, sync, returnedVolume)
+}

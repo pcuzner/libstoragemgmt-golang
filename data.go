@@ -88,6 +88,9 @@ type Volume struct {
 // JobStatusType is enumerated type returned from Job control
 type JobStatusType uint32
 
+// VolumeReplicateType enumerated type for VolumeReplicate
+type VolumeReplicateType int
+
 const (
 
 	// JobStatusInprogress indicated job is in progress
@@ -98,6 +101,26 @@ const (
 
 	// JobStatusError indicated job has errored
 	JobStatusError JobStatusType = 3
+
+	// VolumeReplicateTypeUnknown plugin failed to detect volume replication type
+	VolumeReplicateTypeUnknown VolumeReplicateType = -1
+
+	// VolumeReplicateTypeClone Point in time read writeable space efficient copy of data
+	VolumeReplicateTypeClone VolumeReplicateType = 2
+
+	// VolumeReplicateTypeCopy Full bitwise copy of the data (occupies full space)
+	VolumeReplicateTypeCopy VolumeReplicateType = 3
+
+	// VolumeReplicateTypeMirrorSync I/O will be blocked until I/O reached
+	// both source and target storage systems. There will be no data difference
+	// between source and target storage systems.
+	VolumeReplicateTypeMirrorSync VolumeReplicateType = 4
+
+	// VolumeReplicateTypeMirrorAsync I/O will be blocked until I/O
+	// reached source storage systems.  The source storage system will use
+	// copy the changes data to target system in a predefined interval.
+	// There will be a small data differences between source and target.
+	VolumeReplicateTypeMirrorAsync VolumeReplicateType = 5
 )
 
 // VolumeProvisionType enumerated type for volume creation provisioning
