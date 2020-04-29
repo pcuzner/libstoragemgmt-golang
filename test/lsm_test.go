@@ -8,6 +8,13 @@ import (
 	lsm "github.com/libstorage/libstoragemgmt-golang"
 )
 
+// Running these tests requires lsmd up and running with the simulator
+// plugin available.  In addition a number of tests require things to
+// exists which don't exist by default and need to be created.  At the
+// moment this needs to be done via lsmcli.  As functionality evolves
+// these requirements will be reduced as the unit tests will create
+// things as needed.
+
 func TestConnect(t *testing.T) {
 	var c, libError = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, libError)
