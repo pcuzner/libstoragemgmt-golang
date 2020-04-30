@@ -8,6 +8,6 @@ var c, _ = lsm.Client("sim://", "", 30000)
 var systems, _ = c.Systems()
 
 for _, s := range systems {
-    t.Logf("%+v", s)
+    fmt.Printf("%+v\n", s)
 }
 ```
