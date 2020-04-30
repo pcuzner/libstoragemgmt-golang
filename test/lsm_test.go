@@ -165,6 +165,18 @@ func TestCapabilities(t *testing.T) {
 	assert.True(t, cap.IsSupported(lsm.CapVolumeCreate))
 }
 
+func TestCapabilitiesSet(t *testing.T) {
+	var c, _ = lsm.Client("sim://", "", 30000)
+	var systems, sysError = c.Systems()
+	assert.Nil(t, sysError)
+
+	var cap, capErr = c.Capabilities(&systems[0])
+	assert.Nil(t, capErr)
+
+	var set = []lsm.CapabilityType{lsm.CapVolumeCreate, lsm.CapVolumeCResize}
+	assert.True(t, cap.IsSupportedSet(set))
+}
+
 func TestRepBlockSize(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
