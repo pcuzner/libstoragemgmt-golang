@@ -217,6 +217,30 @@ func TestVolumeDelete(t *testing.T) {
 	assert.Nil(t, errD)
 }
 
+func TestJobWait(t *testing.T) {
+	var c, err = lsm.Client("sim://", "", 30000)
+	assert.Nil(t, err)
+
+	var pools, poolError = c.Pools()
+	assert.Nil(t, poolError)
+
+	var poolToUse = pools[2] // Arbitrary
+
+	var volumeName = rs("lsm_go_vol_async_", 8)
+
+	var volume lsm.Volume
+	var jobID, errCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*100, 2, false, &volume)
+	assert.Nil(t, errCreate)
+	assert.NotNil(t, jobID)
+
+	var waitForIt = c.JobWait(*jobID, &volume)
+	assert.Nil(t, waitForIt)
+
+	assert.Equal(t, volumeName, volume.Name)
+
+	c.VolumeDelete(&volume, true)
+}
+
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
