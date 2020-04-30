@@ -276,6 +276,25 @@ func TestVolumeReplicate(t *testing.T) {
 	c.VolumeDelete(srcVol, true)
 
 }
+
+func TestVolumeReplicateRange(t *testing.T) {
+	var c, err = lsm.Client("sim://", "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volumeName = rs("lsm_go_vol_", 8)
+	var volume = createVolume(t, c, volumeName)
+
+	var ranges []lsm.BlockRange
+	ranges = append(ranges, lsm.BlockRange{BlkCount: 100, SrcBlkAddr: 10, DstBlkAddr: 400})
+
+	var jobID, repErr = c.VolumeReplicateRange(lsm.VolumeReplicateTypeCopy, volume, volume, ranges, true)
+	assert.Nil(t, jobID)
+	assert.Nil(t, repErr)
+
+	c.VolumeDelete(volume, true)
+}
+
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
