@@ -256,6 +256,26 @@ func TestVolumeResize(t *testing.T) {
 	c.VolumeDelete(&resized, true)
 }
 
+func TestVolumeReplicate(t *testing.T) {
+	var c, err = lsm.Client("sim://", "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volumeName = rs("lsm_go_vol_", 8)
+	var repName = rs("lsm_go_rep_", 4)
+
+	var repVol lsm.Volume
+	var srcVol = createVolume(t, c, volumeName)
+	var jobID, errRep = c.VolumeReplicate(nil, lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	assert.Nil(t, jobID)
+	assert.Nil(t, errRep)
+
+	assert.Equal(t, repVol.Name, repName)
+
+	c.VolumeDelete(&repVol, true)
+	c.VolumeDelete(srcVol, true)
+
+}
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
