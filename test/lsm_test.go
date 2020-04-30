@@ -241,6 +241,21 @@ func TestJobWait(t *testing.T) {
 	c.VolumeDelete(&volume, true)
 }
 
+func TestVolumeResize(t *testing.T) {
+	var volumeName = rs("lsm_go_vol_", 8)
+	var c, err = lsm.Client("sim://", "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volume = createVolume(t, c, volumeName)
+	var resized lsm.Volume
+	var _, resizeErr = c.VolumeResize(volume, (volume.BlockSize*volume.NumOfBlocks)*2, true, &resized)
+	assert.Nil(t, resizeErr)
+	assert.NotEqual(t, volume.NumOfBlocks, resized.NumOfBlocks)
+
+	c.VolumeDelete(&resized, true)
+}
+
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
