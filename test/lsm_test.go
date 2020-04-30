@@ -178,6 +178,30 @@ func TestRepBlockSize(t *testing.T) {
 	assert.Equal(t, repRangeBlkSize, uint32(512))
 }
 
+func TestVolumeCreate(t *testing.T) {
+	var volumeName = rs("lsm_go_vol_", 8)
+
+	var c, err = lsm.Client("sim://", "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var pools, poolError = c.Pools()
+	assert.Nil(t, poolError)
+
+	var poolToUse = pools[2] // Arbitrary
+
+	var volume lsm.Volume
+	var jobID, errVolCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*100, 2, true, &volume)
+
+	assert.Nil(t, errVolCreate)
+	assert.Nil(t, jobID)
+
+	assert.Equal(t, volume.Name, volumeName)
+
+	// Try and clean-up
+	c.VolumeDelete(&volume, true)
+}
+
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
