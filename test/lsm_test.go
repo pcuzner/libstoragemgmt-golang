@@ -1,7 +1,12 @@
 package libstoragemgmt
 
 import (
+	"fmt"
+	"math/rand"
+	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -14,6 +19,15 @@ import (
 // moment this needs to be done via lsmcli.  As functionality evolves
 // these requirements will be reduced as the unit tests will create
 // things as needed.
+
+func rs(pre string, n int) string {
+	var l = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = l[rand.Intn(len(l))]
+	}
+	return fmt.Sprintf("%s%s", pre, string(b))
+}
 
 func TestConnect(t *testing.T) {
 	var c, libError = lsm.Client("sim://", "", 30000)
@@ -168,4 +182,27 @@ func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
+}
+
+func TestMain(m *testing.M) {
+	//setup()
+
+	// This will allow us to reproduce the same sequence if needed
+	// if we encounter an error.
+	var seed = os.Getenv("LSM_GO_SEED")
+	if len(seed) > 0 {
+		var sInt, err = strconv.ParseInt(seed, 10, 64)
+		if err != nil {
+			os.Exit(1)
+		}
+		rand.Seed(sInt)
+	} else {
+		var s = time.Now().UnixNano()
+		rand.Seed(s)
+		fmt.Printf("export LSM_GO_SEED=%v\n", s)
+	}
+
+	code := m.Run()
+	//shutdown()
+	os.Exit(code)
 }
