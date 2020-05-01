@@ -45,6 +45,7 @@ func TestSystems(t *testing.T) {
 	for _, s := range systems {
 		t.Logf("%+v", s)
 	}
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestVolumes(t *testing.T) {
@@ -56,6 +57,7 @@ func TestVolumes(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestPools(t *testing.T) {
@@ -68,6 +70,7 @@ func TestPools(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestDisks(t *testing.T) {
@@ -89,6 +92,7 @@ func TestDisks(t *testing.T) {
 
 		t.Logf("%+v", s)
 	}
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestFs(t *testing.T) {
@@ -101,6 +105,7 @@ func TestFs(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestNfsExports(t *testing.T) {
@@ -113,6 +118,7 @@ func TestNfsExports(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestAccessGroups(t *testing.T) {
@@ -126,6 +132,7 @@ func TestAccessGroups(t *testing.T) {
 	}
 
 	assert.Greater(t, len(items), 0)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestTargetPorts(t *testing.T) {
@@ -139,6 +146,7 @@ func TestTargetPorts(t *testing.T) {
 	}
 
 	assert.Greater(t, len(items), 0)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestBatteries(t *testing.T) {
@@ -152,6 +160,7 @@ func TestBatteries(t *testing.T) {
 	}
 
 	assert.Greater(t, len(items), 0)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestCapabilities(t *testing.T) {
@@ -163,6 +172,7 @@ func TestCapabilities(t *testing.T) {
 	assert.Nil(t, capErr)
 
 	assert.True(t, cap.IsSupported(lsm.CapVolumeCreate))
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestCapabilitiesSet(t *testing.T) {
@@ -175,6 +185,7 @@ func TestCapabilitiesSet(t *testing.T) {
 
 	var set = []lsm.CapabilityType{lsm.CapVolumeCreate, lsm.CapVolumeCResize}
 	assert.True(t, cap.IsSupportedSet(set))
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestRepBlockSize(t *testing.T) {
@@ -188,6 +199,7 @@ func TestRepBlockSize(t *testing.T) {
 	var repRangeBlkSize, rpbE = c.VolumeRepRangeBlkSize(&systems[0])
 	assert.Nil(t, rpbE)
 	assert.Equal(t, repRangeBlkSize, uint32(512))
+	assert.Equal(t, c.Close(), nil)
 }
 
 func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volume {
@@ -215,6 +227,7 @@ func TestVolumeCreate(t *testing.T) {
 
 	// Try and clean-up
 	c.VolumeDelete(volume, true)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestVolumeDelete(t *testing.T) {
@@ -227,6 +240,7 @@ func TestVolumeDelete(t *testing.T) {
 
 	var _, errD = c.VolumeDelete(volume, true)
 	assert.Nil(t, errD)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestJobWait(t *testing.T) {
@@ -251,6 +265,7 @@ func TestJobWait(t *testing.T) {
 	assert.Equal(t, volumeName, volume.Name)
 
 	c.VolumeDelete(&volume, true)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestVolumeResize(t *testing.T) {
@@ -266,6 +281,7 @@ func TestVolumeResize(t *testing.T) {
 	assert.NotEqual(t, volume.NumOfBlocks, resized.NumOfBlocks)
 
 	c.VolumeDelete(&resized, true)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestVolumeReplicate(t *testing.T) {
@@ -286,6 +302,7 @@ func TestVolumeReplicate(t *testing.T) {
 
 	c.VolumeDelete(&repVol, true)
 	c.VolumeDelete(srcVol, true)
+	assert.Equal(t, c.Close(), nil)
 
 }
 
@@ -305,12 +322,14 @@ func TestVolumeReplicateRange(t *testing.T) {
 	assert.Nil(t, repErr)
 
 	c.VolumeDelete(volume, true)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client("sim://", "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
+	assert.Equal(t, c.Close(), nil)
 }
 
 func TestMain(m *testing.M) {
