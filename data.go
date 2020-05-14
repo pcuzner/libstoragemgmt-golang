@@ -399,17 +399,17 @@ type FileSystem struct {
 
 // NfsExport represents exported file systems over NFS.
 type NfsExport struct {
-	class       string   `json:"class"`
-	ID          string   `json:"id"`
-	FsID        string   `json:"fs_id"`
-	ExportPath  string   `json:"export_path"`
-	Auth        string   `json:"auth"`
-	Root        []string `json:"root"`
-	Rw          []string `json:"rw"`
-	Ro          []string `json:"ro"`
-	AnonUID     int64    `json:"anonuid"`
-	Options     string   `json:"options"`
-	plugin_data string   `json:"plugin_data"`
+	Class      string   `json:"class"`
+	ID         string   `json:"id"`
+	FsID       string   `json:"fs_id"`
+	ExportPath string   `json:"export_path"`
+	Auth       string   `json:"auth"`
+	Root       []string `json:"root"`
+	Rw         []string `json:"rw"`
+	Ro         []string `json:"ro"`
+	AnonUID    int64    `json:"anonuid"`
+	Options    string   `json:"options"`
+	PluginData string   `json:"plugin_data"`
 }
 
 // AccessGroup represents a collection of initiators.
