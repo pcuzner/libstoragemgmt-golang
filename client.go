@@ -446,3 +446,14 @@ func (c *ClientConnection) FsCreate(
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("fs_create", args, &result), result, sync, returnedFs)
 }
+
+// FsResize resizes an existing file system
+func (c *ClientConnection) FsResize(
+	fs *FileSystem, newSizeBytes uint64, sync bool, returnedFs interface{}) (*string, error) {
+	var args = make(map[string]interface{})
+	args["fs"] = *fs
+	args["new_size_bytes"] = newSizeBytes
+
+	var result [2]json.RawMessage
+	return c.getJobOrResult(c.tp.invoke("fs_resize", args, &result), result, sync, returnedFs)
+}
