@@ -387,12 +387,12 @@ const (
 
 // FileSystem represents a file systems information
 type FileSystem struct {
-	class      string `json:"class"`
+	Class      string `json:"class"`
 	ID         string `json:"id"`
 	Name       string `json:"name"`
 	TotalSpace uint64 `json:"total_space"`
 	FreeSpace  uint64 `json:"free_space"`
-	pluginData string `json:plugin_data"`
+	PluginData string `json:"plugin_data"`
 	SystemID   string `json:"system_id"`
 	PoolID     string `json:"pool_id"`
 }
