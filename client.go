@@ -457,3 +457,11 @@ func (c *ClientConnection) FsResize(
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("fs_resize", args, &result), result, sync, returnedFs)
 }
+
+// FsDelete deletes a file system.
+func (c *ClientConnection) FsDelete(fs *FileSystem, sync bool) (*string, error) {
+	var args = make(map[string]interface{})
+	args["fs"] = *fs
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("fs_delete", args, &result), result, sync)
+}
