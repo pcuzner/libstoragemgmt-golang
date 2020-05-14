@@ -429,3 +429,20 @@ func (c *ClientConnection) VolumeReplicateRange(
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("volume_replicate_range", args, &result), result, sync)
 }
+
+// FsCreate creates a file system, returns job id, error.
+// If job id and error are nil, then returnedFs has newly created filesystem.
+func (c *ClientConnection) FsCreate(
+	pool *Pool,
+	name string,
+	size uint64,
+	sync bool,
+	returnedFs interface{}) (*string, error) {
+	var args = make(map[string]interface{})
+	args["pool"] = *pool
+	args["name"] = name
+	args["size_bytes"] = size
+
+	var result [2]json.RawMessage
+	return c.getJobOrResult(c.tp.invoke("fs_create", args, &result), result, sync, returnedFs)
+}
