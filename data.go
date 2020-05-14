@@ -531,7 +531,7 @@ const (
 
 // Capabilities representation
 type Capabilities struct {
-	class string `json:"class"`
+	Class string `json:"class"`
 	Cap   string `json:"cap"`
 }
 
