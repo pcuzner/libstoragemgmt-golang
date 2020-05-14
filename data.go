@@ -234,14 +234,14 @@ const (
 
 // Disk represents a physical device.
 type Disk struct {
-	class       string         `json:"class"`
+	Class       string         `json:"class"`
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
 	DiskType    DiskType       `json:"disk_type"`
 	BlockSize   uint64         `json:"block_size"`
 	NumOfBlocks uint64         `json:"num_of_blocks"`
 	Status      DiskStatusType `json:"status"`
-	pluginData  string         `json:"plugin_data"`
+	PluginData  string         `json:"plugin_data"`
 	SystemID    string         `json:"system_id"`
 	Location    string         `json:"location"`
 	Rpm         int            `json:"rpm"`
