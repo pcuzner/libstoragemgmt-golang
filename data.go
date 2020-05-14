@@ -476,11 +476,11 @@ const (
 
 // Battery represents a battery in the system.
 type Battery struct {
-	class       string        `json:"class"`
+	Class       string        `json:"class"`
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
 	BatteryType BatteryType   `json:"type"`
-	pluginData  string        `json:plugin_data"`
+	PluginData  string        `json:"plugin_data"`
 	Status      BatteryStatus `json:"status"`
 	SystemID    string        `json:"system_id"`
 }
