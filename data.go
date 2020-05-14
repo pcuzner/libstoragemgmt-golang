@@ -445,14 +445,14 @@ const (
 
 // TargetPort represents information about target ports.
 type TargetPort struct {
-	class           string   `json:"class"`
+	Class           string   `json:"class"`
 	ID              string   `json:"id"`
 	PortType        PortType `json:"port_type"`
 	ServiceAddress  string   `json:"service_address"`
 	NetworkAddress  string   `json:"network_address"`
 	PhysicalAddress string   `json:"physical_address"`
 	PhysicalName    string   `json:"physical_name"`
-	pluginData      string   `json:plugin_data"`
+	PluginData      string   `json:"plugin_data"`
 	SystemID        string   `json:"system_id"`
 }
 
