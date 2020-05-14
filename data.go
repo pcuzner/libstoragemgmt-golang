@@ -414,12 +414,12 @@ type NfsExport struct {
 
 // AccessGroup represents a collection of initiators.
 type AccessGroup struct {
-	class         string        `json:"class"`
+	Class         string        `json:"class"`
 	ID            string        `json:"id"`
 	Name          string        `json:"name"`
 	InitIDs       []string      `json:"init_ids"`
 	InitiatorType InitiatorType `json:"init_type"`
-	pluginData    string        `json:plugin_data"`
+	PluginData    string        `json:"plugin_data"`
 	SystemID      string        `json:"system_id"`
 }
 
