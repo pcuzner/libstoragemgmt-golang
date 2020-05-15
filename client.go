@@ -520,3 +520,12 @@ func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bo
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("fs_snapshot_create", args, &result), result, sync, returnedSnapshot)
 }
+
+// FsSnapShotDelete deletes a file system snapshot.
+func (c *ClientConnection) FsSnapShotDelete(fs *FileSystem, snapShot *FileSystemSnapShot, sync bool) (*string, error) {
+	var args = make(map[string]interface{})
+	args["fs"] = *fs
+	args["snapshot"] = *snapShot
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("fs_snapshot_delete", args, &result), result, sync)
+}
