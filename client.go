@@ -510,3 +510,13 @@ func (c *ClientConnection) FsFileClone(
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("fs_file_clone", args, &result), result, sync)
 }
+
+// FsSnapShotCreate creates a file system snapshot for the supplied snapshot
+// If job id and error are nil, then returnedFs has newly created filesystem.
+func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool, returnedSnapshot interface{}) (*string, error) {
+	var args = make(map[string]interface{})
+	args["fs"] = *fs
+	args["snapshot_name"] = name
+	var result [2]json.RawMessage
+	return c.getJobOrResult(c.tp.invoke("fs_snapshot_create", args, &result), result, sync, returnedSnapshot)
+}
