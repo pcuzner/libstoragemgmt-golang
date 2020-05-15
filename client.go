@@ -486,3 +486,27 @@ func (c *ClientConnection) FsClone(
 	var result [2]json.RawMessage
 	return c.getJobOrResult(c.tp.invoke("fs_clone", args, &result), result, sync, returnedFs)
 }
+
+// FsFileClone makes a clone of an existing file system
+func (c *ClientConnection) FsFileClone(
+	fs *FileSystem,
+	srcFileName string,
+	dstFileName string,
+	optionalSnapShot *FileSystemSnapShot,
+	sync bool,
+) (*string, error) {
+	var args = make(map[string]interface{})
+
+	args["fs"] = *fs
+	args["src_file_name"] = srcFileName
+	args["dest_file_name"] = dstFileName
+
+	if optionalSnapShot != nil {
+		args["snapshot"] = *optionalSnapShot
+	} else {
+		args["snapshot"] = nil
+	}
+
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("fs_file_clone", args, &result), result, sync)
+}
