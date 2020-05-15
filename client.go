@@ -541,3 +541,33 @@ func (c *ClientConnection) FsSnapShots(fs *FileSystem) ([]FileSystemSnapShot, er
 	var err = c.tp.invoke("fs_snapshots", args, &snapShots)
 	return snapShots, err
 }
+
+// FsSnapShotRestore restores all the files for a file systems or specific files.
+func (c *ClientConnection) FsSnapShotRestore(
+	fs *FileSystem, snapShot *FileSystemSnapShot, allFiles bool,
+	files []string, restoreFiles []string, sync bool) (*string, error) {
+
+	var args = make(map[string]interface{})
+
+	if !allFiles {
+		if len(files) == 0 {
+			return nil, &errors.LsmError{
+				Code:    errors.InvalidArgument,
+				Message: "'files' is empty and 'all_files' is false!"}
+		}
+
+		if len(files) != len(restoreFiles) {
+			return nil, &errors.LsmError{
+				Code:    errors.InvalidArgument,
+				Message: "'files' and 'restoreFiles' have different lengths!"}
+		}
+	}
+
+	args["fs"] = *fs
+	args["snapshot"] = *snapShot
+	args["files"] = files
+	args["restore_files"] = restoreFiles
+	args["all_files"] = allFiles
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("fs_snapshot_restore", args, &result), result, sync)
+}
