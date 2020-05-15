@@ -465,3 +465,24 @@ func (c *ClientConnection) FsDelete(fs *FileSystem, sync bool) (*string, error) 
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("fs_delete", args, &result), result, sync)
 }
+
+// FsClone makes a clone of an existing file system
+func (c *ClientConnection) FsClone(
+	srcFs *FileSystem,
+	destName string,
+	optionalSnapShot *FileSystemSnapShot,
+	sync bool,
+	returnedFs interface{}) (*string, error) {
+	var args = make(map[string]interface{})
+	args["src_fs"] = *srcFs
+	args["dest_fs_name"] = destName
+
+	if optionalSnapShot != nil {
+		args["snapshot"] = *optionalSnapShot
+	} else {
+		args["snapshot"] = nil
+	}
+
+	var result [2]json.RawMessage
+	return c.getJobOrResult(c.tp.invoke("fs_clone", args, &result), result, sync, returnedFs)
+}

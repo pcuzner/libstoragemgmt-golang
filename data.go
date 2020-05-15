@@ -807,3 +807,12 @@ func (b *BlockRange) MarshalJSON() ([]byte, error) {
 		Alias: (*Alias)(b),
 	})
 }
+
+// FileSystemSnapShot defines information relating to a file system snapshot
+type FileSystemSnapShot struct {
+	Class      string `json:"class"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Ts         uint64 `json:"ts"`
+	PluginData string `json:"plugin_data"`
+}
