@@ -529,3 +529,15 @@ func (c *ClientConnection) FsSnapShotDelete(fs *FileSystem, snapShot *FileSystem
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("fs_snapshot_delete", args, &result), result, sync)
 }
+
+// FsSnapShots returns list of file system snapsthos for specified file system.
+// can be created from.
+func (c *ClientConnection) FsSnapShots(fs *FileSystem) ([]FileSystemSnapShot, error) {
+	var args = make(map[string]interface{})
+	var snapShots []FileSystemSnapShot
+
+	args["fs"] = *fs
+
+	var err = c.tp.invoke("fs_snapshots", args, &snapShots)
+	return snapShots, err
+}
