@@ -571,3 +571,15 @@ func (c *ClientConnection) FsSnapShotRestore(
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("fs_snapshot_restore", args, &result), result, sync)
 }
+
+// FsHasChildDep checks whether file system has a child dependency.
+func (c *ClientConnection) FsHasChildDep(fs *FileSystem, files []string) (bool, error) {
+
+	var args = make(map[string]interface{})
+
+	args["fs"] = *fs
+	args["files"] = files
+	var result bool
+	var err = c.tp.invoke("fs_child_dependency", args, &result)
+	return result, err
+}
