@@ -583,3 +583,14 @@ func (c *ClientConnection) FsHasChildDep(fs *FileSystem, files []string) (bool, 
 	var err = c.tp.invoke("fs_child_dependency", args, &result)
 	return result, err
 }
+
+// FsChildDepRm remove dependencies for specified file system.
+func (c *ClientConnection) FsChildDepRm(
+	fs *FileSystem, files []string, sync bool) (*string, error) {
+
+	var args = make(map[string]interface{})
+	args["fs"] = *fs
+	args["files"] = files
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("fs_child_dependency_rm", args, &result), result, sync)
+}
