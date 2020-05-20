@@ -75,16 +75,16 @@ const (
 
 // Volume represents a storage volume, aka. a logical unit
 type Volume struct {
-	Class       string  `json:"class"`
-	ID          string  `json:"id"`
-	Name        string  `json:"name"`
-	Enabled     LsmBool `json:"admin_state"`
-	BlockSize   uint64  `json:"block_size"`
-	NumOfBlocks uint64  `json:"num_of_blocks"`
-	PluginData  string  `json:"plugin_data"`
-	Vpd83       string  `json:"vpd83"`
-	SystemID    string  `json:"system_id"`
-	PoolID      string  `json:"pool_id"`
+	Class       string   `json:"class"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Enabled     *LsmBool `json:"admin_state"`
+	BlockSize   uint64   `json:"block_size"`
+	NumOfBlocks uint64   `json:"num_of_blocks"`
+	PluginData  *string  `json:"plugin_data"`
+	Vpd83       string   `json:"vpd83"`
+	SystemID    string   `json:"system_id"`
+	PoolID      string   `json:"pool_id"`
 }
 
 // JobStatusType is enumerated type returned from Job control
