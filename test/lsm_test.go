@@ -304,6 +304,27 @@ func TestVolumeCreate(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestVolumeEnableDisable(t *testing.T) {
+	var volumeName = rs("lsm_go_vol_", 8)
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+
+	var volume = createVolume(t, c, volumeName)
+	assert.Equal(t, volume.Name, volumeName)
+
+	var disableErr = c.VolumeDisable(volume)
+	assert.Nil(t, disableErr)
+
+	var enableErr = c.VolumeEnable(volume)
+	assert.Nil(t, enableErr)
+
+	// Try and clean-up
+	var volDel, volDelErr = c.VolumeDelete(volume, true)
+	assert.Nil(t, volDel)
+	assert.Nil(t, volDelErr)
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestScale(t *testing.T) {
 
 	var c, err = lsm.Client("simc://", "", 30000)
