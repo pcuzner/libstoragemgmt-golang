@@ -646,3 +646,16 @@ func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
 	var result json.RawMessage
 	return c.tp.invoke("access_group_delete", args, result)
 }
+
+// AccessGroupInitAdd adds an initiator to an access group.
+func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
+	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
+
+	// TODO: Validate initID
+
+	var args = make(map[string]interface{})
+	args["access_group"] = *ag
+	args["init_id"] = initID
+	args["init_type"] = initType
+	return c.tp.invoke("access_group_initiator_add", args, accessGroup)
+}
