@@ -1,7 +1,12 @@
 package libstoragemgmt
 
 import (
+	"fmt"
 	"os"
+	"regexp"
+	"strings"
+
+	errors "github.com/libstorage/libstoragemgmt-golang/errors"
 )
 
 // UdsPath ... returns the unix domain file path
@@ -44,4 +49,33 @@ func handleSearch(args map[string]interface{}, search []string) bool {
 		rc = false
 	}
 	return rc
+}
+
+func validateInitID(initID string, initType InitiatorType) error {
+	if initType == InitiatorTypeWwpn {
+		matched, err := regexp.Match("(?x)^(?:0x|0X)?(?:[0-9A-Fa-f]{2})(?:(?:[\\.:\\-])?[0-9A-Fa-f]{2}){7}$", []byte(initID))
+		if err != nil {
+			return err
+		}
+		if !matched {
+			return &errors.LsmError{
+				Code: errors.InvalidArgument,
+				Message: fmt.Sprintf(
+					"initID invalid for InitiatorTypeWwpn: %s", initID)}
+		}
+
+	} else if initType == InitiatorTypeIscsiIqn {
+		if !strings.HasPrefix(initID, "iqn") && !strings.HasPrefix(initID, "eui") && !strings.HasPrefix(initID, "naa") {
+			return &errors.LsmError{
+				Code: errors.InvalidArgument,
+				Message: fmt.Sprintf(
+					"initID invalid for InitiatorTypeIscsiIqn: %s", initID)}
+		}
+
+	} else {
+		return &errors.LsmError{
+			Code:    errors.InvalidArgument,
+			Message: fmt.Sprintf("invalid initType: %d", initType)}
+	}
+	return nil
 }

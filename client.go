@@ -663,7 +663,11 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 
 	var args = make(map[string]interface{})
 
-	// TODO: Validate initiator string
+	var check = validateInitID(initID, initType)
+	if check != nil {
+		return check
+	}
+
 	args["name"] = name
 	args["init_id"] = initID
 	args["init_type"] = initType
@@ -683,7 +687,10 @@ func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
 func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
 	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
 
-	// TODO: Validate initID
+	var check = validateInitID(initID, initType)
+	if check != nil {
+		return check
+	}
 
 	var args = make(map[string]interface{})
 	args["access_group"] = *ag
@@ -696,7 +703,10 @@ func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
 func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
 	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
 
-	// TODO: Validate initID
+	var check = validateInitID(initID, initType)
+	if check != nil {
+		return check
+	}
 
 	var args = make(map[string]interface{})
 	args["access_group"] = *ag
