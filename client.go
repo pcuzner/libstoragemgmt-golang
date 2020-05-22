@@ -472,7 +472,7 @@ func (c *ClientConnection) VolumeRepRangeBlkSize(system *System) (uint32, error)
 	var args = make(map[string]interface{})
 	args["system"] = *system
 
-	var blkSize uint32 = 0
+	var blkSize uint32
 	return blkSize, c.tp.invoke("volume_replicate_range_block_size", args, &blkSize)
 }
 
