@@ -13,7 +13,8 @@ import (
 	lsm "github.com/libstorage/libstoragemgmt-golang"
 )
 
-const URI = "sim://"
+var URI = getEnv("LSM_GO_URI", "sim://")
+
 const PASSWORD = ""
 const TMO uint32 = 30000
 
@@ -31,6 +32,14 @@ func rs(pre string, n int) string {
 		b[i] = l[rand.Intn(len(l))]
 	}
 	return fmt.Sprintf("%s%s", pre, string(b))
+}
+
+func getEnv(variable string, defValue string) string {
+	var p = os.Getenv(variable)
+	if len(p) > 0 {
+		return p
+	}
+	return defValue
 }
 
 func TestConnect(t *testing.T) {
