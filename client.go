@@ -147,8 +147,23 @@ func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
 
 // Pools returns the units of storage that block devices and FS
 // can be created from.
-func (c *ClientConnection) Pools() ([]Pool, error) {
+func (c *ClientConnection) Pools(search ...string) ([]Pool, error) {
 	var args = make(map[string]interface{})
+
+	if len(search) == 0 {
+		args["search_key"] = nil
+		args["search_value"] = nil
+	} else if len(search) == 2 {
+		args["search_key"] = search[0]
+		args["search_value"] = search[1]
+	} else {
+		return make([]Pool, 0), &errors.LsmError{
+			Code: errors.InvalidArgument,
+			Message: fmt.Sprintf(
+				"pool supports 0 or 2 search parameters (key, value), provide %d", len(search)),
+			Data: ""}
+	}
+
 	var pools []Pool
 	var err = c.tp.invoke("pools", args, &pools)
 	if err != nil {
