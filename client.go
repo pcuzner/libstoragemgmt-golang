@@ -112,11 +112,7 @@ func (c *ClientConnection) Close() error {
 func (c *ClientConnection) Systems() ([]System, error) {
 	var args = make(map[string]interface{})
 	var systems []System
-	var err = c.tp.invoke("systems", args, &systems)
-	if err != nil {
-		return systems, err
-	}
-	return systems, nil
+	return systems, c.tp.invoke("systems", args, &systems)
 }
 
 // Volumes returns block device information
@@ -132,11 +128,7 @@ func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
 			Data: ""}
 	}
 
-	var err = c.tp.invoke("volumes", args, &volumes)
-	if err != nil {
-		return volumes, err
-	}
-	return volumes, nil
+	return volumes, c.tp.invoke("volumes", args, &volumes)
 }
 
 // Pools returns the units of storage that block devices and FS
@@ -153,33 +145,21 @@ func (c *ClientConnection) Pools(search ...string) ([]Pool, error) {
 	}
 
 	var pools []Pool
-	var err = c.tp.invoke("pools", args, &pools)
-	if err != nil {
-		return pools, err
-	}
-	return pools, nil
+	return pools, c.tp.invoke("pools", args, &pools)
 }
 
 // Disks returns disks that are present.
 func (c *ClientConnection) Disks() ([]Disk, error) {
 	var args = make(map[string]interface{})
 	var disks []Disk
-	var err = c.tp.invoke("disks", args, &disks)
-	if err != nil {
-		return disks, err
-	}
-	return disks, nil
+	return disks, c.tp.invoke("disks", args, &disks)
 }
 
 // FileSystems returns pools that are present.
 func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
 	var args = make(map[string]interface{})
 	var fileSystems []FileSystem
-	var err = c.tp.invoke("fs", args, &fileSystems)
-	if err != nil {
-		return fileSystems, err
-	}
-	return fileSystems, nil
+	return fileSystems, c.tp.invoke("fs", args, &fileSystems)
 }
 
 // NfsExports returns nfs exports  that are present.
@@ -195,11 +175,7 @@ func (c *ClientConnection) NfsExports(search ...string) ([]NfsExport, error) {
 	}
 
 	var nfsExports []NfsExport
-	var err = c.tp.invoke("exports", args, &nfsExports)
-	if err != nil {
-		return nfsExports, err
-	}
-	return nfsExports, nil
+	return nfsExports, c.tp.invoke("exports", args, &nfsExports)
 }
 
 // NfsExportAuthTypes returns list of support authentication types
@@ -276,22 +252,14 @@ func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 func (c *ClientConnection) TargetPorts() ([]TargetPort, error) {
 	var args = make(map[string]interface{})
 	var targetPorts []TargetPort
-	var err = c.tp.invoke("target_ports", args, &targetPorts)
-	if err != nil {
-		return targetPorts, err
-	}
-	return targetPorts, nil
+	return targetPorts, c.tp.invoke("target_ports", args, &targetPorts)
 }
 
 // Batteries returns batteries that are present
 func (c *ClientConnection) Batteries() ([]Battery, error) {
 	var args = make(map[string]interface{})
 	var batteries []Battery
-	var err = c.tp.invoke("batteries", args, &batteries)
-	if err != nil {
-		return batteries, err
-	}
-	return batteries, nil
+	return batteries, c.tp.invoke("batteries", args, &batteries)
 }
 
 // JobFree instructs the plugin to release resources for the job that was returned.
@@ -299,8 +267,7 @@ func (c *ClientConnection) JobFree(jobID string) error {
 	var args = make(map[string]interface{})
 	args["job_id"] = jobID
 	var result string
-	var err = c.tp.invoke("job_free", args, &result)
-	return err
+	return c.tp.invoke("job_free", args, &result)
 }
 
 // JobStatus instructs the plugin to return the status of the specified job.  The returned values are
@@ -451,11 +418,7 @@ func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
 	var args = make(map[string]interface{})
 	args["system"] = *system
 	var cap Capabilities
-	var invokeError = c.tp.invoke("capabilities", args, &cap)
-	if invokeError != nil {
-		return nil, invokeError
-	}
-	return &cap, nil
+	return &cap, c.tp.invoke("capabilities", args, &cap)
 }
 
 // VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
@@ -493,12 +456,8 @@ func (c *ClientConnection) VolumeRepRangeBlkSize(system *System) (uint32, error)
 	var args = make(map[string]interface{})
 	args["system"] = *system
 
-	var blkSize uint32
-	var invokeError = c.tp.invoke("volume_replicate_range_block_size", args, &blkSize)
-	if invokeError != nil {
-		return 0, invokeError
-	}
-	return blkSize, nil
+	var blkSize uint32 = 0
+	return blkSize, c.tp.invoke("volume_replicate_range_block_size", args, &blkSize)
 }
 
 // VolumeReplicateRange replicates a range of blocks on the same or different Volume
