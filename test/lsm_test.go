@@ -159,6 +159,8 @@ func TestNfsAuthTypes(t *testing.T) {
 func TestAccessGroups(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var items, err = c.AccessGroups()
+	var volumes, volErr = c.Volumes()
+	assert.Nil(t, volErr)
 
 	assert.Nil(t, err)
 
@@ -170,6 +172,10 @@ func TestAccessGroups(t *testing.T) {
 		var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
 			"iqn.1994-05.com.domain:01.89bd01", lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
 		assert.Nil(t, agCreateErr)
+
+		var maskErr = c.VolumeMask(&volumes[0], &ag)
+		assert.Nil(t, maskErr)
+
 
 		var agInitAdd lsm.AccessGroup
 		var initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
