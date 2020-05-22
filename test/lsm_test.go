@@ -14,6 +14,7 @@ import (
 )
 
 const URI = "sim://"
+const PASSWORD = ""
 
 // Running these tests requires lsmd up and running with the simulator
 // plugin available.  In addition a number of tests require things to
@@ -32,13 +33,13 @@ func rs(pre string, n int) string {
 }
 
 func TestConnect(t *testing.T) {
-	var c, libError = lsm.Client(URI, "", 30000)
+	var c, libError = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, libError)
 	assert.Equal(t, c.Close(), nil)
 }
 
 func TestSystems(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var systems, sysError = c.Systems()
 
 	assert.Nil(t, sysError)
@@ -51,7 +52,7 @@ func TestSystems(t *testing.T) {
 }
 
 func TestVolumes(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.Volumes()
 
 	assert.Nil(t, err)
@@ -63,7 +64,7 @@ func TestVolumes(t *testing.T) {
 }
 
 func TestPools(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.Pools()
 
 	assert.Nil(t, err)
@@ -76,7 +77,7 @@ func TestPools(t *testing.T) {
 }
 
 func TestDisks(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.Disks()
 
 	assert.Nil(t, err)
@@ -98,7 +99,7 @@ func TestDisks(t *testing.T) {
 }
 
 func TestFs(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.FileSystems()
 
 	assert.Nil(t, err)
@@ -111,7 +112,7 @@ func TestFs(t *testing.T) {
 }
 
 func TestNfsExports(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.NfsExports()
 	assert.Nil(t, err)
 
@@ -144,7 +145,7 @@ func TestNfsExports(t *testing.T) {
 }
 
 func TestNfsAuthTypes(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var authTypes, err = c.NfsExportAuthTypes()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(authTypes))
@@ -155,7 +156,7 @@ func TestNfsAuthTypes(t *testing.T) {
 }
 
 func TestAccessGroups(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.AccessGroups()
 
 	assert.Nil(t, err)
@@ -198,7 +199,7 @@ func TestAccessGroups(t *testing.T) {
 }
 
 func TestTargetPorts(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.TargetPorts()
 
 	assert.Nil(t, err)
@@ -212,7 +213,7 @@ func TestTargetPorts(t *testing.T) {
 }
 
 func TestBatteries(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var items, err = c.Batteries()
 
 	assert.Nil(t, err)
@@ -226,7 +227,7 @@ func TestBatteries(t *testing.T) {
 }
 
 func TestCapabilities(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var systems, sysError = c.Systems()
 	assert.Nil(t, sysError)
 
@@ -238,7 +239,7 @@ func TestCapabilities(t *testing.T) {
 }
 
 func TestCapabilitiesSet(t *testing.T) {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 	var systems, sysError = c.Systems()
 	assert.Nil(t, sysError)
 
@@ -251,7 +252,7 @@ func TestCapabilitiesSet(t *testing.T) {
 }
 
 func TestRepBlockSize(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -280,7 +281,7 @@ func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volum
 
 func TestVolumeCreate(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 
 	var volume = createVolume(t, c, volumeName)
@@ -326,7 +327,7 @@ func TestScale(t *testing.T) {
 func TestVolumeDelete(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
 
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 
 	var volume = createVolume(t, c, volumeName)
@@ -337,7 +338,7 @@ func TestVolumeDelete(t *testing.T) {
 }
 
 func TestJobWait(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 
 	var pools, poolError = c.Pools()
@@ -363,7 +364,7 @@ func TestJobWait(t *testing.T) {
 
 func TestVolumeResize(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -378,7 +379,7 @@ func TestVolumeResize(t *testing.T) {
 }
 
 func TestVolumeReplicate(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -400,7 +401,7 @@ func TestVolumeReplicate(t *testing.T) {
 }
 
 func TestVolumeReplicateRange(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -419,7 +420,7 @@ func TestVolumeReplicateRange(t *testing.T) {
 }
 
 func TestFsCreateResizeCloneDelete(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -457,7 +458,7 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 }
 
 func TestFsFileClone(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -481,7 +482,7 @@ func TestFsFileClone(t *testing.T) {
 }
 
 func TestFsSnapShots(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -522,7 +523,7 @@ func TestFsSnapShots(t *testing.T) {
 }
 
 func TestFsSnapShotRestore(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -568,14 +569,14 @@ func TestFsSnapShotRestore(t *testing.T) {
 }
 
 func TestTemplate(t *testing.T) {
-	var c, err = lsm.Client(URI, "", 30000)
+	var c, err = lsm.Client(URI, PASSWORD, 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 	assert.Equal(t, c.Close(), nil)
 }
 
 func setup() {
-	var c, _ = lsm.Client(URI, "", 30000)
+	var c, _ = lsm.Client(URI, PASSWORD, 30000)
 
 	var pools, _ = c.Pools()
 	var volumes, _ = c.Volumes()
