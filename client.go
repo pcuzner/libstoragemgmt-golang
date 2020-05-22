@@ -195,8 +195,23 @@ func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
 }
 
 // NfsExports returns nfs exports  that are present.
-func (c *ClientConnection) NfsExports() ([]NfsExport, error) {
+func (c *ClientConnection) NfsExports(search ...string) ([]NfsExport, error) {
 	var args = make(map[string]interface{})
+
+	if len(search) == 0 {
+		args["search_key"] = nil
+		args["search_value"] = nil
+	} else if len(search) == 2 {
+		args["search_key"] = search[0]
+		args["search_value"] = search[1]
+	} else {
+		return make([]NfsExport, 0), &errors.LsmError{
+			Code: errors.InvalidArgument,
+			Message: fmt.Sprintf(
+				"NfsExports supports 0 or 2 search parameters (key, value), provide %d", len(search)),
+			Data: ""}
+	}
+
 	var nfsExports []NfsExport
 	var err = c.tp.invoke("exports", args, &nfsExports)
 	if err != nil {
