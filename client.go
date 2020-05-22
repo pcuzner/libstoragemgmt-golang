@@ -659,3 +659,16 @@ func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
 	args["init_type"] = initType
 	return c.tp.invoke("access_group_initiator_add", args, accessGroup)
 }
+
+// AccessGroupInitDelete deletes an initiator from an access group.
+func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
+	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
+
+	// TODO: Validate initID
+
+	var args = make(map[string]interface{})
+	args["access_group"] = *ag
+	args["init_id"] = initID
+	args["init_type"] = initType
+	return c.tp.invoke("access_group_initiator_delete", args, accessGroup)
+}
