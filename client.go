@@ -16,7 +16,7 @@ import (
 type ClientConnection struct {
 	tp         transPort
 	PluginName string
-	Timeout    uint32
+	timeout    uint32
 }
 
 // Client establishes a connection to a plugin as specified in the URI.
@@ -48,7 +48,7 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 		return nil, libError
 	}
 
-	return &ClientConnection{tp: *transport, PluginName: pluginName, Timeout: timeout}, nil
+	return &ClientConnection{tp: *transport, PluginName: pluginName, timeout: timeout}, nil
 }
 
 // PluginInfo information about the current plugin
@@ -384,6 +384,22 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 		}
 	}
 	return nil
+}
+
+// TimeOutSet sets the connection timeout with the storage device.
+func (c *ClientConnection) TimeOutSet(milliSeconds uint32) error {
+	var args = make(map[string]interface{})
+	args["ms"] = milliSeconds
+	var err = c.tp.invoke("time_out_set", args, nil)
+	if err == nil {
+		c.timeout = milliSeconds
+	}
+	return err
+}
+
+// TimeOutGet sets the connection timeout with the storage device.
+func (c *ClientConnection) TimeOutGet() uint32 {
+	return c.timeout
 }
 
 // VolumeCreate creates a block device, returns job id, error.
