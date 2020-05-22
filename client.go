@@ -624,3 +624,17 @@ func (c *ClientConnection) FsChildDepRm(
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("fs_child_dependency_rm", args, &result), result, sync)
 }
+
+// AccessGroupCreate creates an access group.
+func (c *ClientConnection) AccessGroupCreate(name string, initID string,
+	initType InitiatorType, system *System, accessGroup *AccessGroup) error {
+
+	var args = make(map[string]interface{})
+
+	// TODO: Validate initiator string
+	args["name"] = name
+	args["init_id"] = initID
+	args["init_type"] = initType
+	args["system"] = *system
+	return c.tp.invoke("access_group_create", args, accessGroup)
+}
