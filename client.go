@@ -498,6 +498,13 @@ func (c *ClientConnection) VolumeEnable(vol *Volume) error {
 	return c.tp.invoke("volume_enable", args, nil)
 }
 
+// VolumeDisable sets a volume to offline.
+func (c *ClientConnection) VolumeDisable(vol *Volume) error {
+	var args = make(map[string]interface{})
+	args["volume"] = *vol
+	return c.tp.invoke("volume_disable", args, nil)
+}
+
 // VolumeMask grants access to a volume for the specified access group.
 func (c *ClientConnection) VolumeMask(vol *Volume, ag *AccessGroup) error {
 	var args = make(map[string]interface{})
