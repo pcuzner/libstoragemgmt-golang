@@ -394,7 +394,7 @@ func (c *ClientConnection) VolumeCreate(
 	size uint64,
 	provisioning VolumeProvisionType,
 	sync bool,
-	returnedVolume interface{}) (*string, error) {
+	returnedVolume *Volume) (*string, error) {
 	var args = make(map[string]interface{})
 	args["pool"] = *pool
 	args["volume_name"] = volumeName
@@ -423,7 +423,7 @@ func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
 
 // VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
 func (c *ClientConnection) VolumeResize(
-	vol *Volume, newSizeBytes uint64, sync bool, returnedVolume interface{}) (*string, error) {
+	vol *Volume, newSizeBytes uint64, sync bool, returnedVolume *Volume) (*string, error) {
 	var args = make(map[string]interface{})
 	args["volume"] = *vol
 	args["new_size_bytes"] = newSizeBytes
@@ -435,7 +435,7 @@ func (c *ClientConnection) VolumeResize(
 // VolumeReplicate makes a replicated image of existing Volume
 func (c *ClientConnection) VolumeReplicate(
 	optionalPool *Pool, repType VolumeReplicateType, sourceVolume *Volume, name string,
-	sync bool, returnedVolume interface{}) (*string, error) {
+	sync bool, returnedVolume *Volume) (*string, error) {
 
 	var args = make(map[string]interface{})
 	if optionalPool != nil {
@@ -482,7 +482,7 @@ func (c *ClientConnection) FsCreate(
 	name string,
 	size uint64,
 	sync bool,
-	returnedFs interface{}) (*string, error) {
+	returnedFs *FileSystem) (*string, error) {
 	var args = make(map[string]interface{})
 	args["pool"] = *pool
 	args["name"] = name
@@ -494,7 +494,7 @@ func (c *ClientConnection) FsCreate(
 
 // FsResize resizes an existing file system
 func (c *ClientConnection) FsResize(
-	fs *FileSystem, newSizeBytes uint64, sync bool, returnedFs interface{}) (*string, error) {
+	fs *FileSystem, newSizeBytes uint64, sync bool, returnedFs *FileSystem) (*string, error) {
 	var args = make(map[string]interface{})
 	args["fs"] = *fs
 	args["new_size_bytes"] = newSizeBytes
@@ -517,7 +517,7 @@ func (c *ClientConnection) FsClone(
 	destName string,
 	optionalSnapShot *FileSystemSnapShot,
 	sync bool,
-	returnedFs interface{}) (*string, error) {
+	returnedFs *FileSystem) (*string, error) {
 	var args = make(map[string]interface{})
 	args["src_fs"] = *srcFs
 	args["dest_fs_name"] = destName
@@ -558,7 +558,8 @@ func (c *ClientConnection) FsFileClone(
 
 // FsSnapShotCreate creates a file system snapshot for the supplied snapshot
 // If job id and error are nil, then returnedFs has newly created filesystem.
-func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool, returnedSnapshot interface{}) (*string, error) {
+func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool,
+	returnedSnapshot *FileSystemSnapShot) (*string, error) {
 	var args = make(map[string]interface{})
 	args["fs"] = *fs
 	args["snapshot_name"] = name
