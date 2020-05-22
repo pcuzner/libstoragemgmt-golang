@@ -638,3 +638,11 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 	args["system"] = *system
 	return c.tp.invoke("access_group_create", args, accessGroup)
 }
+
+// AccessGroupDelete deletes an access group.
+func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
+	var args = make(map[string]interface{})
+	args["access_group"] = *ag
+	var result json.RawMessage
+	return c.tp.invoke("access_group_delete", args, result)
+}
