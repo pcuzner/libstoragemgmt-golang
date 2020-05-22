@@ -30,3 +30,18 @@ func emptySliceIfNil(provided []string) []string {
 	}
 	return empty
 }
+
+func handleSearch(args map[string]interface{}, search []string) bool {
+	var rc = true
+
+	if len(search) == 0 {
+		args["search_key"] = nil
+		args["search_value"] = nil
+	} else if len(search) == 2 {
+		args["search_key"] = search[0]
+		args["search_value"] = search[1]
+	} else {
+		rc = false
+	}
+	return rc
+}

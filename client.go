@@ -124,13 +124,7 @@ func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
 	var args = make(map[string]interface{})
 	var volumes []Volume
 
-	if len(search) == 0 {
-		args["search_key"] = nil
-		args["search_value"] = nil
-	} else if len(search) == 2 {
-		args["search_key"] = search[0]
-		args["search_value"] = search[1]
-	} else {
+	if !handleSearch(args, search) {
 		return make([]Volume, 0), &errors.LsmError{
 			Code: errors.InvalidArgument,
 			Message: fmt.Sprintf(
@@ -150,13 +144,7 @@ func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
 func (c *ClientConnection) Pools(search ...string) ([]Pool, error) {
 	var args = make(map[string]interface{})
 
-	if len(search) == 0 {
-		args["search_key"] = nil
-		args["search_value"] = nil
-	} else if len(search) == 2 {
-		args["search_key"] = search[0]
-		args["search_value"] = search[1]
-	} else {
+	if !handleSearch(args, search) {
 		return make([]Pool, 0), &errors.LsmError{
 			Code: errors.InvalidArgument,
 			Message: fmt.Sprintf(
@@ -198,13 +186,7 @@ func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
 func (c *ClientConnection) NfsExports(search ...string) ([]NfsExport, error) {
 	var args = make(map[string]interface{})
 
-	if len(search) == 0 {
-		args["search_key"] = nil
-		args["search_value"] = nil
-	} else if len(search) == 2 {
-		args["search_key"] = search[0]
-		args["search_value"] = search[1]
-	} else {
+	if !handleSearch(args, search) {
 		return make([]NfsExport, 0), &errors.LsmError{
 			Code: errors.InvalidArgument,
 			Message: fmt.Sprintf(
