@@ -257,6 +257,13 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 	return c.tp.invoke("export_fs", args, nfsExport)
 }
 
+// FsUnExport removes a file system export.
+func (c *ClientConnection) FsUnExport(export *NfsExport) error {
+	var args = make(map[string]interface{})
+	args["export"] = *export
+	return c.tp.invoke("export_remove", args, nil)
+}
+
 // AccessGroups returns access groups  that are present.
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	var args = make(map[string]interface{})
