@@ -386,6 +386,14 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 	return nil
 }
 
+// Capabilities retrieve capabilities
+func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
+	var args = make(map[string]interface{})
+	args["system"] = *system
+	var cap Capabilities
+	return &cap, c.tp.invoke("capabilities", args, &cap)
+}
+
 // TimeOutSet sets the connection timeout with the storage device.
 func (c *ClientConnection) TimeOutSet(milliSeconds uint32) error {
 	var args = make(map[string]interface{})
@@ -427,14 +435,6 @@ func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error)
 	args["volume"] = *vol
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("volume_delete", args, &result), result, sync)
-}
-
-// Capabilities retrieve capabilities
-func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
-	var args = make(map[string]interface{})
-	args["system"] = *system
-	var cap Capabilities
-	return &cap, c.tp.invoke("capabilities", args, &cap)
 }
 
 // VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
