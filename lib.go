@@ -28,12 +28,10 @@ func contains(s []string, v string) bool {
 }
 
 func emptySliceIfNil(provided []string) []string {
-	var empty = make([]string, 0)
-
 	if provided != nil {
 		return provided
 	}
-	return empty
+	return make([]string, 0)
 }
 
 func handleSearch(args map[string]interface{}, search []string) bool {
