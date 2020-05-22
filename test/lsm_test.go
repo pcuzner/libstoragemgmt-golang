@@ -13,6 +13,8 @@ import (
 	lsm "github.com/libstorage/libstoragemgmt-golang"
 )
 
+const URI = "sim://"
+
 // Running these tests requires lsmd up and running with the simulator
 // plugin available.  In addition a number of tests require things to
 // exists which don't exist by default and need to be created.  At the
@@ -30,13 +32,13 @@ func rs(pre string, n int) string {
 }
 
 func TestConnect(t *testing.T) {
-	var c, libError = lsm.Client("sim://", "", 30000)
+	var c, libError = lsm.Client(URI, "", 30000)
 	assert.Nil(t, libError)
 	assert.Equal(t, c.Close(), nil)
 }
 
 func TestSystems(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var systems, sysError = c.Systems()
 
 	assert.Nil(t, sysError)
@@ -49,7 +51,7 @@ func TestSystems(t *testing.T) {
 }
 
 func TestVolumes(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.Volumes()
 
 	assert.Nil(t, err)
@@ -61,7 +63,7 @@ func TestVolumes(t *testing.T) {
 }
 
 func TestPools(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.Pools()
 
 	assert.Nil(t, err)
@@ -74,7 +76,7 @@ func TestPools(t *testing.T) {
 }
 
 func TestDisks(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.Disks()
 
 	assert.Nil(t, err)
@@ -96,7 +98,7 @@ func TestDisks(t *testing.T) {
 }
 
 func TestFs(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.FileSystems()
 
 	assert.Nil(t, err)
@@ -109,34 +111,94 @@ func TestFs(t *testing.T) {
 }
 
 func TestNfsExports(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.NfsExports()
-
 	assert.Nil(t, err)
-	assert.Greater(t, len(items), 0)
+
+	if len(items) == 0 {
+		var fs, err = c.FileSystems()
+		assert.Nil(t, err)
+		var access lsm.NfsAccess
+
+		access.Root = []string{"192.168.1.1"}
+		access.Rw = []string{"192.168.1.1"}
+		access.AnonGID = lsm.AnonUIDGIDNotApplicable
+		access.AnonUID = lsm.AnonUIDGIDNotApplicable
+
+		var export lsm.NfsExport
+
+		var exportPath = "/mnt/fubar"
+		var auth = "standard"
+		var exportErr = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.Nil(t, exportErr)
+		assert.Equal(t, export.ExportPath, exportPath)
+	}
 
 	for _, i := range items {
 		t.Logf("%+v", i)
+
+		var unExportErr = c.FsUnExport(&i)
+		assert.Nil(t, unExportErr)
 	}
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestNfsAuthTypes(t *testing.T) {
+	var c, _ = lsm.Client(URI, "", 30000)
+	var authTypes, err = c.NfsExportAuthTypes()
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(authTypes))
+	assert.Equal(t, "standard", authTypes[0])
+
+	fmt.Printf("%v", authTypes)
 	assert.Equal(t, c.Close(), nil)
 }
 
 func TestAccessGroups(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.AccessGroups()
 
 	assert.Nil(t, err)
 
-	for _, i := range items {
-		t.Logf("%+v", i)
+	if len(items) == 0 {
+		var systems, sysErr = c.Systems()
+		assert.Nil(t, sysErr)
+
+		var ag lsm.AccessGroup
+		var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
+			"iqn.1994-05.com.domain:01.89bd01", lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
+		assert.Nil(t, agCreateErr)
+
+		var agInitAdd lsm.AccessGroup
+		var initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		assert.Nil(t, initAddErr)
+		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
+
+		var agInitDel lsm.AccessGroup
+		var initDelErr = c.AccessGroupInitDelete(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitDel)
+		assert.Nil(t, initDelErr)
+		assert.Equal(t, len(ag.InitIDs), len(agInitDel.InitIDs))
+
+		items, err = c.AccessGroups()
+		assert.Nil(t, err)
 	}
 
 	assert.Greater(t, len(items), 0)
+
+	for _, i := range items {
+		t.Logf("%+v", i)
+
+		var agDelErr = c.AccessGroupDelete(&i)
+		assert.Nil(t, agDelErr)
+	}
+
+	items, err = c.AccessGroups()
+	assert.Equal(t, len(items), 0)
 	assert.Equal(t, c.Close(), nil)
 }
 
 func TestTargetPorts(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.TargetPorts()
 
 	assert.Nil(t, err)
@@ -150,7 +212,7 @@ func TestTargetPorts(t *testing.T) {
 }
 
 func TestBatteries(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var items, err = c.Batteries()
 
 	assert.Nil(t, err)
@@ -164,7 +226,7 @@ func TestBatteries(t *testing.T) {
 }
 
 func TestCapabilities(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var systems, sysError = c.Systems()
 	assert.Nil(t, sysError)
 
@@ -176,7 +238,7 @@ func TestCapabilities(t *testing.T) {
 }
 
 func TestCapabilitiesSet(t *testing.T) {
-	var c, _ = lsm.Client("sim://", "", 30000)
+	var c, _ = lsm.Client(URI, "", 30000)
 	var systems, sysError = c.Systems()
 	assert.Nil(t, sysError)
 
@@ -189,7 +251,7 @@ func TestCapabilitiesSet(t *testing.T) {
 }
 
 func TestRepBlockSize(t *testing.T) {
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -206,10 +268,10 @@ func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volum
 	var pools, poolError = c.Pools()
 	assert.Nil(t, poolError)
 
-	var poolToUse = pools[2] // Arbitrary
+	var poolToUse = pools[3] // Arbitrary
 
 	var volume lsm.Volume
-	var jobID, errVolCreate = c.VolumeCreate(&poolToUse, name, 1024*1024*100, 2, true, &volume)
+	var jobID, errVolCreate = c.VolumeCreate(&poolToUse, name, 1024*1024*1, 2, true, &volume)
 	assert.Nil(t, errVolCreate)
 	assert.Nil(t, jobID)
 
@@ -218,7 +280,7 @@ func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volum
 
 func TestVolumeCreate(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 
 	var volume = createVolume(t, c, volumeName)
@@ -226,14 +288,45 @@ func TestVolumeCreate(t *testing.T) {
 	assert.Equal(t, volume.Name, volumeName)
 
 	// Try and clean-up
-	c.VolumeDelete(volume, true)
+	var volDel, volDelErr = c.VolumeDelete(volume, true)
+	assert.Nil(t, volDel)
+	assert.Nil(t, volDelErr)
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestScale(t *testing.T) {
+
+	var c, err = lsm.Client("simc://", "", 30000)
+	assert.Nil(t, err)
+
+	var pools, poolError = c.Pools()
+	assert.Nil(t, poolError)
+
+	var poolToUse = pools[3]
+
+	for i := 0; i < 10; i++ {
+		var volumeName = rs("lsm_go_vol_", 8)
+
+		var volume lsm.Volume
+		var jobID, errVolCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*10, 2, true, &volume)
+		if errVolCreate != nil {
+			fmt.Printf("Created %d volume before we got error %s\n", i, errVolCreate)
+			break
+		}
+		assert.Nil(t, jobID)
+	}
+
+	var volumes, vE = c.Volumes()
+	assert.Nil(t, vE)
+	assert.Greater(t, len(volumes), 10)
+
 	assert.Equal(t, c.Close(), nil)
 }
 
 func TestVolumeDelete(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
 
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 
 	var volume = createVolume(t, c, volumeName)
@@ -244,7 +337,7 @@ func TestVolumeDelete(t *testing.T) {
 }
 
 func TestJobWait(t *testing.T) {
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 
 	var pools, poolError = c.Pools()
@@ -270,7 +363,7 @@ func TestJobWait(t *testing.T) {
 
 func TestVolumeResize(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -285,7 +378,7 @@ func TestVolumeResize(t *testing.T) {
 }
 
 func TestVolumeReplicate(t *testing.T) {
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -307,7 +400,7 @@ func TestVolumeReplicate(t *testing.T) {
 }
 
 func TestVolumeReplicateRange(t *testing.T) {
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 
@@ -325,15 +418,186 @@ func TestVolumeReplicateRange(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestFsCreateResizeCloneDelete(t *testing.T) {
+	var c, err = lsm.Client(URI, "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var pools, pE = c.Pools()
+	assert.Nil(t, pE)
+
+	var newFs lsm.FileSystem
+	var fsCreateJob, fsCreateErr = c.FsCreate(&pools[2], rs("lsm_go_pool_", 4), 1024*1024*100, true, &newFs)
+	assert.Nil(t, fsCreateJob)
+	assert.Nil(t, fsCreateErr)
+
+	var resizedFs lsm.FileSystem
+	var resizedJob, resizedErr = c.FsResize(&newFs, newFs.TotalSpace*2, true, &resizedFs)
+	assert.Nil(t, resizedJob)
+	assert.Nil(t, resizedErr)
+	assert.NotEqual(t, newFs.TotalSpace, resizedFs)
+
+	var cloned lsm.FileSystem
+	var cloneFsJob, cloneErr = c.FsClone(&resizedFs, "lsm_go_cloned_fs", nil, true, &cloned)
+	assert.Nil(t, cloneFsJob)
+	assert.Nil(t, cloneErr)
+
+	assert.Equal(t, cloned.Name, "lsm_go_cloned_fs")
+	assert.Equal(t, resizedFs.TotalSpace, cloned.TotalSpace)
+
+	var delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned, true)
+	assert.Nil(t, delcloneFsJob)
+	assert.Nil(t, delCloneFsErr)
+
+	var delFsJob, delFsErr = c.FsDelete(&resizedFs, true)
+	assert.Nil(t, delFsJob)
+	assert.Nil(t, delFsErr)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestFsFileClone(t *testing.T) {
+	var c, err = lsm.Client(URI, "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var pools, pE = c.Pools()
+	assert.Nil(t, pE)
+
+	var newFs lsm.FileSystem
+	var fsCreateJob, fsCreateErr = c.FsCreate(&pools[2], rs("lsm_go_pool_", 4), 1024*1024*100, true, &newFs)
+	assert.Nil(t, fsCreateJob)
+	assert.Nil(t, fsCreateErr)
+
+	var fsFileCloneJob, fsFcErr = c.FsFileClone(&newFs, "some_file", "some_other_file", nil, true)
+	assert.Nil(t, fsFileCloneJob)
+	assert.Nil(t, fsFcErr)
+
+	var delFsJob, delFsErr = c.FsDelete(&newFs, true)
+	assert.Nil(t, delFsJob)
+	assert.Nil(t, delFsErr)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestFsSnapShots(t *testing.T) {
+	var c, err = lsm.Client(URI, "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var pools, pE = c.Pools()
+	assert.Nil(t, pE)
+
+	var newFs lsm.FileSystem
+	var fsCreateJob, fsCreateErr = c.FsCreate(&pools[2], rs("lsm_go_pool_", 4), 1024*1024*100, true, &newFs)
+	assert.Nil(t, fsCreateJob)
+	assert.Nil(t, fsCreateErr)
+
+	var ss lsm.FileSystemSnapShot
+	var ssJob, ssE = c.FsSnapShotCreate(&newFs, "lsm_go_ss", true, &ss)
+
+	assert.Nil(t, ssJob)
+	assert.Nil(t, ssE)
+	assert.Equal(t, ss.Name, "lsm_go_ss")
+
+	var hasDep, depErr = c.FsHasChildDep(&newFs, make([]string, 0))
+	assert.Nil(t, depErr)
+	assert.True(t, hasDep)
+
+	var snaps, snapsErr = c.FsSnapShots(&newFs)
+	assert.Nil(t, snapsErr)
+
+	assert.Equal(t, 1, len(snaps))
+
+	for _, i := range snaps {
+		t.Logf("%+v", i)
+	}
+
+	var ssDelJob, ssDelErr = c.FsSnapShotDelete(&newFs, &ss, true)
+	assert.Nil(t, ssDelJob)
+	assert.Nil(t, ssDelErr)
+
+	c.FsDelete(&newFs, true)
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestFsSnapShotRestore(t *testing.T) {
+	var c, err = lsm.Client(URI, "", 30000)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var pools, pE = c.Pools()
+	assert.Nil(t, pE)
+
+	var newFs lsm.FileSystem
+	var fsCreateJob, fsCreateErr = c.FsCreate(&pools[2], rs("lsm_go_pool_", 4), 1024*1024*100, true, &newFs)
+	assert.Nil(t, fsCreateJob)
+	assert.Nil(t, fsCreateErr)
+
+	var ss lsm.FileSystemSnapShot
+	var ssName = rs("lsm_go_ss_", 4)
+	var ssJob, ssE = c.FsSnapShotCreate(&newFs, ssName, true, &ss)
+
+	assert.Nil(t, ssJob)
+	assert.Nil(t, ssE)
+	assert.Equal(t, ss.Name, ssName)
+
+	var ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
+		&newFs, &ss, true, make([]string, 0), make([]string, 0), true)
+
+	assert.Nil(t, ssRestoreJob)
+	assert.Nil(t, ssRestoreErr)
+
+	var org = []string{"/tmp/bar"}
+	var rst = []string{"/tmp/fubar"}
+
+	var ssRestoreJobF, ssRestoreErrF = c.FsSnapShotRestore(
+		&newFs, &ss, false, org, rst, true)
+
+	assert.Nil(t, ssRestoreJobF)
+	assert.Nil(t, ssRestoreErrF)
+
+	var ssDelJob, ssDelErr = c.FsSnapShotDelete(&newFs, &ss, true)
+	assert.Nil(t, ssDelJob)
+	assert.Nil(t, ssDelErr)
+
+	c.FsDelete(&newFs, true)
+
+	c.FsDelete(&newFs, true)
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestTemplate(t *testing.T) {
-	var c, err = lsm.Client("sim://", "", 30000)
+	var c, err = lsm.Client(URI, "", 30000)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
 	assert.Equal(t, c.Close(), nil)
 }
 
+func setup() {
+	var c, _ = lsm.Client(URI, "", 30000)
+
+	var pools, _ = c.Pools()
+	var volumes, _ = c.Volumes()
+
+	if len(volumes) == 0 {
+		var volume lsm.Volume
+		var _, _ = c.VolumeCreate(
+			&pools[1], rs("lsm_go_vol_", 4),
+			1024*1024*100,
+			lsm.VolumeProvisionTypeDefault, true, &volume)
+	}
+
+	var fs, _ = c.FileSystems()
+	if len(fs) == 0 {
+		var fileSystem lsm.FileSystem
+		var _, _ = c.FsCreate(
+			&pools[1], rs("lsm_go_fs_", 4), 1024*1024*1000, true, &fileSystem)
+	}
+}
+
 func TestMain(m *testing.M) {
-	//setup()
+	setup()
 
 	// This will allow us to reproduce the same sequence if needed
 	// if we encounter an error.
