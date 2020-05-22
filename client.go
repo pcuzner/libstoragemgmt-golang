@@ -491,6 +491,13 @@ func (c *ClientConnection) VolumeReplicateRange(
 	return c.getJobOrNone(c.tp.invoke("volume_replicate_range", args, &result), result, sync)
 }
 
+// VolumeEnable sets a volume to online.
+func (c *ClientConnection) VolumeEnable(vol *Volume) error {
+	var args = make(map[string]interface{})
+	args["volume"] = *vol
+	return c.tp.invoke("volume_enable", args, nil)
+}
+
 // VolumeMask grants access to a volume for the specified access group.
 func (c *ClientConnection) VolumeMask(vol *Volume, ag *AccessGroup) error {
 	var args = make(map[string]interface{})
