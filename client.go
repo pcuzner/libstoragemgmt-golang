@@ -120,9 +120,24 @@ func (c *ClientConnection) Systems() ([]System, error) {
 }
 
 // Volumes returns block device information
-func (c *ClientConnection) Volumes() ([]Volume, error) {
+func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
 	var args = make(map[string]interface{})
 	var volumes []Volume
+
+	if len(search) == 0 {
+		args["search_key"] = nil
+		args["search_value"] = nil
+	} else if len(search) == 2 {
+		args["search_key"] = search[0]
+		args["search_value"] = search[1]
+	} else {
+		return make([]Volume, 0), &errors.LsmError{
+			Code: errors.InvalidArgument,
+			Message: fmt.Sprintf(
+				"volume supports 0 or 2 search parameters (key, value), provide %d", len(search)),
+			Data: ""}
+	}
+
 	var err = c.tp.invoke("volumes", args, &volumes)
 	if err != nil {
 		return volumes, err
