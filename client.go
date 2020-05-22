@@ -205,6 +205,14 @@ func (c *ClientConnection) NfsExports() ([]NfsExport, error) {
 	return nfsExports, nil
 }
 
+// NfsExportAuthTypes returns list of support authentication types
+func (c *ClientConnection) NfsExportAuthTypes() ([]string, error) {
+	var args = make(map[string]interface{})
+	var authTypes []string
+	var err = c.tp.invoke("export_auth", args, &authTypes)
+	return authTypes, err
+}
+
 // AccessGroups returns access groups  that are present.
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	var args = make(map[string]interface{})
