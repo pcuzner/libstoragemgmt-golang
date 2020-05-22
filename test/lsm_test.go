@@ -363,6 +363,18 @@ func TestJobWait(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestTmo(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+
+	var tmo uint32 = 32121
+
+	assert.Nil(t, c.TimeOutSet(tmo))
+
+	assert.Equal(t, tmo, c.TimeOutGet())
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestVolumeResize(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
