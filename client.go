@@ -213,6 +213,50 @@ func (c *ClientConnection) NfsExportAuthTypes() ([]string, error) {
 	return authTypes, err
 }
 
+// FsExport creates or modifies a NFS export.
+func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
+	access *NfsAccess, authType *string, options *string, nfsExport *NfsExport) error {
+
+	if len(access.Ro) == 0 && len(access.Rw) == 0 {
+		return &errors.LsmError{
+			Code:    errors.InvalidArgument,
+			Message: "at least 1 host should exist in access.ro or access.rw",
+			Data:    ""}
+	}
+
+	for _, i := range access.Root {
+		if !contains(access.Rw, i) && !contains(access.Ro, i) {
+			return &errors.LsmError{
+				Code: errors.InvalidArgument,
+				Message: fmt.Sprintf(
+					"host '%s' contained in access.root should also be in access.rw or access.ro", i),
+				Data: ""}
+		}
+	}
+
+	for _, i := range access.Rw {
+		if contains(access.Ro, i) {
+			return &errors.LsmError{
+				Code:    errors.InvalidArgument,
+				Message: fmt.Sprintf("host '%s' in both access.ro and access.rw", i),
+				Data:    ""}
+		}
+	}
+
+	var args = make(map[string]interface{})
+	args["fs_id"] = fs.ID
+	args["export_path"] = exportPath
+	args["root_list"] = emptySliceIfNil(access.Ro)
+	args["rw_list"] = emptySliceIfNil(access.Rw)
+	args["ro_list"] = emptySliceIfNil(access.Ro)
+	args["anon_uid"] = access.AnonUID
+	args["anon_gid"] = access.AnonGID
+	args["auth_type"] = authType
+	args["options"] = options
+
+	return c.tp.invoke("export_fs", args, nfsExport)
+}
+
 // AccessGroups returns access groups  that are present.
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	var args = make(map[string]interface{})

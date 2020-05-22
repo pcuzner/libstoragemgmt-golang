@@ -1,6 +1,8 @@
 package libstoragemgmt
 
-import "os"
+import (
+	"os"
+)
 
 // UdsPath ... returns the unix domain file path
 func udsPath() string {
@@ -9,4 +11,22 @@ func udsPath() string {
 		return p
 	}
 	return udsPathDefault
+}
+
+func contains(s []string, v string) bool {
+	for _, a := range s {
+		if a == v {
+			return true
+		}
+	}
+	return false
+}
+
+func emptySliceIfNil(provided []string) []string {
+	var empty = make([]string, 0)
+
+	if provided != nil {
+		return provided
+	}
+	return empty
 }

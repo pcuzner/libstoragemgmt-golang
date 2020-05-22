@@ -408,9 +408,22 @@ type NfsExport struct {
 	Rw         []string `json:"rw"`
 	Ro         []string `json:"ro"`
 	AnonUID    int64    `json:"anonuid"`
+	AnonGID    int64    `json:"anongid"`
 	Options    string   `json:"options"`
 	PluginData *string  `json:"plugin_data"`
 }
+
+// NfsAccess argument for exporting a filesystem
+type NfsAccess struct {
+	Root    []string
+	Rw      []string
+	Ro      []string
+	AnonUID int64
+	AnonGID int64
+}
+
+// AnonUIDGIDNotApplicable use when anonUID or anonGID not applicable for NfsAccess.
+const AnonUIDGIDNotApplicable int64 = -1
 
 // AccessGroup represents a collection of initiators.
 type AccessGroup struct {
