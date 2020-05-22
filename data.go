@@ -22,7 +22,7 @@ type System struct {
 	Name         string           `json:"name"`
 	Status       SystemStatusType `json:"status"`
 	StatusInfo   string           `json:"status_info"`
-	PluginData   string           `json:"plugin_data"`
+	PluginData   *string          `json:"plugin_data"`
 	FwVersion    string           `json:"fw_version"`
 	ReadCachePct int8             `json:"read_cache_pct"`
 	SystemMode   SystemModeType   `json:"mode"`
@@ -154,7 +154,7 @@ type Pool struct {
 	FreeSpace          uint64              `json:"free_space"`
 	Status             PoolStatusType      `json:"status"`
 	StatusInfo         string              `json:"status_info"`
-	PluginData         string              `json:"plugin_data"`
+	PluginData         *string             `json:"plugin_data"`
 	SystemID           string              `json:"system_id"`
 }
 
@@ -241,7 +241,7 @@ type Disk struct {
 	BlockSize   uint64         `json:"block_size"`
 	NumOfBlocks uint64         `json:"num_of_blocks"`
 	Status      DiskStatusType `json:"status"`
-	PluginData  string         `json:"plugin_data"`
+	PluginData  *string        `json:"plugin_data"`
 	SystemID    string         `json:"system_id"`
 	Location    string         `json:"location"`
 	Rpm         int            `json:"rpm"`
@@ -387,14 +387,14 @@ const (
 
 // FileSystem represents a file systems information
 type FileSystem struct {
-	Class      string `json:"class"`
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	TotalSpace uint64 `json:"total_space"`
-	FreeSpace  uint64 `json:"free_space"`
-	PluginData string `json:"plugin_data"`
-	SystemID   string `json:"system_id"`
-	PoolID     string `json:"pool_id"`
+	Class      string  `json:"class"`
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	TotalSpace uint64  `json:"total_space"`
+	FreeSpace  uint64  `json:"free_space"`
+	PluginData *string `json:"plugin_data"`
+	SystemID   string  `json:"system_id"`
+	PoolID     string  `json:"pool_id"`
 }
 
 // NfsExport represents exported file systems over NFS.
@@ -409,7 +409,7 @@ type NfsExport struct {
 	Ro         []string `json:"ro"`
 	AnonUID    int64    `json:"anonuid"`
 	Options    string   `json:"options"`
-	PluginData string   `json:"plugin_data"`
+	PluginData *string  `json:"plugin_data"`
 }
 
 // AccessGroup represents a collection of initiators.
@@ -419,7 +419,7 @@ type AccessGroup struct {
 	Name          string        `json:"name"`
 	InitIDs       []string      `json:"init_ids"`
 	InitiatorType InitiatorType `json:"init_type"`
-	PluginData    string        `json:"plugin_data"`
+	PluginData    *string       `json:"plugin_data"`
 	SystemID      string        `json:"system_id"`
 }
 
@@ -452,7 +452,7 @@ type TargetPort struct {
 	NetworkAddress  string   `json:"network_address"`
 	PhysicalAddress string   `json:"physical_address"`
 	PhysicalName    string   `json:"physical_name"`
-	PluginData      string   `json:"plugin_data"`
+	PluginData      *string  `json:"plugin_data"`
 	SystemID        string   `json:"system_id"`
 }
 
@@ -480,7 +480,7 @@ type Battery struct {
 	ID          string        `json:"id"`
 	Name        string        `json:"name"`
 	BatteryType BatteryType   `json:"type"`
-	PluginData  string        `json:"plugin_data"`
+	PluginData  *string       `json:"plugin_data"`
 	Status      BatteryStatus `json:"status"`
 	SystemID    string        `json:"system_id"`
 }
@@ -810,9 +810,9 @@ func (b *BlockRange) MarshalJSON() ([]byte, error) {
 
 // FileSystemSnapShot defines information relating to a file system snapshot
 type FileSystemSnapShot struct {
-	Class      string `json:"class"`
-	ID         string `json:"id"`
-	Name       string `json:"name"`
-	Ts         uint64 `json:"ts"`
-	PluginData string `json:"plugin_data"`
+	Class      string  `json:"class"`
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	Ts         uint64  `json:"ts"`
+	PluginData *string `json:"plugin_data"`
 }
