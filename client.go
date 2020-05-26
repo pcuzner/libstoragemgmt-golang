@@ -410,6 +410,23 @@ func (c *ClientConnection) TimeOutGet() uint32 {
 	return c.timeout
 }
 
+// SysReadCachePctSet changes the read cache percentage for the specified system.
+func (c *ClientConnection) SysReadCachePctSet(system *System, readPercent uint32) error {
+
+	if readPercent > 100 {
+		return &errors.LsmError{
+			Code: errors.InvalidArgument,
+			Message: fmt.Sprintf(
+				"Invalid readPercent %d, valid range 0-100", readPercent)}
+	}
+
+	var args = make(map[string]interface{})
+	args["system"] = *system
+	args["read_pct"] = readPercent
+
+	return c.tp.invoke("system_read_cache_pct_update", args, nil)
+}
+
 // VolumeCreate creates a block device, returns job id, error.
 // If job id and error are nil, then returnedVolume has newly created volume.
 func (c *ClientConnection) VolumeCreate(
