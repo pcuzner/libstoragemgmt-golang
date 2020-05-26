@@ -829,3 +829,69 @@ type FileSystemSnapShot struct {
 	Ts         uint64  `json:"ts"`
 	PluginData *string `json:"plugin_data"`
 }
+
+// RaidType what type of RAID
+type RaidType int
+
+const (
+	// RaidUnknown Plugin failed to detect RAID type.
+	RaidUnknown RaidType = -1
+
+	// Raid0 https://en.wikipedia.org/wiki/Standard_RAID_levels#RAID_0
+	Raid0 RaidType = 0
+
+	// Raid1 is disk mirror
+	Raid1 RaidType = 1
+
+	// Raid3 is byte level striping with dedicated parity
+	Raid3 RaidType = 3
+
+	// Raid4 Block-level striping with dedicated parity.
+	Raid4 RaidType = 4
+
+	// Raid5 Block-level striping with distributed parity.
+	Raid5 RaidType = 5
+
+	// Raid6 Block-level striping with two distributed parities. Also known as
+	// RAID-DP.
+	Raid6 RaidType = 6
+
+	// Raid10 Stripe of mirrors.
+	Raid10 RaidType = 10
+
+	// Raid15 Parity of mirrors.
+	Raid15 RaidType = 15
+
+	// Raid16 Dual parity of mirrors.
+	Raid16 RaidType = 16
+
+	// Raid50 Stripe of parities.
+	Raid50 RaidType = 50
+
+	// Raid60 Stripe of dual parities.
+	Raid60 RaidType = 60
+
+	// Raid51 Mirror of parities.
+	Raid51 RaidType = 51
+
+	// Raid61 Mirror of dual parities.
+	Raid61 RaidType = 61
+
+	// RaidJbod Just bunch of disks, no parity, no striping.
+	RaidJbod RaidType = 20
+
+	// RaidMixed volume contains multiple RAID settings.
+	RaidMixed RaidType = 21
+
+	// RaidOther Vendor specific RAID type
+	RaidOther RaidType = 22
+)
+
+// VolumeRaidInfo information about RAID
+type VolumeRaidInfo struct {
+	Type      RaidType
+	StripSize uint32
+	DiskCount uint32
+	MinIOSize uint32
+	OptIOSize uint32
+}
