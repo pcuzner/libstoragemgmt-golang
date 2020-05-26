@@ -498,6 +498,23 @@ func TestVolumeRaidType(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestPoolMemberInfo(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var pools, volErr = c.Pools()
+	assert.Nil(t, volErr)
+
+	var poolInfo, poolInfoErr = c.PoolMemberInfo(&pools[0])
+	assert.Nil(t, poolInfoErr)
+	assert.NotNil(t, poolInfo)
+
+	t.Logf("%+v", poolInfo)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestVolumeReplicate(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
