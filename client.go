@@ -427,6 +427,20 @@ func (c *ClientConnection) SysReadCachePctSet(system *System, readPercent uint32
 	return c.tp.invoke("system_read_cache_pct_update", args, nil)
 }
 
+// IscsiChapAuthSet iSCSI CHAP authentication.
+func (c *ClientConnection) IscsiChapAuthSet(initID string, inUser *string, inPassword *string,
+	outUser *string, outPassword *string) error {
+
+	var args = make(map[string]interface{})
+	args["init_id"] = initID
+	args["in_user"] = inUser
+	args["in_password"] = inPassword
+	args["out_user"] = outUser
+	args["out_password"] = outPassword
+
+	return c.tp.invoke("iscsi_chap_auth", args, nil)
+}
+
 // VolumeCreate creates a block device, returns job id, error.
 // If job id and error are nil, then returnedVolume has newly created volume.
 func (c *ClientConnection) VolumeCreate(
