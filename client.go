@@ -560,6 +560,14 @@ func (c *ClientConnection) VolsMaskedToAg(ag *AccessGroup) ([]Volume, error) {
 	return volumes, c.tp.invoke("volumes_accessible_by_access_group", args, &volumes)
 }
 
+// AgsGrantedToVol returns access group(s) which have access to specified volume
+func (c *ClientConnection) AgsGrantedToVol(vol *Volume) ([]AccessGroup, error) {
+	var args = make(map[string]interface{})
+	args["volume"] = *vol
+	var accessGroups []AccessGroup
+	return accessGroups, c.tp.invoke("access_groups_granted_to_volume", args, &accessGroups)
+}
+
 // FsCreate creates a file system, returns job id, error.
 // If job id and error are nil, then returnedFs has newly created filesystem.
 func (c *ClientConnection) FsCreate(
