@@ -791,3 +791,22 @@ func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
 	args["init_type"] = initType
 	return c.tp.invoke("access_group_initiator_delete", args, accessGroup)
 }
+
+// VolRaidInfo retrieves RAID information about specified volume.
+func (c *ClientConnection) VolRaidInfo(vol *Volume) (*VolumeRaidInfo, error) {
+	var args = make(map[string]interface{})
+	args["volume"] = *vol
+
+	var ret [5]int32
+	var err = c.tp.invoke("volume_raid_info", args, &ret)
+	if err != nil {
+		return nil, err
+	}
+	var info VolumeRaidInfo
+	info.Type = RaidType(ret[0])
+	info.StripSize = uint32(ret[1])
+	info.DiskCount = uint32(ret[2])
+	info.MinIOSize = uint32(ret[3])
+	info.OptIOSize = uint32(ret[4])
+	return &info, nil
+}
