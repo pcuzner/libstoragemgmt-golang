@@ -483,6 +483,21 @@ func TestVolumeResize(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestVolumeRaidType(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volumes, volErr = c.Volumes()
+	assert.Nil(t, volErr)
+
+	var raidInfo, raidInfoErr = c.VolRaidInfo(&volumes[0])
+	assert.Nil(t, raidInfoErr)
+	assert.NotNil(t, raidInfo)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestVolumeReplicate(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
