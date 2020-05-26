@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	lsm "github.com/libstorage/libstoragemgmt-golang"
+	errors "github.com/libstorage/libstoragemgmt-golang/errors"
 )
 
 var URI = getEnv("LSM_GO_URI", "sim://")
@@ -58,6 +59,22 @@ func TestSystems(t *testing.T) {
 	for _, s := range systems {
 		t.Logf("%+v", s)
 	}
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestReadCachePercentSet(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+	var systems, sysError = c.Systems()
+	assert.Nil(t, sysError)
+
+	assert.Nil(t, c.SysReadCachePctSet(&systems[0], 0))
+	assert.Nil(t, c.SysReadCachePctSet(&systems[0], 100))
+
+	var expectedErr = c.SysReadCachePctSet(&systems[0], 101)
+	assert.NotNil(t, expectedErr)
+	var e = expectedErr.(*errors.LsmError)
+	assert.Equal(t, e.Code, errors.InvalidArgument)
+
 	assert.Equal(t, c.Close(), nil)
 }
 
