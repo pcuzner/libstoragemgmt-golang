@@ -78,6 +78,25 @@ func TestReadCachePercentSet(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestIscsiChapSet(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var init = "iqn.1994-05.com.domain:01.89bd01"
+	var e = c.IscsiChapAuthSet(init, nil, nil, nil, nil)
+
+	var u = rs("user_", 3)
+	var p = rs("password_", 3)
+	e = c.IscsiChapAuthSet(init, &u, &p, nil, nil)
+	assert.Nil(t, e)
+
+	var outU = rs("outuser_", 3)
+	var outP = rs("out_password_", 3)
+	e = c.IscsiChapAuthSet(init, &u, &p, &outU, &outP)
+	assert.Nil(t, e)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestVolumes(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var items, err = c.Volumes()
