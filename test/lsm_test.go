@@ -221,8 +221,17 @@ func TestAccessGroups(t *testing.T) {
 		var maskErr = c.VolumeMask(&volumes[0], &ag)
 		assert.Nil(t, maskErr)
 
+		var volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
+		assert.Nil(t, volsMaskedErr)
+		assert.Equal(t, len(volsMasked), 1)
+		assert.Equal(t, volumes[0].Name, volsMasked[0].Name)
+
 		var unmaskErr = c.VolumeUnMask(&volumes[0], &ag)
 		assert.Nil(t, unmaskErr)
+
+		volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
+		assert.Nil(t, volsMaskedErr)
+		assert.Equal(t, len(volsMasked), 0)
 
 		var agInitAdd lsm.AccessGroup
 		var initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
