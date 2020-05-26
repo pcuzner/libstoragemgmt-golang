@@ -760,35 +760,34 @@ func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
 	return c.tp.invoke("access_group_delete", args, result)
 }
 
+func initSetup(initID string,
+	initType InitiatorType, accessGroup *AccessGroup) (map[string]interface{}, error) {
+
+	var check = validateInitID(initID, initType)
+	var args = make(map[string]interface{})
+	args["access_group"] = *accessGroup
+	args["init_id"] = initID
+	args["init_type"] = initType
+	return args, check
+}
+
 // AccessGroupInitAdd adds an initiator to an access group.
 func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
 	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
-
-	var check = validateInitID(initID, initType)
-	if check != nil {
-		return check
+	var args, setupErr = initSetup(initID, initType, ag)
+	if setupErr != nil {
+		return setupErr
 	}
-
-	var args = make(map[string]interface{})
-	args["access_group"] = *ag
-	args["init_id"] = initID
-	args["init_type"] = initType
 	return c.tp.invoke("access_group_initiator_add", args, accessGroup)
 }
 
 // AccessGroupInitDelete deletes an initiator from an access group.
 func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
 	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
-
-	var check = validateInitID(initID, initType)
-	if check != nil {
-		return check
+	var args, setupErr = initSetup(initID, initType, ag)
+	if setupErr != nil {
+		return setupErr
 	}
-
-	var args = make(map[string]interface{})
-	args["access_group"] = *ag
-	args["init_id"] = initID
-	args["init_type"] = initType
 	return c.tp.invoke("access_group_initiator_delete", args, accessGroup)
 }
 
