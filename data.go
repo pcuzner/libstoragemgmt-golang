@@ -895,3 +895,27 @@ type VolumeRaidInfo struct {
 	MinIOSize uint32
 	OptIOSize uint32
 }
+
+// MemberType represents unique type for pool member type
+type MemberType int
+
+const (
+	// MemberTypeUnknown plugin failed to detect the RAID member type.
+	MemberTypeUnknown MemberType = 0
+
+	// MemberTypeOther vendor specific RAID member type.
+	MemberTypeOther MemberType = 1
+
+	// MemberTypeDisk pool is created from RAID group using whole disks.
+	MemberTypeDisk MemberType = 2
+
+	// MemberTypePool pool is allocated from other pool.
+	MemberTypePool MemberType = 3
+)
+
+// PoolMemberInfo information about what a pool is composed from.
+type PoolMemberInfo struct {
+	Raid   RaidType
+	Member MemberType
+	ID     []string
+}
