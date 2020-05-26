@@ -552,6 +552,14 @@ func (c *ClientConnection) VolumeUnMask(vol *Volume, ag *AccessGroup) error {
 	return c.tp.invoke("volume_unmask", args, nil)
 }
 
+// VolsMaskedToAg returns the volumes accessible to access group
+func (c *ClientConnection) VolsMaskedToAg(ag *AccessGroup) ([]Volume, error) {
+	var args = make(map[string]interface{})
+	args["access_group"] = *ag
+	var volumes []Volume
+	return volumes, c.tp.invoke("volumes_accessible_by_access_group", args, &volumes)
+}
+
 // FsCreate creates a file system, returns job id, error.
 // If job id and error are nil, then returnedFs has newly created filesystem.
 func (c *ClientConnection) FsCreate(
