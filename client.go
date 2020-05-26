@@ -809,3 +809,41 @@ func (c *ClientConnection) VolRaidInfo(vol *Volume) (*VolumeRaidInfo, error) {
 	info.OptIOSize = uint32(ret[4])
 	return &info, nil
 }
+
+// PoolMemberInfo retrieves RAID information about specified volume.
+func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
+	var args = make(map[string]interface{})
+	args["pool"] = *pool
+
+	var ret [3]json.RawMessage
+	var err = c.tp.invoke("pool_member_info", args, &ret)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var info PoolMemberInfo
+
+	var uE = json.Unmarshal(ret[0], &info.Raid)
+	if uE != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("First array item not a raid type %s", ret[0])}
+	}
+
+	uE = json.Unmarshal(ret[1], &info.Member)
+	if uE != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Second array item not a pool member type %s", ret[1])}
+	}
+
+	uE = json.Unmarshal(ret[2], &info.ID)
+	if uE != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Third array item not array of strings %s", ret[2])}
+	}
+
+	return &info, nil
+}
