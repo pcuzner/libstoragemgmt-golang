@@ -20,26 +20,26 @@ func (e *LsmError) Error() string {
 
 const (
 	// LibBug ... Library bug
-	LibBug = 1
+	LibBug int32 = 1
 
 	// PluginBug ... Bug found in plugin
-	PluginBug = 2
+	PluginBug int32 = 2
 
 	// JobStarted ... Job has been started
-	JobStarted = 7
+	JobStarted int32 = 7
 
 	// TimeOut ... Plugin timeout
-	TimeOut = 11
+	TimeOut int32 = 11
 
 	// DameonNotRunning ... lsmd does not appear to be running
-	DameonNotRunning = 12
+	DameonNotRunning int32 = 12
 
 	// InvalidArgument ... provided argument is incorrect
-	InvalidArgument = 101
+	InvalidArgument int32 = 101
 
 	// PluginNotExist ... Plugin doesn't apprear to exist
-	PluginNotExist = 311
+	PluginNotExist int32 = 311
 
 	//TransPortComunication ... Issue reading/writing to plugin
-	TransPortComunication = 400
+	TransPortComunication int32 = 400
 )
