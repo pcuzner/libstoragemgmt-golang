@@ -943,3 +943,23 @@ func (c *ClientConnection) VolIdentLedOff(volume *Volume) error {
 	return c.identLED(volume, "volume_ident_led_off")
 }
 
+// VolCacheInfo returns cache information for specified volume
+func (c *ClientConnection) VolCacheInfo(volume *Volume) (*VolumeCacheInfo, error) {
+	var args = make(map[string]interface{})
+	args["volume"] = *volume
+
+	var ret [5]uint32
+	var err = c.tp.invoke("volume_cache_info", args, &ret)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var info VolumeCacheInfo
+	info.WriteSetting = WriteCachePolicy(ret[0])
+	info.WriteStatus = WriteCacheStatus(ret[1])
+	info.ReadSetting = ReadCachePolicy(ret[2])
+	info.ReadStatus = ReadCacheStatus(ret[3])
+	info.PhysicalDiskStatus = PhysicalDiskCache(ret[4])
+	return &info, nil
+}
