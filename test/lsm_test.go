@@ -515,6 +515,22 @@ func TestPoolMemberInfo(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestRaidCreateCapGet(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var systems, sysErr = c.Systems()
+	assert.Nil(t, sysErr)
+
+	var cap, errCapGet = c.VolRaidCreateCapGet(&systems[0])
+	assert.NotNil(t, cap)
+	assert.Nil(t, errCapGet)
+	t.Logf("%+v", cap)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestVolumeReplicate(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
