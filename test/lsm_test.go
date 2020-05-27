@@ -564,6 +564,20 @@ func TestVolWriteCacheSet(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestVolReadCacheSet(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volumes, volErr = c.Volumes()
+	assert.Nil(t, volErr)
+
+	var cacheSetErr = c.VolReadCacheSet(&volumes[0], lsm.ReadCachePolicyEnabled)
+	assert.Nil(t, cacheSetErr)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestPoolMemberInfo(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
