@@ -879,3 +879,50 @@ func (c *ClientConnection) VolRaidCreateCapGet(system *System) (*SupportedRaidCa
 
 	return &info, nil
 }
+
+func paramError(msg string) error {
+	return &errors.LsmError{
+		Code:    errors.InvalidArgument,
+		Message: msg}
+}
+
+// VolRaidCreate creates RAIDed volume directly from disks, only for hardware RAID.
+func (c *ClientConnection) VolRaidCreate(name string,
+	raidType RaidType, disks []Disk, stripSize uint32, returnedVolume *Volume) error {
+
+	if len(disks) == 0 {
+		return paramError("no disks included")
+	}
+
+	if raidType == Raid1 && len(disks) != 2 {
+		return paramError("RAID 1 only allows 2 disks")
+	}
+
+	if raidType == Raid5 && len(disks) < 3 {
+		return paramError("RAID 5 requires 3 or more disks")
+	}
+
+	if raidType == Raid6 && len(disks) < 4 {
+		return paramError("RAID 6 requires 4 or more disks")
+	}
+
+	if raidType == Raid10 && (len(disks)%2 != 0 || len(disks) < 4) {
+		return paramError("RAID 10 requires even disks count and 4 or more disks")
+	}
+
+	if raidType == Raid50 && (len(disks)%2 != 0 || len(disks) < 6) {
+		return paramError("RAID 50 requires even disks count and 6 or more disks")
+	}
+
+	if raidType == Raid60 && (len(disks)%2 != 0 || len(disks) < 8) {
+		return paramError("RAID 60 requires even disks count and 8 or more disks")
+	}
+
+	var args = make(map[string]interface{})
+	args["name"] = name
+	args["raid_type"] = raidType
+	args["disks"] = disks
+	args["strip_size"] = stripSize // stripe
+
+	return c.tp.invoke("volume_raid_create", args, returnedVolume)
+}
