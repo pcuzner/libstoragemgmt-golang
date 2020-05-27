@@ -519,6 +519,23 @@ func TestVolumeRaidType(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestVolumeCacheInfo(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volumes, volErr = c.Volumes()
+	assert.Nil(t, volErr)
+
+	var cacheInfo, raidInfoErr = c.VolCacheInfo(&volumes[0])
+	assert.Nil(t, raidInfoErr)
+	assert.NotNil(t, cacheInfo)
+
+	t.Logf("%+v", cacheInfo)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestPoolMemberInfo(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
