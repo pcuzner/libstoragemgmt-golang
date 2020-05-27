@@ -971,3 +971,11 @@ func (c *ClientConnection) VolPhyDiskCacheSet(volume *Volume, pdc PhysicalDiskCa
 	args["pdc"] = pdc
 	return c.tp.invoke("volume_physical_disk_cache_update", args, nil)
 }
+
+// VolWriteCacheSet sets volume write cache policy
+func (c *ClientConnection) VolWriteCacheSet(volume *Volume, wcp WriteCachePolicy) error {
+	var args = make(map[string]interface{})
+	args["volume"] = *volume
+	args["wcp"] = wcp
+	return c.tp.invoke("volume_write_cache_policy_update", args, nil)
+}
