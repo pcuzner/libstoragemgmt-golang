@@ -963,3 +963,11 @@ func (c *ClientConnection) VolCacheInfo(volume *Volume) (*VolumeCacheInfo, error
 	info.PhysicalDiskStatus = PhysicalDiskCache(ret[4])
 	return &info, nil
 }
+
+// VolPhyDiskCacheSet set the volume physical disk cache policy
+func (c *ClientConnection) VolPhyDiskCacheSet(volume *Volume, pdc PhysicalDiskCache) error {
+	var args = make(map[string]interface{})
+	args["volume"] = *volume
+	args["pdc"] = pdc
+	return c.tp.invoke("volume_physical_disk_cache_update", args, nil)
+}
