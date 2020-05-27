@@ -536,6 +536,20 @@ func TestVolumeCacheInfo(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestVolPhyDiskCacheSet(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var volumes, volErr = c.Volumes()
+	assert.Nil(t, volErr)
+
+	var cacheSetErr = c.VolPhyDiskCacheSet(&volumes[0], lsm.PhysicalDiskCacheUseDiskSetting)
+	assert.Nil(t, cacheSetErr)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestPoolMemberInfo(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
