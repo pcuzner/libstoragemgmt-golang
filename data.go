@@ -925,3 +925,80 @@ type SupportedRaidCapability struct {
 	Types       []RaidType
 	StripeSizes []uint32
 }
+
+// WriteCachePolicy represents write cache policy type
+type WriteCachePolicy uint32
+
+// ReadCachePolicy represents read cache policy type
+type ReadCachePolicy uint32
+
+// WriteCacheStatus represente write cache status type
+type WriteCacheStatus uint32
+
+// ReadCacheStatus represents read cache status type
+type ReadCacheStatus uint32
+
+// PhysicalDiskCache represents pyhsical disk caching type
+type PhysicalDiskCache uint32
+
+const (
+	// WriteCachePolicyUnknown ...
+	WriteCachePolicyUnknown WriteCachePolicy = 1
+
+	// WriteCachePolicyWriteBack ...
+	WriteCachePolicyWriteBack WriteCachePolicy = 2
+
+	// WriteCachePolicyAuto ...
+	WriteCachePolicyAuto WriteCachePolicy = 3
+
+	// WriteCachePolicyWriteThrough ...
+	WriteCachePolicyWriteThrough WriteCachePolicy = 4
+
+	// WriteCacheStatusUnknown ...
+	WriteCacheStatusUnknown WriteCacheStatus = 1
+
+	// WriteCacheStatusWriteBack ...
+	WriteCacheStatusWriteBack WriteCacheStatus = 2
+
+	// WriteCacheStatusWriteThrough ...
+	WriteCacheStatusWriteThrough WriteCacheStatus = 3
+
+	// ReadCachePolicyUnknown ...
+	ReadCachePolicyUnknown ReadCachePolicy = 1
+
+	// ReadCachePolicyEnabled ...
+	ReadCachePolicyEnabled ReadCachePolicy = 2
+
+	// ReadCachePolicyDisabled ...
+	ReadCachePolicyDisabled ReadCachePolicy = 3
+
+	// ReadCacheStatusUnknown ...
+	ReadCacheStatusUnknown ReadCacheStatus = 1
+
+	// ReadCacheStatusEnabled ...
+	ReadCacheStatusEnabled ReadCacheStatus = 2
+
+	// ReadCacheStatusDisabled ...
+	ReadCacheStatusDisabled ReadCacheStatus = 3
+
+	// PhysicalDiskCacheUnknown ...
+	PhysicalDiskCacheUnknown PhysicalDiskCache = 1
+
+	// PhysicalDiskCacheEnabled ...
+	PhysicalDiskCacheEnabled PhysicalDiskCache = 2
+
+	// PhysicalDiskCacheDisabled ...
+	PhysicalDiskCacheDisabled PhysicalDiskCache = 3
+
+	// PhysicalDiskCacheUseDiskSetting ...
+	PhysicalDiskCacheUseDiskSetting PhysicalDiskCache = 4
+)
+
+// VolumeCacheInfo contains informationa about volume caching values
+type VolumeCacheInfo struct {
+	WriteSetting       WriteCachePolicy
+	WriteStatus        WriteCacheStatus
+	ReadSetting        ReadCachePolicy
+	ReadStatus         ReadCacheStatus
+	PhysicalDiskStatus PhysicalDiskCache
+}
