@@ -919,3 +919,9 @@ type PoolMemberInfo struct {
 	Member MemberType
 	ID     []string
 }
+
+// SupportedRaidCapability is types and stripe sizes RAID storage supports.
+type SupportedRaidCapability struct {
+	Types       []RaidType
+	StripeSizes []uint32
+}
