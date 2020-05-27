@@ -979,3 +979,11 @@ func (c *ClientConnection) VolWriteCacheSet(volume *Volume, wcp WriteCachePolicy
 	args["wcp"] = wcp
 	return c.tp.invoke("volume_write_cache_policy_update", args, nil)
 }
+
+// VolReadCacheSet sets volume write cache policy
+func (c *ClientConnection) VolReadCacheSet(volume *Volume, rcp ReadCachePolicy) error {
+	var args = make(map[string]interface{})
+	args["volume"] = *volume
+	args["rcp"] = rcp
+	return c.tp.invoke("volume_read_cache_policy_update", args, nil)
+}
