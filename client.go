@@ -926,3 +926,15 @@ func (c *ClientConnection) VolRaidCreate(name string,
 
 	return c.tp.invoke("volume_raid_create", args, returnedVolume)
 }
+
+func (c *ClientConnection) identLED(volume *Volume, method string) error {
+	var args = make(map[string]interface{})
+	args["volume"] = *volume
+	return c.tp.invoke(method, args, nil)
+}
+
+// VolIdentLedOn turn on the identification LED for the specified volume.
+func (c *ClientConnection) VolIdentLedOn(volume *Volume) error {
+	return c.identLED(volume, "volume_ident_led_on")
+}
+
