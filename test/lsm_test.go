@@ -531,6 +531,32 @@ func TestRaidCreateCapGet(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestVolRaidCreate(t *testing.T) {
+	var c, err = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, err)
+	assert.NotNil(t, c)
+
+	var name = rs("lsm_go_vol_", 4)
+
+	var disks, diskErr = c.Disks()
+	assert.Nil(t, diskErr)
+
+	var volume lsm.Volume
+	// TODO: Change this to find qualifying disks at runtime instead of hardcoding
+	// known useful disks.
+	var volumeErr = c.VolRaidCreate(name, lsm.Raid5, disks[15:20], 0, &volume)
+	assert.Nil(t, volumeErr)
+
+	if volumeErr == nil {
+		assert.Equal(t, volume.Name, name)
+		var jobID, volDelErr = c.VolumeDelete(&volume, true)
+		assert.Nil(t, jobID)
+		assert.Nil(t, volDelErr)
+	}
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestVolumeReplicate(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
