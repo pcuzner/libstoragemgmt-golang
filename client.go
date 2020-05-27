@@ -849,3 +849,33 @@ func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
 
 	return &info, nil
 }
+
+// VolRaidCreateCapGet returns supported RAID types and strip sizes for hardware raid.
+func (c *ClientConnection) VolRaidCreateCapGet(system *System) (*SupportedRaidCapability, error) {
+	var args = make(map[string]interface{})
+	args["system"] = *system
+
+	var ret []json.RawMessage
+	var err = c.tp.invoke("volume_raid_create_cap_get", args, &ret)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var info SupportedRaidCapability
+	var uE = json.Unmarshal(ret[0], &info.Types)
+	if uE != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("First array item not array of raid types %s", ret[0])}
+	}
+
+	uE = json.Unmarshal(ret[1], &info.StripeSizes)
+	if uE != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Second array item not array of stripe sizes %s", ret[1])}
+	}
+
+	return &info, nil
+}
