@@ -544,7 +544,7 @@ func TestVolPhyDiskCacheSet(t *testing.T) {
 	var volumes, volErr = c.Volumes()
 	assert.Nil(t, volErr)
 
-	var cacheSetErr = c.VolPhyDiskCacheSet(&volumes[0], lsm.PhysicalDiskCacheUseDiskSetting)
+	var cacheSetErr = c.VolPhyDiskCacheSet(&volumes[0], lsm.PhysicalDiskCacheEnabled)
 	assert.Nil(t, cacheSetErr)
 
 	assert.Equal(t, c.Close(), nil)
