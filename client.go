@@ -938,3 +938,8 @@ func (c *ClientConnection) VolIdentLedOn(volume *Volume) error {
 	return c.identLED(volume, "volume_ident_led_on")
 }
 
+// VolIdentLedOff turn off the identification LED for the specified volume.
+func (c *ClientConnection) VolIdentLedOff(volume *Volume) error {
+	return c.identLED(volume, "volume_ident_led_off")
+}
+
