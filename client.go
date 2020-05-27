@@ -824,6 +824,8 @@ func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
 
 	var info PoolMemberInfo
 
+	// JSON is [number, number, [string,] ]
+
 	var uE = json.Unmarshal(ret[0], &info.Raid)
 	if uE != nil {
 		return nil, &errors.LsmError{
