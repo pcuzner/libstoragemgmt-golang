@@ -795,6 +795,16 @@ func TestVolumeReplicate(t *testing.T) {
 	assert.Equal(t, repVol.Name, repName)
 
 	c.VolumeDelete(&repVol, true)
+
+	var pools, poolError = c.Pools()
+	assert.Nil(t, poolError)
+
+	jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	assert.Nil(t, jobID)
+	assert.Nil(t, errRep)
+
+	c.VolumeDelete(&repVol, true)
+
 	c.VolumeDelete(srcVol, true)
 	assert.Equal(t, c.Close(), nil)
 
