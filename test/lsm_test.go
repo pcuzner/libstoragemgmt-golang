@@ -254,6 +254,9 @@ func TestNfsExports(t *testing.T) {
 		var exportErr = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
 		assert.Nil(t, exportErr)
 		assert.Equal(t, export.ExportPath, exportPath)
+
+		var unExportErr = c.FsUnExport(&export)
+		assert.Nil(t, unExportErr)
 	}
 
 	for _, i := range items {
