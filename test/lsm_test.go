@@ -76,6 +76,14 @@ func TestPluginInfo(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestAvailablePlugins(t *testing.T) {
+
+	var plugins, err = lsm.AvailablePlugins()
+	assert.Nil(t, err)
+
+	t.Logf("%+v", plugins)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
