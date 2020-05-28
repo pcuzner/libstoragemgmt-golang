@@ -54,6 +54,17 @@ func TestMissingPlugin(t *testing.T) {
 	assert.NotNil(t, libError)
 }
 
+func TestBadUdsPath(t *testing.T) {
+	const KEY = "LSM_UDS_PATH"
+	var current = os.Getenv(KEY)
+
+	os.Setenv(KEY, rs("/tmp/", 8))
+	var _, libError = lsm.Client(URI, PASSWORD, TMO)
+	assert.NotNil(t, libError)
+
+	os.Setenv(KEY, current)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
