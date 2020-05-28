@@ -276,15 +276,31 @@ func TestNfsExports(t *testing.T) {
 		assert.Nil(t, err)
 		var access lsm.NfsAccess
 
-		access.Root = []string{"192.168.1.1"}
-		access.Rw = []string{"192.168.1.1"}
-		access.AnonGID = lsm.AnonUIDGIDNotApplicable
-		access.AnonUID = lsm.AnonUIDGIDNotApplicable
-
-		var export lsm.NfsExport
-
 		var exportPath = "/mnt/fubar"
 		var auth = "standard"
+		access.AnonGID = lsm.AnonUIDGIDNotApplicable
+		access.AnonUID = lsm.AnonUIDGIDNotApplicable
+		var export lsm.NfsExport
+
+		// Test bad arguments
+		access.Ro = make([]string, 0)
+		access.Rw = make([]string, 0)
+		var e = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.NotNil(t, e)
+
+		access.Root = []string{"192.168.1.1"}
+		access.Rw = []string{"192.168.1.2"}
+		e = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.NotNil(t, e)
+
+		access.Root = make([]string, 0)
+		access.Rw = []string{"192.168.1.2"}
+		access.Ro = []string{"192.168.1.2"}
+		e = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.NotNil(t, e)
+
+		// This one should be good
+		access.Rw = []string{"192.168.1.1"}
 		var exportErr = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
 		assert.Nil(t, exportErr)
 		assert.Equal(t, export.ExportPath, exportPath)
