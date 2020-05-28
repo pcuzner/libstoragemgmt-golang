@@ -848,8 +848,17 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Nil(t, resizedErr)
 	assert.NotEqual(t, newFs.TotalSpace, resizedFs)
 
+	var snapShot lsm.FileSystemSnapShot
+	var _, ssE = c.FsSnapShotCreate(&resizedFs, rs("lsm_go_ss_", 8), true, &snapShot)
+	assert.Nil(t, ssE)
+
 	var cloned lsm.FileSystem
 	var cloneFsJob, cloneErr = c.FsClone(&resizedFs, "lsm_go_cloned_fs", nil, true, &cloned)
+	assert.Nil(t, cloneFsJob)
+	assert.Nil(t, cloneErr)
+
+	var cloned2 lsm.FileSystem
+	cloneFsJob, cloneErr = c.FsClone(&resizedFs, "lsm_go_cloned_fs_from_ss", &snapShot, true, &cloned2)
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
@@ -857,6 +866,10 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Equal(t, resizedFs.TotalSpace, cloned.TotalSpace)
 
 	var delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned, true)
+	assert.Nil(t, delcloneFsJob)
+	assert.Nil(t, delCloneFsErr)
+
+	delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned2, true)
 	assert.Nil(t, delcloneFsJob)
 	assert.Nil(t, delCloneFsErr)
 
