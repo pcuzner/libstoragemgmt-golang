@@ -84,6 +84,40 @@ func TestAvailablePlugins(t *testing.T) {
 	t.Logf("%+v", plugins)
 }
 
+func TestJobs(t *testing.T) {
+	var c, libError = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, libError)
+
+	var pools, pE = c.Pools()
+	assert.Nil(t, pE)
+
+	var name = rs("lsm_go_vol_", 12)
+	var volume lsm.Volume
+	var jobID, vcE = c.VolumeCreate(&pools[0],
+		name, 1024*1024*100, lsm.VolumeProvisionTypeDefault, false, &volume)
+	assert.Nil(t, vcE)
+	assert.NotNil(t, jobID)
+
+	// Supply a bad job id
+	var status, percent, err = c.JobStatus("bogus", &volume)
+	assert.True(t, (percent >= 0 && percent <= 100))
+	assert.NotNil(t, err)
+	assert.Equal(t, status, lsm.JobStatusError)
+
+	// Poll for completion using actual jobID
+	for true {
+		status, percent, err = c.JobStatus(*jobID, &volume)
+		assert.True(t, (percent >= 0 && percent <= 100))
+		assert.Nil(t, err)
+		assert.True(t, status == lsm.JobStatusInprogress || status == lsm.JobStatusComplete)
+		if status != lsm.JobStatusInprogress {
+			break
+		}
+	}
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestAvailablePluginsBadUds(t *testing.T) {
 	const KEY = "LSM_UDS_PATH"
 	var current = os.Getenv(KEY)
