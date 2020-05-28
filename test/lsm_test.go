@@ -98,6 +98,21 @@ func TestAvailablePluginsBadUds(t *testing.T) {
 	os.Setenv(KEY, current)
 }
 
+func TestBadSeach(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var _, sE = c.Volumes("what")
+	assert.NotNil(t, sE)
+
+	_, sE = c.NfsExports("what")
+	assert.NotNil(t, sE)
+
+	_, sE = c.Pools("what")
+	assert.NotNil(t, sE)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
