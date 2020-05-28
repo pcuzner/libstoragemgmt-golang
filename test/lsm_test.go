@@ -84,6 +84,20 @@ func TestAvailablePlugins(t *testing.T) {
 	t.Logf("%+v", plugins)
 }
 
+func TestAvailablePluginsBadUds(t *testing.T) {
+	const KEY = "LSM_UDS_PATH"
+	var current = os.Getenv(KEY)
+	os.Setenv(KEY, rs("/tmp/", 8))
+
+	var plugins, err = lsm.AvailablePlugins()
+	assert.NotNil(t, err)
+	assert.NotNil(t, plugins)
+	assert.Equal(t, len(plugins), 0)
+
+	t.Logf("%+v", plugins)
+	os.Setenv(KEY, current)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
