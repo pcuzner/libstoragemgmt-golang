@@ -49,6 +49,120 @@ func TestConnect(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestConnectInvalidUri(t *testing.T) {
+	var _, libError = lsm.Client("://", PASSWORD, TMO)
+	assert.NotNil(t, libError)
+}
+
+func TestMissingPlugin(t *testing.T) {
+	var _, libError = lsm.Client("nosuchthing://", PASSWORD, TMO)
+	assert.NotNil(t, libError)
+}
+
+func TestBadUdsPath(t *testing.T) {
+	const KEY = "LSM_UDS_PATH"
+	var current = os.Getenv(KEY)
+
+	os.Setenv(KEY, rs("/tmp/", 8))
+	var _, libError = lsm.Client(URI, PASSWORD, TMO)
+	assert.NotNil(t, libError)
+
+	os.Setenv(KEY, current)
+}
+
+func TestPluginInfo(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var pluginInfo, err = c.PluginInfo()
+	assert.Nil(t, err)
+
+	t.Logf("%+v", pluginInfo)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestAvailablePlugins(t *testing.T) {
+
+	var plugins, err = lsm.AvailablePlugins()
+	assert.Nil(t, err)
+
+	t.Logf("%+v", plugins)
+}
+
+func TestJobs(t *testing.T) {
+	var c, libError = lsm.Client(URI, PASSWORD, TMO)
+	assert.Nil(t, libError)
+
+	var pools, pE = c.Pools()
+	assert.Nil(t, pE)
+
+	var name = rs("lsm_go_vol_", 12)
+	var volume lsm.Volume
+	var jobID, vcE = c.VolumeCreate(&pools[0],
+		name, 1024*1024*100, lsm.VolumeProvisionTypeDefault, false, &volume)
+	assert.Nil(t, vcE)
+	assert.NotNil(t, jobID)
+
+	// Supply a bad job id
+	var status, percent, err = c.JobStatus("bogus", &volume)
+	assert.True(t, (percent >= 0 && percent <= 100))
+	assert.NotNil(t, err)
+	assert.Equal(t, status, lsm.JobStatusError)
+
+	// Poll for completion using actual jobID
+	for true {
+		status, percent, err = c.JobStatus(*jobID, &volume)
+		assert.True(t, (percent >= 0 && percent <= 100))
+		assert.Nil(t, err)
+		assert.True(t, status == lsm.JobStatusInprogress || status == lsm.JobStatusComplete)
+		if status != lsm.JobStatusInprogress {
+			break
+		}
+	}
+
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestAvailablePluginsBadUds(t *testing.T) {
+	const KEY = "LSM_UDS_PATH"
+	var current = os.Getenv(KEY)
+	os.Setenv(KEY, rs("/tmp/", 8))
+
+	var plugins, err = lsm.AvailablePlugins()
+	assert.NotNil(t, err)
+	assert.NotNil(t, plugins)
+	assert.Equal(t, len(plugins), 0)
+
+	t.Logf("%+v", plugins)
+	os.Setenv(KEY, current)
+}
+
+func TestBadSeach(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var _, sE = c.Volumes("what")
+	assert.NotNil(t, sE)
+
+	_, sE = c.NfsExports("what")
+	assert.NotNil(t, sE)
+
+	_, sE = c.Pools("what")
+	assert.NotNil(t, sE)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
+func TestGoodSeach(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var volumes, sE = c.Volumes("system_id", "sim-01")
+	assert.Nil(t, sE)
+	assert.NotNil(t, volumes)
+	assert.Greater(t, len(volumes), 0)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
@@ -167,18 +281,37 @@ func TestNfsExports(t *testing.T) {
 		assert.Nil(t, err)
 		var access lsm.NfsAccess
 
-		access.Root = []string{"192.168.1.1"}
-		access.Rw = []string{"192.168.1.1"}
-		access.AnonGID = lsm.AnonUIDGIDNotApplicable
-		access.AnonUID = lsm.AnonUIDGIDNotApplicable
-
-		var export lsm.NfsExport
-
 		var exportPath = "/mnt/fubar"
 		var auth = "standard"
+		access.AnonGID = lsm.AnonUIDGIDNotApplicable
+		access.AnonUID = lsm.AnonUIDGIDNotApplicable
+		var export lsm.NfsExport
+
+		// Test bad arguments
+		access.Ro = make([]string, 0)
+		access.Rw = make([]string, 0)
+		var e = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.NotNil(t, e)
+
+		access.Root = []string{"192.168.1.1"}
+		access.Rw = []string{"192.168.1.2"}
+		e = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.NotNil(t, e)
+
+		access.Root = make([]string, 0)
+		access.Rw = []string{"192.168.1.2"}
+		access.Ro = []string{"192.168.1.2"}
+		e = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
+		assert.NotNil(t, e)
+
+		// This one should be good
+		access.Rw = []string{"192.168.1.1"}
 		var exportErr = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
 		assert.Nil(t, exportErr)
 		assert.Equal(t, export.ExportPath, exportPath)
+
+		var unExportErr = c.FsUnExport(&export)
+		assert.Nil(t, unExportErr)
 	}
 
 	for _, i := range items {
@@ -242,15 +375,28 @@ func TestAccessGroups(t *testing.T) {
 		assert.Nil(t, agsGrantedErr)
 		assert.Equal(t, len(agsGranted), 0)
 
+		// Try to add a bad iSCSI iqn
 		var agInitAdd lsm.AccessGroup
-		var initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		var initAddErr = c.AccessGroupInitAdd(&ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		assert.NotNil(t, initAddErr)
+
+		initAddErr = c.AccessGroupInitAdd(&ag, "not_even_close", lsm.InitiatorTypeWwpn, &agInitAdd)
+		assert.NotNil(t, initAddErr)
+
+		initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100), &agInitAdd)
+		assert.NotNil(t, initAddErr)
+
+		initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		assert.Nil(t, initAddErr)
+		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
+
+		initAddErr = c.AccessGroupInitAdd(&ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn, &agInitAdd)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
 		var agInitDel lsm.AccessGroup
 		var initDelErr = c.AccessGroupInitDelete(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitDel)
 		assert.Nil(t, initDelErr)
-		assert.Equal(t, len(ag.InitIDs), len(agInitDel.InitIDs))
 
 		items, err = c.AccessGroups()
 		assert.Nil(t, err)
@@ -654,6 +800,16 @@ func TestVolumeReplicate(t *testing.T) {
 	assert.Equal(t, repVol.Name, repName)
 
 	c.VolumeDelete(&repVol, true)
+
+	var pools, poolError = c.Pools()
+	assert.Nil(t, poolError)
+
+	jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	assert.Nil(t, jobID)
+	assert.Nil(t, errRep)
+
+	c.VolumeDelete(&repVol, true)
+
 	c.VolumeDelete(srcVol, true)
 	assert.Equal(t, c.Close(), nil)
 
@@ -697,8 +853,17 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Nil(t, resizedErr)
 	assert.NotEqual(t, newFs.TotalSpace, resizedFs)
 
+	var snapShot lsm.FileSystemSnapShot
+	var _, ssE = c.FsSnapShotCreate(&resizedFs, rs("lsm_go_ss_", 8), true, &snapShot)
+	assert.Nil(t, ssE)
+
 	var cloned lsm.FileSystem
 	var cloneFsJob, cloneErr = c.FsClone(&resizedFs, "lsm_go_cloned_fs", nil, true, &cloned)
+	assert.Nil(t, cloneFsJob)
+	assert.Nil(t, cloneErr)
+
+	var cloned2 lsm.FileSystem
+	cloneFsJob, cloneErr = c.FsClone(&resizedFs, "lsm_go_cloned_fs_from_ss", &snapShot, true, &cloned2)
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
@@ -706,6 +871,10 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Equal(t, resizedFs.TotalSpace, cloned.TotalSpace)
 
 	var delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned, true)
+	assert.Nil(t, delcloneFsJob)
+	assert.Nil(t, delCloneFsErr)
+
+	delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned2, true)
 	assert.Nil(t, delcloneFsJob)
 	assert.Nil(t, delCloneFsErr)
 
@@ -764,6 +933,14 @@ func TestFsSnapShots(t *testing.T) {
 	assert.Nil(t, depErr)
 	assert.True(t, hasDep)
 
+	// TODO fix simulated FsChildDepRm as its deleting the snapshot instead of removing dependency.
+	var jobRm, depRmErr = c.FsChildDepRm(&newFs, make([]string, 0), true)
+	assert.Nil(t, depRmErr)
+	assert.True(t, hasDep)
+	assert.Nil(t, jobRm)
+
+	ssJob, ssE = c.FsSnapShotCreate(&newFs, "lsm_go_ss", true, &ss)
+
 	var snaps, snapsErr = c.FsSnapShots(&newFs)
 	assert.Nil(t, snapsErr)
 
@@ -803,6 +980,18 @@ func TestFsSnapShotRestore(t *testing.T) {
 	assert.Equal(t, ss.Name, ssName)
 
 	var ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
+		&newFs, &ss, false, make([]string, 0), make([]string, 0), true)
+	assert.NotNil(t, ssRestoreErr)
+
+	var files = []string{"/tmp/bar", "/tmp/other"}
+	var restoreFiles = make([]string, 0)
+	assert.NotEqual(t, len(files), len(restoreFiles))
+
+	ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
+		&newFs, &ss, false, files, restoreFiles, true)
+	assert.NotNil(t, ssRestoreErr)
+
+	ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
 		&newFs, &ss, true, make([]string, 0), make([]string, 0), true)
 
 	assert.Nil(t, ssRestoreJob)

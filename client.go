@@ -241,11 +241,7 @@ func (c *ClientConnection) FsUnExport(export *NfsExport) error {
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	var args = make(map[string]interface{})
 	var accessGroups []AccessGroup
-	var err = c.tp.invoke("access_groups", args, &accessGroups)
-	if err != nil {
-		return accessGroups, err
-	}
-	return accessGroups, nil
+	return accessGroups, c.tp.invoke("access_groups", args, &accessGroups)
 }
 
 // TargetPorts returns target ports that are present.
