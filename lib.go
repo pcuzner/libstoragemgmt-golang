@@ -51,7 +51,7 @@ func handleSearch(args map[string]interface{}, search []string) bool {
 
 func validateInitID(initID string, initType InitiatorType) error {
 	if initType == InitiatorTypeWwpn {
-		matched, err := regexp.Match("(?x)^(?:0x|0X)?(?:[0-9A-Fa-f]{2})(?:(?:[\\.:\\-])?[0-9A-Fa-f]{2}){7}$", []byte(initID))
+		matched, err := regexp.Match("^(0x|0X)?([0-9A-Fa-f]{2})(([\\.:\\-])?[0-9A-Fa-f]{2}){7}$", []byte(initID))
 		if err != nil {
 			return err
 		}
