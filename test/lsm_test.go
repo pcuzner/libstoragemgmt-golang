@@ -113,6 +113,17 @@ func TestBadSeach(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestGoodSeach(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var volumes, sE = c.Volumes("system_id", "sim-01")
+	assert.Nil(t, sE)
+	assert.NotNil(t, volumes)
+	assert.Greater(t, len(volumes), 0)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
