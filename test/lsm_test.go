@@ -49,6 +49,11 @@ func TestConnect(t *testing.T) {
 	assert.Equal(t, c.Close(), nil)
 }
 
+func TestConnectInvalidUri(t *testing.T) {
+	var _, libError = lsm.Client("://", PASSWORD, TMO)
+	assert.NotNil(t, libError)
+}
+
 func TestMissingPlugin(t *testing.T) {
 	var _, libError = lsm.Client("nosuchthing://", PASSWORD, TMO)
 	assert.NotNil(t, libError)
