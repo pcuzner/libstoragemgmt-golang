@@ -842,6 +842,14 @@ func TestFsSnapShots(t *testing.T) {
 	assert.Nil(t, depErr)
 	assert.True(t, hasDep)
 
+	// TODO fix simulated FsChildDepRm as its deleting the snapshot instead of removing dependency.
+	var jobRm, depRmErr = c.FsChildDepRm(&newFs, make([]string, 0), true)
+	assert.Nil(t, depRmErr)
+	assert.True(t, hasDep)
+	assert.Nil(t, jobRm)
+
+	ssJob, ssE = c.FsSnapShotCreate(&newFs, "lsm_go_ss", true, &ss)
+
 	var snaps, snapsErr = c.FsSnapShots(&newFs)
 	assert.Nil(t, snapsErr)
 
