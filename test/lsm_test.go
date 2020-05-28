@@ -65,6 +65,17 @@ func TestBadUdsPath(t *testing.T) {
 	os.Setenv(KEY, current)
 }
 
+func TestPluginInfo(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var pluginInfo, err = c.PluginInfo()
+	assert.Nil(t, err)
+
+	t.Logf("%+v", pluginInfo)
+
+	assert.Equal(t, c.Close(), nil)
+}
+
 func TestSystems(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var systems, sysError = c.Systems()
