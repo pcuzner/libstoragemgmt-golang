@@ -980,6 +980,18 @@ func TestFsSnapShotRestore(t *testing.T) {
 	assert.Equal(t, ss.Name, ssName)
 
 	var ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
+		&newFs, &ss, false, make([]string, 0), make([]string, 0), true)
+	assert.NotNil(t, ssRestoreErr)
+
+	var files = []string{"/tmp/bar", "/tmp/other"}
+	var restoreFiles = make([]string, 0)
+	assert.NotEqual(t, len(files), len(restoreFiles))
+
+	ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
+		&newFs, &ss, false, files, restoreFiles, true)
+	assert.NotNil(t, ssRestoreErr)
+
+	ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
 		&newFs, &ss, true, make([]string, 0), make([]string, 0), true)
 
 	assert.Nil(t, ssRestoreJob)
