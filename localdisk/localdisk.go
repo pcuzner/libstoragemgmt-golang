@@ -203,3 +203,19 @@ func FaultLedOff(diskPath string) error {
 	return processError(int(rc), lsmError)
 }
 
+// LedStatusGet retrieves status of LEDs for specified local disk path
+func LedStatusGet(diskPath string) (uint32, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var linkType C.uint32_t
+	var lsmError *C.lsm_error
+
+	// TODO: Add bit field constants and new type
+	var rc = C.lsm_local_disk_led_status_get(dp, &linkType, &lsmError)
+	if rc == 0 {
+		return uint32(linkType), nil
+	}
+	return 1, processError(int(rc), lsmError)
+}
+
