@@ -1086,10 +1086,10 @@ func TestRpm(t *testing.T) {
 	for _, d := range diskList {
 		var rpm, err = disks.RpmGet(d)
 		if err != nil {
-			var e = err.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
 		} else {
-			assert.True(t, rpm >= -1 && rpm <= 20000)
+			t.Logf("rpm = %d\n", rpm)
+			assert.True(t, rpm >= -2 && rpm <= 20000)
 		}
 	}
 }
@@ -1103,8 +1103,7 @@ func TestHealthStatus(t *testing.T) {
 	for _, d := range diskList {
 		var _, err = disks.HealthStatusGet(d)
 		if err != nil {
-			var e = err.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
 		}
 	}
 }
@@ -1127,8 +1126,8 @@ func TestLinkType(t *testing.T) {
 	for _, d := range diskList {
 		var _, err = disks.LinkTypeGet(d)
 		if err != nil {
-			var e = err.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
+			t.Logf("LinkTypeGet: failed, reason %v for %s\n", err, d)
 		}
 	}
 }
@@ -1144,13 +1143,17 @@ func TestIdentLed(t *testing.T) {
 		var offErr = disks.IndentLedOff(d)
 
 		if err != nil {
-			var e = err.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
+			t.Logf("IndentLedOn: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("IndentLedOn SUCCESS: %s\n", d)
 		}
 
 		if offErr != nil {
-			var e = offErr.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
+			t.Logf("IndentLedOff: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("IndentLedOff SUCCESS: %s\n", d)
 		}
 	}
 }
@@ -1166,13 +1169,17 @@ func TestFaultLed(t *testing.T) {
 		var offErr = disks.FaultLedOff(d)
 
 		if err != nil {
-			var e = err.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
+			t.Logf("FaultLedOn: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("FaultLedOn SUCCESS: %s\n", d)
 		}
 
 		if offErr != nil {
-			var e = offErr.(*errors.LsmError)
-			assert.NotEqual(t, e.Code, 0)
+			checkError(t, err)
+			t.Logf("FaultLedOff: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("FaultLedOff SUCCESS: %s\n", d)
 		}
 	}
 }
