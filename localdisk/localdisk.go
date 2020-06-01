@@ -183,3 +183,23 @@ func IndentLedOn(diskPath string) error {
 	return processError(int(rc), lsmError)
 }
 
+// FaultLedOn turns on the fault LED for the specified disk
+func FaultLedOn(diskPath string) error {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var lsmError *C.lsm_error
+	var rc = C.lsm_local_disk_fault_led_on(dp, &lsmError)
+	return processError(int(rc), lsmError)
+}
+
+// FaultLedOff turns on the fault LED for the specified disk
+func FaultLedOff(diskPath string) error {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var lsmError *C.lsm_error
+	var rc = C.lsm_local_disk_fault_led_off(dp, &lsmError)
+	return processError(int(rc), lsmError)
+}
+
