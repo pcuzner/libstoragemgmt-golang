@@ -132,3 +132,18 @@ func HealthStatusGet(diskPath string) (int32, error) {
 	return -1, processError(int(rc), lsmError)
 }
 
+// RpmGet retrieves health RPM for the specified local disk path
+func RpmGet(diskPath string) (int32, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var rpm C.int32_t
+	var lsmError *C.lsm_error
+
+	var rc = C.lsm_local_disk_rpm_get(dp, &rpm, &lsmError)
+	if rc == 0 {
+		return int32(rpm), nil
+	}
+	return -1, processError(int(rc), lsmError)
+}
+
