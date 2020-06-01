@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -1052,22 +1051,22 @@ func TestLocalDisk(t *testing.T) {
 		var sn, err = disks.SerialNumGet(d)
 		var vpd, vpdE = disks.Vpd83Get(d)
 
-		// We currently only support devices which start with /dev/sd*
-		if strings.HasPrefix("/dev/sd", d) {
-			assert.Nil(t, err)
-			fmt.Printf("SN: %s %s\n", d, sn)
+		if err == nil {
+			assert.True(t, len(sn) > 0)
+		} else {
+			checkError(t, err)
+		}
 
-			assert.Nil(t, vpdE)
-			fmt.Printf("VPD: %s %s\n", d, vpd)
+		if vpdE == nil {
+			assert.True(t, len(vpd) > 0)
 
 			var search, searchErr = disks.Vpd83Seach(vpd)
 			assert.Nil(t, searchErr)
 			assert.True(t, len(search) > 0)
-			assert.True(t, contains(search, vpd))
-
+			t.Logf("vpd search result = %v %s\n", search, d)
+			assert.True(t, contains(search, d))
 		} else {
-			assert.NotNil(t, err)
-			assert.NotNil(t, vpdE)
+			checkError(t, vpdE)
 		}
 	}
 }
@@ -1107,6 +1106,15 @@ func TestHealthStatus(t *testing.T) {
 			var e = err.(*errors.LsmError)
 			assert.NotEqual(t, e.Code, 0)
 		}
+	}
+}
+
+func checkError(t *testing.T, err error) {
+	var e = err.(*errors.LsmError)
+	if os.Getuid() == 0 {
+		assert.Equal(t, errors.NoSupport, e.Code)
+	} else {
+		assert.True(t, e.Code == errors.PermissionDenied || e.Code == errors.NoSupport)
 	}
 }
 
@@ -1178,13 +1186,10 @@ func TestLedStatusGet(t *testing.T) {
 	for _, d := range diskList {
 		var status, err = disks.LedStatusGet(d)
 
-		// We currently only support devices which start with /dev/sd*
-		if strings.HasPrefix("/dev/sd", d) {
-			assert.Nil(t, err)
-			assert.NotEqual(t, 1, status)
-
+		if err != nil {
+			checkError(t, err)
 		} else {
-			assert.NotNil(t, err)
+			t.Logf("status %v\n", status)
 		}
 	}
 }
@@ -1198,13 +1203,11 @@ func TestLocalDiskLinkSpeed(t *testing.T) {
 	for _, d := range diskList {
 		var linkSpeed, err = disks.LinkSpeedGet(d)
 
-		// We currently only support devices which start with /dev/sd*
-		if strings.HasPrefix("/dev/sd", d) {
-			assert.Nil(t, err)
-			assert.NotEqual(t, 0, linkSpeed)
-
+		if err == nil {
+			assert.Greater(t, linkSpeed, uint32(0))
 		} else {
-			assert.NotNil(t, err)
+			checkError(t, err)
+			t.Logf("link error %v\n", err)
 		}
 	}
 }
