@@ -37,6 +37,9 @@ const (
 	// InvalidArgument ... provided argument is incorrect
 	InvalidArgument int32 = 101
 
+	// NoSupport operation not supported
+	NoSupport int32 = 153
+
 	// PluginNotExist ... Plugin doesn't apprear to exist
 	PluginNotExist int32 = 311
 
