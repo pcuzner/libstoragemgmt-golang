@@ -1091,6 +1091,24 @@ func TestVpdMissingSearch(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, len(paths) == 0)
 }
+
+func TestRpm(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var rpm, err = disks.RpmGet(d)
+		if err != nil {
+			var e = err.(*errors.LsmError)
+			assert.NotEqual(t, e.Code, 0)
+		} else {
+			assert.True(t, rpm >= -1 && rpm <= 20000)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	setup()
 
