@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 package localdisk
 
 // #include <stdio.h>
