@@ -770,11 +770,17 @@ func TestVolRaidCreate(t *testing.T) {
 
 	var disks, diskErr = c.Disks()
 	assert.Nil(t, diskErr)
+	var freeDisks []lsm.Disk
+
+	// Find disks that are OK and FREE to use
+	for _, d := range disks {
+		if d.Status&(lsm.DiskStatusOk|lsm.DiskStatusFree) == lsm.DiskStatusOk|lsm.DiskStatusFree {
+			freeDisks = append(freeDisks, d)
+		}
+	}
 
 	var volume lsm.Volume
-	// TODO: Change this to find qualifying disks at runtime instead of hardcoding
-	// known useful disks.
-	var volumeErr = c.VolRaidCreate(name, lsm.Raid5, disks[15:20], 0, &volume)
+	var volumeErr = c.VolRaidCreate(name, lsm.Raid5, freeDisks, 0, &volume)
 	assert.Nil(t, volumeErr)
 
 	if volumeErr == nil {
