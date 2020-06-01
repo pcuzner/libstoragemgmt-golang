@@ -1109,6 +1109,21 @@ func TestRpm(t *testing.T) {
 	}
 }
 
+func TestHealthStatus(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var _, err = disks.HealthStatusGet(d)
+		if err != nil {
+			var e = err.(*errors.LsmError)
+			assert.NotEqual(t, e.Code, 0)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	setup()
 
