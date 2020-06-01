@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 
 	lsm "github.com/libstorage/libstoragemgmt-golang"
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
+	disks "github.com/libstorage/libstoragemgmt-golang/localdisk"
 )
 
 var URI = getEnv("LSM_GO_URI", "sim://")
@@ -1045,6 +1047,44 @@ func setup() {
 	}
 }
 
+func contains(s []string, v string) bool {
+	for _, a := range s {
+		if a == v {
+			return true
+		}
+	}
+	return false
+}
+
+func TestLocalDisk(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var sn, err = disks.SerialNumGet(d)
+		var vpd, vpdE = disks.Vpd83Get(d)
+
+		// We currently only support devices which start with /dev/sd*
+		if strings.HasPrefix("/dev/sd", d) {
+			assert.Nil(t, err)
+			fmt.Printf("SN: %s %s\n", d, sn)
+
+			assert.Nil(t, vpdE)
+			fmt.Printf("VPD: %s %s\n", d, vpd)
+
+			var search, searchErr = disks.Vpd83Seach(vpd)
+			assert.Nil(t, searchErr)
+			assert.True(t, len(search) > 0)
+			assert.True(t, contains(search, vpd))
+
+		} else {
+			assert.NotNil(t, err)
+			assert.NotNil(t, vpdE)
+		}
+	}
+}
 func TestMain(m *testing.M) {
 	setup()
 
