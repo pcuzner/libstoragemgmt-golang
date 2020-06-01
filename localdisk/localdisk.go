@@ -219,3 +219,17 @@ func LedStatusGet(diskPath string) (uint32, error) {
 	return 1, processError(int(rc), lsmError)
 }
 
+// LinkSpeedGet retrieves link speed for specified local disk path
+func LinkSpeedGet(diskPath string) (uint32, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var linkSpeed C.uint32_t
+	var lsmError *C.lsm_error
+
+	var rc = C.lsm_local_disk_link_speed_get(dp, &linkSpeed, &lsmError)
+	if rc == 0 {
+		return uint32(linkSpeed), nil
+	}
+	return 0, processError(int(rc), lsmError)
+}
