@@ -1085,6 +1085,12 @@ func TestLocalDisk(t *testing.T) {
 		}
 	}
 }
+
+func TestVpdMissingSearch(t *testing.T) {
+	var paths, err = disks.Vpd83Seach(rs("", 16))
+	assert.Nil(t, err)
+	assert.True(t, len(paths) == 0)
+}
 func TestMain(m *testing.M) {
 	setup()
 
