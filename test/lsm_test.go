@@ -1183,6 +1183,26 @@ func TestFaultLed(t *testing.T) {
 	}
 }
 
+func TestLedStatusGet(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var status, err = disks.LedStatusGet(d)
+
+		// We currently only support devices which start with /dev/sd*
+		if strings.HasPrefix("/dev/sd", d) {
+			assert.Nil(t, err)
+			assert.NotEqual(t, 1, status)
+
+		} else {
+			assert.NotNil(t, err)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	setup()
 
