@@ -81,3 +81,21 @@ func Vpd83Seach(vpd string) ([]string, error) {
 	return deviceList, nil
 }
 
+// SerialNumGet retrieves the serial number for the local
+// disk with the specfified path
+func SerialNumGet(diskPath string) (string, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var sn *C.char
+	var lsmError *C.lsm_error
+
+	var rc = C.lsm_local_disk_serial_num_get(dp, &sn, &lsmError)
+	if rc == 0 {
+		var serialNum = C.GoString(sn)
+		C.free(unsafe.Pointer(sn))
+		return serialNum, nil
+	}
+	return "", processError(int(rc), lsmError)
+}
+
