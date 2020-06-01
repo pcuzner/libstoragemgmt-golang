@@ -247,6 +247,8 @@ func TestDisks(t *testing.T) {
 
 	for _, s := range items {
 
+		assert.Equal(t, "Disk", s.Class)
+
 		if s.DiskType == lsm.DiskTypeSata {
 			t.Logf("Got the sata disk!")
 		}
