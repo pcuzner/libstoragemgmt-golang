@@ -1009,14 +1009,14 @@ type DiskHealthStatus int
 const (
 
 	// DiskHealthStatusUnknown represents unknown health status
-	DiskHealthStatusUnknown = -1
+	DiskHealthStatusUnknown DiskHealthStatus = -1
 
 	// DiskHealthStatusFail represents fail health status
-	DiskHealthStatusFail = 0
+	DiskHealthStatusFail DiskHealthStatus = 0
 
 	// DiskHealthStatusWarn represents health warning status
-	DiskHealthStatusWarn = 1
+	DiskHealthStatusWarn DiskHealthStatus = 1
 
 	// DiskHealthStatusGood represent good health status
-	DiskHealthStatusGood = 2
+	DiskHealthStatusGood DiskHealthStatus = 2
 )

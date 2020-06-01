@@ -1101,9 +1101,11 @@ func TestHealthStatus(t *testing.T) {
 	assert.Greater(t, len(diskList), 0)
 
 	for _, d := range diskList {
-		var _, err = disks.HealthStatusGet(d)
+		var status, err = disks.HealthStatusGet(d)
 		if err != nil {
 			checkError(t, err)
+		} else {
+			assert.Equal(t, lsm.DiskHealthStatusGood, status)
 		}
 	}
 }
