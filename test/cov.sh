@@ -9,5 +9,5 @@ go test -count 1 github.com/libstorage/libstoragemgmt-golang/test -coverpkg=../.
 go test -count 1 github.com/libstorage/libstoragemgmt-golang/test -coverpkg=.././localdisk -cover -coverprofile localdisk.out || exit 1
 
 go tool cover -html=client.out || exit 1
-go tool cover -html=cc.out || exit 1
+go tool cover -html=localdisk.out || exit 1
 
