@@ -207,13 +207,13 @@ func LedStatusGet(diskPath string) (uint32, error) {
 	dp := C.CString(diskPath)
 	defer C.free(unsafe.Pointer(dp))
 
-	var linkType C.uint32_t
+	var ledStatus C.uint32_t
 	var lsmError *C.lsm_error
 
 	// TODO: Add bit field constants and new type
-	var rc = C.lsm_local_disk_led_status_get(dp, &linkType, &lsmError)
+	var rc = C.lsm_local_disk_led_status_get(dp, &ledStatus, &lsmError)
 	if rc == 0 {
-		return uint32(linkType), nil
+		return uint32(ledStatus), nil
 	}
 	return 1, processError(int(rc), lsmError)
 }
