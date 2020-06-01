@@ -58,3 +58,26 @@ func List() ([]string, error) {
 	}
 	return disks, nil
 }
+
+// Vpd83Seach seaches local disks for vpd
+func Vpd83Seach(vpd string) ([]string, error) {
+
+	cs := C.CString(vpd)
+	defer C.free(unsafe.Pointer(cs))
+
+	var deviceList []string
+
+	var slist *C.lsm_string_list
+	var lsmError *C.lsm_error
+
+	var err = C.lsm_local_disk_vpd83_search(cs, &slist, &lsmError)
+
+	if err == 0 {
+		deviceList = getStrings(slist, true)
+	} else {
+		return deviceList, processError(int(err), lsmError)
+	}
+
+	return deviceList, nil
+}
+
