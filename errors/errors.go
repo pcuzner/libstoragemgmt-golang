@@ -34,6 +34,9 @@ const (
 	// DameonNotRunning ... lsmd does not appear to be running
 	DameonNotRunning int32 = 12
 
+	// PermissionDenied Insufficient permission
+	PermissionDenied int32 = 13
+
 	// InvalidArgument ... provided argument is incorrect
 	InvalidArgument int32 = 101
 
