@@ -99,3 +99,20 @@ func SerialNumGet(diskPath string) (string, error) {
 	return "", processError(int(rc), lsmError)
 }
 
+// Vpd83Get retrieves vpd83 for the specified local disk path
+func Vpd83Get(diskPath string) (string, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var vpd *C.char
+	var lsmError *C.lsm_error
+
+	var rc = C.lsm_local_disk_vpd83_get(dp, &vpd, &lsmError)
+	if rc == 0 {
+		var vpdNum = C.GoString(vpd)
+		C.free(unsafe.Pointer(vpd))
+		return vpdNum, nil
+	}
+	return "", processError(int(rc), lsmError)
+}
+
