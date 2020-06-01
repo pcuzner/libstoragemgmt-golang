@@ -12,6 +12,7 @@ import (
 
 	lsm "github.com/libstorage/libstoragemgmt-golang"
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
+	disks "github.com/libstorage/libstoragemgmt-golang/localdisk"
 )
 
 var URI = getEnv("LSM_GO_URI", "sim://")
@@ -46,7 +47,7 @@ func getEnv(variable string, defValue string) string {
 func TestConnect(t *testing.T) {
 	var c, libError = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, libError)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestConnectInvalidUri(t *testing.T) {
@@ -78,7 +79,7 @@ func TestPluginInfo(t *testing.T) {
 
 	t.Logf("%+v", pluginInfo)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestAvailablePlugins(t *testing.T) {
@@ -107,7 +108,7 @@ func TestJobs(t *testing.T) {
 	var status, percent, err = c.JobStatus("bogus", &volume)
 	assert.True(t, (percent >= 0 && percent <= 100))
 	assert.NotNil(t, err)
-	assert.Equal(t, status, lsm.JobStatusError)
+	assert.Equal(t, lsm.JobStatusError, status)
 
 	// Poll for completion using actual jobID
 	for true {
@@ -120,7 +121,7 @@ func TestJobs(t *testing.T) {
 		}
 	}
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestAvailablePluginsBadUds(t *testing.T) {
@@ -131,7 +132,7 @@ func TestAvailablePluginsBadUds(t *testing.T) {
 	var plugins, err = lsm.AvailablePlugins()
 	assert.NotNil(t, err)
 	assert.NotNil(t, plugins)
-	assert.Equal(t, len(plugins), 0)
+	assert.Equal(t, 0, len(plugins))
 
 	t.Logf("%+v", plugins)
 	os.Setenv(KEY, current)
@@ -149,7 +150,7 @@ func TestBadSeach(t *testing.T) {
 	_, sE = c.Pools("what")
 	assert.NotNil(t, sE)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestGoodSeach(t *testing.T) {
@@ -160,7 +161,7 @@ func TestGoodSeach(t *testing.T) {
 	assert.NotNil(t, volumes)
 	assert.Greater(t, len(volumes), 0)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestSystems(t *testing.T) {
@@ -168,12 +169,12 @@ func TestSystems(t *testing.T) {
 	var systems, sysError = c.Systems()
 
 	assert.Nil(t, sysError)
-	assert.Equal(t, len(systems), 1)
+	assert.Equal(t, 1, len(systems))
 
 	for _, s := range systems {
 		t.Logf("%+v", s)
 	}
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestReadCachePercentSet(t *testing.T) {
@@ -187,9 +188,9 @@ func TestReadCachePercentSet(t *testing.T) {
 	var expectedErr = c.SysReadCachePctSet(&systems[0], 101)
 	assert.NotNil(t, expectedErr)
 	var e = expectedErr.(*errors.LsmError)
-	assert.Equal(t, e.Code, errors.InvalidArgument)
+	assert.Equal(t, errors.InvalidArgument, e.Code)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestIscsiChapSet(t *testing.T) {
@@ -208,7 +209,7 @@ func TestIscsiChapSet(t *testing.T) {
 	e = c.IscsiChapAuthSet(init, &u, &p, &outU, &outP)
 	assert.Nil(t, e)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumes(t *testing.T) {
@@ -220,7 +221,7 @@ func TestVolumes(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestPools(t *testing.T) {
@@ -233,7 +234,7 @@ func TestPools(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestDisks(t *testing.T) {
@@ -245,6 +246,8 @@ func TestDisks(t *testing.T) {
 
 	for _, s := range items {
 
+		assert.Equal(t, "Disk", s.Class)
+
 		if s.DiskType == lsm.DiskTypeSata {
 			t.Logf("Got the sata disk!")
 		}
@@ -255,7 +258,7 @@ func TestDisks(t *testing.T) {
 
 		t.Logf("%+v", s)
 	}
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestFs(t *testing.T) {
@@ -268,7 +271,7 @@ func TestFs(t *testing.T) {
 	for _, i := range items {
 		t.Logf("%+v", i)
 	}
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestNfsExports(t *testing.T) {
@@ -308,7 +311,7 @@ func TestNfsExports(t *testing.T) {
 		access.Rw = []string{"192.168.1.1"}
 		var exportErr = c.FsExport(&fs[0], &exportPath, &access, &auth, nil, &export)
 		assert.Nil(t, exportErr)
-		assert.Equal(t, export.ExportPath, exportPath)
+		assert.Equal(t, exportPath, export.ExportPath)
 
 		var unExportErr = c.FsUnExport(&export)
 		assert.Nil(t, unExportErr)
@@ -320,7 +323,7 @@ func TestNfsExports(t *testing.T) {
 		var unExportErr = c.FsUnExport(&i)
 		assert.Nil(t, unExportErr)
 	}
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestNfsAuthTypes(t *testing.T) {
@@ -331,7 +334,7 @@ func TestNfsAuthTypes(t *testing.T) {
 	assert.Equal(t, "standard", authTypes[0])
 
 	fmt.Printf("%v", authTypes)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestAccessGroups(t *testing.T) {
@@ -356,24 +359,24 @@ func TestAccessGroups(t *testing.T) {
 
 		var volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
 		assert.Nil(t, volsMaskedErr)
-		assert.Equal(t, len(volsMasked), 1)
+		assert.Equal(t, 1, len(volsMasked))
 		assert.Equal(t, volumes[0].Name, volsMasked[0].Name)
 
 		var agsGranted, agsGrantedErr = c.AgsGrantedToVol(&volumes[0])
 		assert.Nil(t, agsGrantedErr)
-		assert.Equal(t, len(agsGranted), 1)
-		assert.Equal(t, agsGranted[0].Name, ag.Name)
+		assert.Equal(t, 1, len(agsGranted))
+		assert.Equal(t, ag.Name, agsGranted[0].Name)
 
 		var unmaskErr = c.VolumeUnMask(&volumes[0], &ag)
 		assert.Nil(t, unmaskErr)
 
 		volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
 		assert.Nil(t, volsMaskedErr)
-		assert.Equal(t, len(volsMasked), 0)
+		assert.Equal(t, 0, len(volsMasked))
 
 		agsGranted, agsGrantedErr = c.AgsGrantedToVol(&volumes[0])
 		assert.Nil(t, agsGrantedErr)
-		assert.Equal(t, len(agsGranted), 0)
+		assert.Equal(t, 0, len(agsGranted))
 
 		// Try to add a bad iSCSI iqn
 		var agInitAdd lsm.AccessGroup
@@ -412,8 +415,8 @@ func TestAccessGroups(t *testing.T) {
 	}
 
 	items, err = c.AccessGroups()
-	assert.Equal(t, len(items), 0)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, 0, len(items))
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestTargetPorts(t *testing.T) {
@@ -427,7 +430,7 @@ func TestTargetPorts(t *testing.T) {
 	}
 
 	assert.Greater(t, len(items), 0)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestBatteries(t *testing.T) {
@@ -441,7 +444,7 @@ func TestBatteries(t *testing.T) {
 	}
 
 	assert.Greater(t, len(items), 0)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestCapabilities(t *testing.T) {
@@ -453,7 +456,7 @@ func TestCapabilities(t *testing.T) {
 	assert.Nil(t, capErr)
 
 	assert.True(t, cap.IsSupported(lsm.CapVolumeCreate))
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestCapabilitiesSet(t *testing.T) {
@@ -466,7 +469,7 @@ func TestCapabilitiesSet(t *testing.T) {
 
 	var set = []lsm.CapabilityType{lsm.CapVolumeCreate, lsm.CapVolumeCResize}
 	assert.True(t, cap.IsSupportedSet(set))
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestRepBlockSize(t *testing.T) {
@@ -479,8 +482,8 @@ func TestRepBlockSize(t *testing.T) {
 
 	var repRangeBlkSize, rpbE = c.VolumeRepRangeBlkSize(&systems[0])
 	assert.Nil(t, rpbE)
-	assert.Equal(t, repRangeBlkSize, uint32(512))
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, uint32(512), repRangeBlkSize)
+	assert.Equal(t, nil, c.Close())
 }
 
 func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volume {
@@ -504,13 +507,13 @@ func TestVolumeCreate(t *testing.T) {
 
 	var volume = createVolume(t, c, volumeName)
 
-	assert.Equal(t, volume.Name, volumeName)
+	assert.Equal(t, volumeName, volume.Name)
 
 	// Try and clean-up
 	var volDel, volDelErr = c.VolumeDelete(volume, true)
 	assert.Nil(t, volDel)
 	assert.Nil(t, volDelErr)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumeEnableDisable(t *testing.T) {
@@ -519,7 +522,7 @@ func TestVolumeEnableDisable(t *testing.T) {
 	assert.Nil(t, err)
 
 	var volume = createVolume(t, c, volumeName)
-	assert.Equal(t, volume.Name, volumeName)
+	assert.Equal(t, volumeName, volume.Name)
 
 	var disableErr = c.VolumeDisable(volume)
 	assert.Nil(t, disableErr)
@@ -531,7 +534,7 @@ func TestVolumeEnableDisable(t *testing.T) {
 	var volDel, volDelErr = c.VolumeDelete(volume, true)
 	assert.Nil(t, volDel)
 	assert.Nil(t, volDelErr)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestLEDOnOff(t *testing.T) {
@@ -540,7 +543,7 @@ func TestLEDOnOff(t *testing.T) {
 
 	var volumeName = rs("lsm_go_vol_", 8)
 	var volume = createVolume(t, c, volumeName)
-	assert.Equal(t, volume.Name, volumeName)
+	assert.Equal(t, volumeName, volume.Name)
 
 	var onErr = c.VolIdentLedOn(volume)
 	assert.Nil(t, onErr)
@@ -552,7 +555,7 @@ func TestLEDOnOff(t *testing.T) {
 	var volDel, volDelErr = c.VolumeDelete(volume, true)
 	assert.Nil(t, volDel)
 	assert.Nil(t, volDelErr)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestScale(t *testing.T) {
@@ -581,7 +584,7 @@ func TestScale(t *testing.T) {
 	assert.Nil(t, vE)
 	assert.Greater(t, len(volumes), 10)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumeDelete(t *testing.T) {
@@ -594,7 +597,7 @@ func TestVolumeDelete(t *testing.T) {
 
 	var _, errD = c.VolumeDelete(volume, true)
 	assert.Nil(t, errD)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestJobWait(t *testing.T) {
@@ -619,7 +622,7 @@ func TestJobWait(t *testing.T) {
 	assert.Equal(t, volumeName, volume.Name)
 
 	c.VolumeDelete(&volume, true)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestTmo(t *testing.T) {
@@ -631,7 +634,7 @@ func TestTmo(t *testing.T) {
 	assert.Nil(t, c.TimeOutSet(tmo))
 
 	assert.Equal(t, tmo, c.TimeOutGet())
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumeResize(t *testing.T) {
@@ -647,7 +650,7 @@ func TestVolumeResize(t *testing.T) {
 	assert.NotEqual(t, volume.NumOfBlocks, resized.NumOfBlocks)
 
 	c.VolumeDelete(&resized, true)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumeRaidType(t *testing.T) {
@@ -662,7 +665,7 @@ func TestVolumeRaidType(t *testing.T) {
 	assert.Nil(t, raidInfoErr)
 	assert.NotNil(t, raidInfo)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumeCacheInfo(t *testing.T) {
@@ -679,7 +682,7 @@ func TestVolumeCacheInfo(t *testing.T) {
 
 	t.Logf("%+v", cacheInfo)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolPhyDiskCacheSet(t *testing.T) {
@@ -693,7 +696,7 @@ func TestVolPhyDiskCacheSet(t *testing.T) {
 	var cacheSetErr = c.VolPhyDiskCacheSet(&volumes[0], lsm.PhysicalDiskCacheEnabled)
 	assert.Nil(t, cacheSetErr)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolWriteCacheSet(t *testing.T) {
@@ -707,7 +710,7 @@ func TestVolWriteCacheSet(t *testing.T) {
 	var cacheSetErr = c.VolWriteCacheSet(&volumes[0], lsm.WriteCachePolicyAuto)
 	assert.Nil(t, cacheSetErr)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolReadCacheSet(t *testing.T) {
@@ -721,7 +724,7 @@ func TestVolReadCacheSet(t *testing.T) {
 	var cacheSetErr = c.VolReadCacheSet(&volumes[0], lsm.ReadCachePolicyEnabled)
 	assert.Nil(t, cacheSetErr)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestPoolMemberInfo(t *testing.T) {
@@ -738,7 +741,7 @@ func TestPoolMemberInfo(t *testing.T) {
 
 	t.Logf("%+v", poolInfo)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestRaidCreateCapGet(t *testing.T) {
@@ -754,7 +757,7 @@ func TestRaidCreateCapGet(t *testing.T) {
 	assert.Nil(t, errCapGet)
 	t.Logf("%+v", cap)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolRaidCreate(t *testing.T) {
@@ -766,21 +769,27 @@ func TestVolRaidCreate(t *testing.T) {
 
 	var disks, diskErr = c.Disks()
 	assert.Nil(t, diskErr)
+	var freeDisks []lsm.Disk
+
+	// Find disks that are OK and FREE to use
+	for _, d := range disks {
+		if d.Status&(lsm.DiskStatusOk|lsm.DiskStatusFree) == lsm.DiskStatusOk|lsm.DiskStatusFree {
+			freeDisks = append(freeDisks, d)
+		}
+	}
 
 	var volume lsm.Volume
-	// TODO: Change this to find qualifying disks at runtime instead of hardcoding
-	// known useful disks.
-	var volumeErr = c.VolRaidCreate(name, lsm.Raid5, disks[15:20], 0, &volume)
+	var volumeErr = c.VolRaidCreate(name, lsm.Raid5, freeDisks, 0, &volume)
 	assert.Nil(t, volumeErr)
 
 	if volumeErr == nil {
-		assert.Equal(t, volume.Name, name)
+		assert.Equal(t, name, volume.Name)
 		var jobID, volDelErr = c.VolumeDelete(&volume, true)
 		assert.Nil(t, jobID)
 		assert.Nil(t, volDelErr)
 	}
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestVolumeReplicate(t *testing.T) {
@@ -797,7 +806,7 @@ func TestVolumeReplicate(t *testing.T) {
 	assert.Nil(t, jobID)
 	assert.Nil(t, errRep)
 
-	assert.Equal(t, repVol.Name, repName)
+	assert.Equal(t, repName, repVol.Name)
 
 	c.VolumeDelete(&repVol, true)
 
@@ -811,7 +820,7 @@ func TestVolumeReplicate(t *testing.T) {
 	c.VolumeDelete(&repVol, true)
 
 	c.VolumeDelete(srcVol, true)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 
 }
 
@@ -831,7 +840,7 @@ func TestVolumeReplicateRange(t *testing.T) {
 	assert.Nil(t, repErr)
 
 	c.VolumeDelete(volume, true)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestFsCreateResizeCloneDelete(t *testing.T) {
@@ -867,7 +876,7 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
-	assert.Equal(t, cloned.Name, "lsm_go_cloned_fs")
+	assert.Equal(t, "lsm_go_cloned_fs", cloned.Name)
 	assert.Equal(t, resizedFs.TotalSpace, cloned.TotalSpace)
 
 	var delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned, true)
@@ -882,7 +891,7 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Nil(t, delFsJob)
 	assert.Nil(t, delFsErr)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestFsFileClone(t *testing.T) {
@@ -906,7 +915,7 @@ func TestFsFileClone(t *testing.T) {
 	assert.Nil(t, delFsJob)
 	assert.Nil(t, delFsErr)
 
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestFsSnapShots(t *testing.T) {
@@ -927,7 +936,7 @@ func TestFsSnapShots(t *testing.T) {
 
 	assert.Nil(t, ssJob)
 	assert.Nil(t, ssE)
-	assert.Equal(t, ss.Name, "lsm_go_ss")
+	assert.Equal(t, "lsm_go_ss", ss.Name)
 
 	var hasDep, depErr = c.FsHasChildDep(&newFs, make([]string, 0))
 	assert.Nil(t, depErr)
@@ -955,7 +964,7 @@ func TestFsSnapShots(t *testing.T) {
 	assert.Nil(t, ssDelErr)
 
 	c.FsDelete(&newFs, true)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestFsSnapShotRestore(t *testing.T) {
@@ -977,7 +986,7 @@ func TestFsSnapShotRestore(t *testing.T) {
 
 	assert.Nil(t, ssJob)
 	assert.Nil(t, ssE)
-	assert.Equal(t, ss.Name, ssName)
+	assert.Equal(t, ssName, ss.Name)
 
 	var ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
 		&newFs, &ss, false, make([]string, 0), make([]string, 0), true)
@@ -1013,14 +1022,203 @@ func TestFsSnapShotRestore(t *testing.T) {
 	c.FsDelete(&newFs, true)
 
 	c.FsDelete(&newFs, true)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestTemplate(t *testing.T) {
 	var c, err = lsm.Client(URI, PASSWORD, TMO)
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
-	assert.Equal(t, c.Close(), nil)
+	assert.Equal(t, nil, c.Close())
+}
+
+func contains(s []string, v string) bool {
+	for _, a := range s {
+		if a == v {
+			return true
+		}
+	}
+	return false
+}
+
+func TestLocalDisk(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var sn, err = disks.SerialNumGet(d)
+		var vpd, vpdE = disks.Vpd83Get(d)
+
+		if err == nil {
+			assert.True(t, len(sn) > 0)
+		} else {
+			checkError(t, err)
+		}
+
+		if vpdE == nil {
+			assert.True(t, len(vpd) > 0)
+
+			var search, searchErr = disks.Vpd83Seach(vpd)
+			assert.Nil(t, searchErr)
+			assert.True(t, len(search) > 0)
+			t.Logf("vpd search result = %v %s\n", search, d)
+			assert.True(t, contains(search, d))
+		} else {
+			checkError(t, vpdE)
+		}
+	}
+}
+
+func TestVpdMissingSearch(t *testing.T) {
+	var paths, err = disks.Vpd83Seach(rs("", 16))
+	assert.Nil(t, err)
+	assert.True(t, len(paths) == 0)
+}
+
+func TestRpm(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var rpm, err = disks.RpmGet(d)
+		if err != nil {
+			checkError(t, err)
+		} else {
+			t.Logf("rpm = %d\n", rpm)
+			assert.True(t, rpm >= -2 && rpm <= 20000)
+		}
+	}
+}
+
+func TestHealthStatus(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var status, err = disks.HealthStatusGet(d)
+		if err != nil {
+			checkError(t, err)
+		} else {
+			assert.Equal(t, lsm.DiskHealthStatusGood, status)
+		}
+	}
+}
+
+func checkError(t *testing.T, err error) {
+	var e = err.(*errors.LsmError)
+	if os.Getuid() == 0 {
+		assert.Equal(t, errors.NoSupport, e.Code)
+	} else {
+		assert.True(t, e.Code == errors.PermissionDenied || e.Code == errors.NoSupport)
+	}
+}
+
+func TestLinkType(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var _, err = disks.LinkTypeGet(d)
+		if err != nil {
+			checkError(t, err)
+			t.Logf("LinkTypeGet: failed, reason %v for %s\n", err, d)
+		}
+	}
+}
+
+func TestIdentLed(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var err = disks.IndentLedOn(d)
+		var offErr = disks.IndentLedOff(d)
+
+		if err != nil {
+			checkError(t, err)
+			t.Logf("IndentLedOn: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("IndentLedOn SUCCESS: %s\n", d)
+		}
+
+		if offErr != nil {
+			checkError(t, err)
+			t.Logf("IndentLedOff: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("IndentLedOff SUCCESS: %s\n", d)
+		}
+	}
+}
+
+func TestFaultLed(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var err = disks.FaultLedOn(d)
+		var offErr = disks.FaultLedOff(d)
+
+		if err != nil {
+			checkError(t, err)
+			t.Logf("FaultLedOn: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("FaultLedOn SUCCESS: %s\n", d)
+		}
+
+		if offErr != nil {
+			checkError(t, err)
+			t.Logf("FaultLedOff: failed, reason %v for %s\n", err, d)
+		} else {
+			t.Logf("FaultLedOff SUCCESS: %s\n", d)
+		}
+	}
+}
+
+func TestLedStatusGet(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var status, err = disks.LedStatusGet(d)
+
+		if err != nil {
+			checkError(t, err)
+		} else {
+			t.Logf("status %v\n", status)
+		}
+	}
+}
+
+func TestLocalDiskLinkSpeed(t *testing.T) {
+	var diskList, err = disks.List()
+
+	assert.Nil(t, err)
+	assert.Greater(t, len(diskList), 0)
+
+	for _, d := range diskList {
+		var linkSpeed, err = disks.LinkSpeedGet(d)
+
+		if err == nil {
+			assert.Greater(t, linkSpeed, uint32(0))
+		} else {
+			checkError(t, err)
+			t.Logf("link error %v\n", err)
+		}
+	}
 }
 
 func setup() {
@@ -1044,7 +1242,6 @@ func setup() {
 			&pools[1], rs("lsm_go_fs_", 4), 1024*1024*1000, true, &fileSystem)
 	}
 }
-
 func TestMain(m *testing.M) {
 	setup()
 
