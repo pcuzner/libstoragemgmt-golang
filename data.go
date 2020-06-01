@@ -1002,3 +1002,21 @@ type VolumeCacheInfo struct {
 	ReadStatus         ReadCacheStatus
 	PhysicalDiskStatus PhysicalDiskCache
 }
+
+// DiskHealthStatus health status of physical disk
+type DiskHealthStatus int
+
+const (
+
+	// DiskHealthStatusUnknown represents unknown health status
+	DiskHealthStatusUnknown = -1
+
+	// DiskHealthStatusFail represents fail health status
+	DiskHealthStatusFail = 0
+
+	// DiskHealthStatusWarn represents health warning status
+	DiskHealthStatusWarn = 1
+
+	// DiskHealthStatusGood represent good health status
+	DiskHealthStatusGood = 2
+)
