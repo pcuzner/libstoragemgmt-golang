@@ -1020,3 +1020,29 @@ const (
 	// DiskHealthStatusGood represent good health status
 	DiskHealthStatusGood DiskHealthStatus = 2
 )
+
+// DiskLedStatusBitField Bit field for disk LED status indicators
+type DiskLedStatusBitField uint32
+
+const (
+	// DiskLedStatusUnknown unknown
+	DiskLedStatusUnknown DiskLedStatusBitField = 0x0000000000000001
+
+	// DiskLedStatusIdentOn ident LED is on
+	DiskLedStatusIdentOn DiskLedStatusBitField = 0x0000000000000002
+
+	// DiskLedStatusIdentOff ident LED is off
+	DiskLedStatusIdentOff DiskLedStatusBitField = 0x0000000000000004
+
+	// DiskLedStatusIdentUnknown ident is unknown
+	DiskLedStatusIdentUnknown DiskLedStatusBitField = 0x0000000000000008
+
+	// DiskLedStatusFaultOn  fault LED is on
+	DiskLedStatusFaultOn DiskLedStatusBitField = 0x0000000000000010
+
+	// DiskLedStatusFaultOff fault LED is off
+	DiskLedStatusFaultOff DiskLedStatusBitField = 0x0000000000000020
+
+	// DiskLedStatusFaultUnknown fault LED is unknown
+	DiskLedStatusFaultUnknown DiskLedStatusBitField = 0x0000000000000040
+)
