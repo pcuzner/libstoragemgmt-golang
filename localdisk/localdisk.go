@@ -147,3 +147,19 @@ func RpmGet(diskPath string) (int32, error) {
 	return -1, processError(int(rc), lsmError)
 }
 
+// LinkTypeGet retrieves link type for the specified local disk path
+func LinkTypeGet(diskPath string) (int32, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var linkType C.lsm_disk_link_type
+	var lsmError *C.lsm_error
+
+	// TODO create enumerated type for link type
+	var rc = C.lsm_local_disk_link_type_get(dp, &linkType, &lsmError)
+	if rc == 0 {
+		return int32(linkType), nil
+	}
+	return -1, processError(int(rc), lsmError)
+}
+
