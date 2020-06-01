@@ -116,3 +116,19 @@ func Vpd83Get(diskPath string) (string, error) {
 	return "", processError(int(rc), lsmError)
 }
 
+// HealthStatusGet retrieves health status for the specified local disk path
+func HealthStatusGet(diskPath string) (int32, error) {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var healthStatus C.int32_t
+	var lsmError *C.lsm_error
+
+	// TODO create enumerated type for health status
+	var rc = C.lsm_local_disk_health_status_get(dp, &healthStatus, &lsmError)
+	if rc == 0 {
+		return int32(healthStatus), nil
+	}
+	return -1, processError(int(rc), lsmError)
+}
+
