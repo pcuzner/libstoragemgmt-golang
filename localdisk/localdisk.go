@@ -163,3 +163,23 @@ func LinkTypeGet(diskPath string) (int32, error) {
 	return -1, processError(int(rc), lsmError)
 }
 
+// IndentLedOff turns off the identification LED for the specified disk
+func IndentLedOff(diskPath string) error {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var lsmError *C.lsm_error
+	var rc = C.lsm_local_disk_ident_led_off(dp, &lsmError)
+	return processError(int(rc), lsmError)
+}
+
+// IndentLedOn turns on the identification LED for the specified disk
+func IndentLedOn(diskPath string) error {
+	dp := C.CString(diskPath)
+	defer C.free(unsafe.Pointer(dp))
+
+	var lsmError *C.lsm_error
+	var rc = C.lsm_local_disk_ident_led_on(dp, &lsmError)
+	return processError(int(rc), lsmError)
+}
+
