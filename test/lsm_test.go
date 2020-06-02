@@ -1047,7 +1047,9 @@ func TestLocalDisk(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var sn, err = disks.SerialNumGet(d)
@@ -1083,7 +1085,9 @@ func TestRpm(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var rpm, err = disks.RpmGet(d)
@@ -1100,7 +1104,9 @@ func TestHealthStatus(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var status, err = disks.HealthStatusGet(d)
@@ -1125,7 +1131,9 @@ func TestLinkType(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var _, err = disks.LinkTypeGet(d)
@@ -1140,7 +1148,9 @@ func TestIdentLed(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var err = disks.IndentLedOn(d)
@@ -1166,7 +1176,9 @@ func TestFaultLed(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var err = disks.FaultLedOn(d)
@@ -1192,7 +1204,9 @@ func TestLedStatusGet(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var status, err = disks.LedStatusGet(d)
@@ -1209,7 +1223,9 @@ func TestLocalDiskLinkSpeed(t *testing.T) {
 	var diskList, err = disks.List()
 
 	assert.Nil(t, err)
-	assert.Greater(t, len(diskList), 0)
+	if len(diskList) == 0 {
+		t.Skip("No local disks to test!")
+	}
 
 	for _, d := range diskList {
 		var linkSpeed, err = disks.LinkSpeedGet(d)
