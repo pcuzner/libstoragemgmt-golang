@@ -1,15 +1,25 @@
 [![Build Status](https://travis-ci.org/libstorage/libstoragemgmt-golang.svg?branch=master)](https://travis-ci.org/libstorage/libstoragemgmt-golang)
 
-Work in progress ...
+Work in progress, but almost complete ...
 
 
+An example listing systems
 ```go
+package main
 
-// A small sample to list systems
-var c, _ = lsm.Client("sim://", "", 30000)
-var systems, _ = c.Systems()
+import (
+	"fmt"
 
-for _, s := range systems {
-    fmt.Printf("%+v\n", s)
+	lsm "github.com/libstorage/libstoragemgmt-golang"
+)
+
+func main() {
+	// Ignoring errors for succinctness
+	var c, _ = lsm.Client("sim://", "", 30000)
+	var systems, _ = c.Systems()
+	for _, s := range systems {
+		fmt.Printf("ID: %s, Name:%s, Version: %s\n", s.ID, s.Name, s.FwVersion)
+	}
 }
+
 ```
