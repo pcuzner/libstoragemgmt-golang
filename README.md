@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/libstorage/libstoragemgmt-golang.svg?branch=master)](https://travis-ci.org/libstorage/libstoragemgmt-golang)
 
-Work in progress, but almost complete ...
+Work in progress, but almost complete from a client library perspective.
 
 
 An example listing systems
