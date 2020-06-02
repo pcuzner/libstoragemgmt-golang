@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
@@ -18,7 +19,8 @@ const (
 )
 
 type transPort struct {
-	uds net.Conn
+	uds   net.Conn
+	debug bool
 }
 
 func newTransport(pluginUdsPath string, checkErrors bool) (*transPort, error) {
@@ -42,7 +44,12 @@ func newTransport(pluginUdsPath string, checkErrors bool) (*transPort, error) {
 		return nil, cError
 	}
 
-	return &transPort{uds: c}, nil
+	var debug = false
+	if len(os.Getenv("LSM_GO_DEBUG")) > 0 {
+		debug = true
+	}
+
+	return &transPort{uds: c, debug: debug}, nil
 }
 
 func (t transPort) close() {
@@ -117,9 +124,9 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 func (t *transPort) send(msg string) error {
 
 	var toSend = fmt.Sprintf("%010d%s", len(msg), msg)
-
-	fmt.Printf("send: %s\n", msg)
-
+	if t.debug {
+		fmt.Printf("send: %s\n", msg)
+	}
 	return writeExact(t.uds, []byte(toSend))
 }
 
@@ -139,7 +146,9 @@ func (t *transPort) recv() ([]byte, error) {
 	var msgBuffer = make([]byte, msgLen)
 	readError = readExact(t.uds, msgBuffer)
 
-	fmt.Printf("recv: %s\n", string(msgBuffer))
+	if t.debug {
+		fmt.Printf("recv: %s\n", string(msgBuffer))
+	}
 
 	return msgBuffer, readError
 }
