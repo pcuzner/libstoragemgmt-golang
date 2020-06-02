@@ -16,3 +16,4 @@ go test -count 1 github.com/libstorage/libstoragemgmt-golang/test -coverpkg=../.
 go tool cover -html=client.out || exit 1
 go tool cover -html=localdisk.out || exit 1
 
+exit 0
