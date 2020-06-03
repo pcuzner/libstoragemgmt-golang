@@ -1026,14 +1026,16 @@ const (
 const (
 
 	// ReadCachePolicyUnknown ...
-	ReadCachePolicyUnknown ReadCachePolicy = 1
+	ReadCachePolicyUnknown ReadCachePolicy = 1 + iota
 
 	// ReadCachePolicyEnabled ...
-	ReadCachePolicyEnabled ReadCachePolicy = 2
+	ReadCachePolicyEnabled
 
 	// ReadCachePolicyDisabled ...
-	ReadCachePolicyDisabled ReadCachePolicy = 3
+	ReadCachePolicyDisabled
+)
 
+const (
 	// ReadCacheStatusUnknown ...
 	ReadCacheStatusUnknown ReadCacheStatus = 1
 
