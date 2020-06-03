@@ -1376,6 +1376,11 @@ func TestReadCacheStatus(t *testing.T) {
 	assert.Equal(t, lsm.ReadCacheStatus(3), lsm.ReadCacheStatusDisabled)
 }
 
+func TestPhysicalDiskCache(t *testing.T) {
+	assert.Equal(t, lsm.PhysicalDiskCache(1), lsm.PhysicalDiskCacheUnknown)
+	assert.Equal(t, lsm.PhysicalDiskCache(4), lsm.PhysicalDiskCacheUseDiskSetting)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

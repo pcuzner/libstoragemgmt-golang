@@ -1048,16 +1048,16 @@ const (
 
 const (
 	// PhysicalDiskCacheUnknown ...
-	PhysicalDiskCacheUnknown PhysicalDiskCache = 1
+	PhysicalDiskCacheUnknown PhysicalDiskCache = 1 + iota
 
 	// PhysicalDiskCacheEnabled ...
-	PhysicalDiskCacheEnabled PhysicalDiskCache = 2
+	PhysicalDiskCacheEnabled
 
 	// PhysicalDiskCacheDisabled ...
-	PhysicalDiskCacheDisabled PhysicalDiskCache = 3
+	PhysicalDiskCacheDisabled
 
 	// PhysicalDiskCacheUseDiskSetting ...
-	PhysicalDiskCacheUseDiskSetting PhysicalDiskCache = 4
+	PhysicalDiskCacheUseDiskSetting
 )
 
 // VolumeCacheInfo contains informationa about volume caching values
