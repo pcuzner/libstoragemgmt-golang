@@ -1306,6 +1306,11 @@ func TestDiskLinkType(t *testing.T) {
 	assert.Equal(t, lsm.DiskLinkType(11), lsm.DiskLinkTypePciE)
 }
 
+func TestDiskStatusType(t *testing.T) {
+	assert.Equal(t, lsm.DiskStatusType(1<<0), lsm.DiskStatusUnknown)
+	assert.Equal(t, lsm.DiskStatusType(1<<13), lsm.DiskStatusFree)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

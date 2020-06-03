@@ -389,47 +389,47 @@ type DiskStatusType uint64
 
 // These constants are bitfields, eg. more than one bit can be set at the same time.
 const (
-	// DiskStatusUNKNOWN Plugin failed to query out the status of disk.
-	DiskStatusUNKNOWN DiskStatusType = 1
+	// DiskStatusUnknown Plugin failed to query out the status of disk.
+	DiskStatusUnknown DiskStatusType = 1 << iota
 
 	// DiskStatusOk Disk is up and healthy.
-	DiskStatusOk DiskStatusType = 1 << 1
+	DiskStatusOk
 
 	//DiskStatusOther Vendor specific status.
-	DiskStatusOther DiskStatusType = 1 << 2
+	DiskStatusOther
 
 	//DiskStatusPredictiveFailure Disk is functional but will fail soon
-	DiskStatusPredictiveFailure DiskStatusType = 1 << 3
+	DiskStatusPredictiveFailure
 
 	//DiskStatusError Disk is not functional
-	DiskStatusError DiskStatusType = 1 << 4
+	DiskStatusError
 
 	//DiskStatusRemoved Disk was removed by administrator
-	DiskStatusRemoved DiskStatusType = 1 << 5
+	DiskStatusRemoved
 
 	// DiskStatusStarting Disk is in the process of becomming ready.
-	DiskStatusStarting DiskStatusType = 1 << 6
+	DiskStatusStarting
 
 	// DiskStatusStopping Disk is shutting down.
-	DiskStatusStopping DiskStatusType = 1 << 7
+	DiskStatusStopping
 
 	// DiskStatusStopped Disk is stopped by administrator.
-	DiskStatusStopped DiskStatusType = 1 << 8
+	DiskStatusStopped
 
 	// DiskStatusInitializing Disk is not yet functional, could be initializing eg. RAID, zeroed or scrubed etc.
-	DiskStatusInitializing DiskStatusType = 1 << 9
+	DiskStatusInitializing
 
 	// DiskStatusMaintenanceMode In maintenance for bad sector scan, integrity check and etc
-	DiskStatusMaintenanceMode DiskStatusType = 1 << 10
+	DiskStatusMaintenanceMode
 
 	// DiskStatusSpareDisk Disk is configured as a spare disk.
-	DiskStatusSpareDisk DiskStatusType = 1 << 11
+	DiskStatusSpareDisk
 
 	// DiskStatusReconstruct Disk is reconstructing its data.
-	DiskStatusReconstruct DiskStatusType = 1 << 12
+	DiskStatusReconstruct
 
 	// DiskStatusFree Disk is not holding any data and it not designated as a spare.
-	DiskStatusFree DiskStatusType = 1 << 13
+	DiskStatusFree
 )
 
 // FileSystem represents a file systems information
