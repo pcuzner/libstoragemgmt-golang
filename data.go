@@ -293,43 +293,48 @@ type DiskType int
 
 const (
 	// DiskTypeUnknown Plugin failed to query disk type
-	DiskTypeUnknown DiskType = 0
+	DiskTypeUnknown DiskType = iota
 
 	// DiskTypeOther Vendor specific disk type
-	DiskTypeOther DiskType = 1
+	DiskTypeOther
+
+	// Reserved "2"
+	_
 
 	// DiskTypeAta IDE disk type.
-	DiskTypeAta DiskType = 3
+	DiskTypeAta
 
 	// DiskTypeSata SATA disk
-	DiskTypeSata DiskType = 4
+	DiskTypeSata
 
 	// DiskTypeSas SAS disk.
-	DiskTypeSas DiskType = 5
+	DiskTypeSas
 
 	// DiskTypeFc FC disk.
-	DiskTypeFc DiskType = 6
+	DiskTypeFc
 
 	// DiskTypeSop SCSI over PCI-Express.
-	DiskTypeSop DiskType = 7
+	DiskTypeSop
 
 	// DiskTypeScsi SCSI disk.
-	DiskTypeScsi DiskType = 8
+	DiskTypeScsi
 
 	// DiskTypeLun Remote LUN from SAN array.
-	DiskTypeLun DiskType = 9
+	DiskTypeLun
+
+	// Reserved 10 - 50
 
 	// DiskTypeNlSas Near-Line SAS, just SATA disk + SAS port
-	DiskTypeNlSas DiskType = 51
+	DiskTypeNlSas DiskType = iota + 41
 
 	// DiskTypeHdd Normal HDD, fall back value if failed to detect HDD type(SAS/SATA/etc).
-	DiskTypeHdd DiskType = 52
+	DiskTypeHdd
 
 	// DiskTypeSsd Solid State Drive.
-	DiskTypeSsd DiskType = 53
+	DiskTypeSsd
 
 	// DiskTypeHybrid Hybrid disk uses a combination of HDD and SSD.
-	DiskTypeHybrid DiskType = 54
+	DiskTypeHybrid
 )
 
 // DiskLinkType is an enumerated type representing different types of disk connection.

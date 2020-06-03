@@ -1291,6 +1291,13 @@ func TestPoolStatusType(t *testing.T) {
 	assert.Equal(t, lsm.PoolStatusType(1<<15), lsm.PoolStatusGrowing)
 }
 
+func TestDiskType(t *testing.T) {
+	assert.Equal(t, lsm.DiskType(0), lsm.DiskTypeUnknown)
+	assert.Equal(t, lsm.DiskType(3), lsm.DiskTypeAta)
+	assert.Equal(t, lsm.DiskType(51), lsm.DiskTypeNlSas)
+	assert.Equal(t, lsm.DiskType(54), lsm.DiskTypeHybrid)
+}
+
 func TestDiskLinkType(t *testing.T) {
 	assert.Equal(t, lsm.DiskLinkType(-2), lsm.DiskLinkTypeNoSupport)
 	assert.Equal(t, lsm.DiskLinkType(-1), lsm.DiskLinkTypeUnknown)
