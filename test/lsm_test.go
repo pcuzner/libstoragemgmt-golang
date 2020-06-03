@@ -1361,6 +1361,11 @@ func TestWriteCachePolicy(t *testing.T) {
 	assert.Equal(t, lsm.WriteCachePolicy(4), lsm.WriteCachePolicyWriteThrough)
 }
 
+func TestWriteCacheStatus(t *testing.T) {
+	assert.Equal(t, lsm.WriteCacheStatus(1), lsm.WriteCacheStatusUnknown)
+	assert.Equal(t, lsm.WriteCacheStatus(3), lsm.WriteCacheStatusWriteThrough)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

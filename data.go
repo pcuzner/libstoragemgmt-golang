@@ -1014,13 +1014,16 @@ const (
 
 const (
 	// WriteCacheStatusUnknown ...
-	WriteCacheStatusUnknown WriteCacheStatus = 1
+	WriteCacheStatusUnknown WriteCacheStatus = 1 + iota
 
 	// WriteCacheStatusWriteBack ...
-	WriteCacheStatusWriteBack WriteCacheStatus = 2
+	WriteCacheStatusWriteBack
 
 	// WriteCacheStatusWriteThrough ...
-	WriteCacheStatusWriteThrough WriteCacheStatus = 3
+	WriteCacheStatusWriteThrough
+)
+
+const (
 
 	// ReadCachePolicyUnknown ...
 	ReadCachePolicyUnknown ReadCachePolicy = 1
