@@ -1332,6 +1332,25 @@ func TestBatteryStatus(t *testing.T) {
 	assert.Equal(t, lsm.BatteryStatus(1<<7), lsm.BatteryStatusError)
 }
 
+func TestCapabilityType(t *testing.T) {
+	assert.Equal(t, lsm.CapabilityType(20), lsm.CapVolumes)
+	assert.Equal(t, lsm.CapabilityType(33), lsm.CapVolumeDelete)
+	assert.Equal(t, lsm.CapabilityType(48), lsm.CapAccessGroupInitAddIscsiIqn)
+	assert.Equal(t, lsm.CapabilityType(53), lsm.CapIscsiChapAuthSet)
+	assert.Equal(t, lsm.CapabilityType(54), lsm.CapVolRaidInfo)
+	assert.Equal(t, lsm.CapabilityType(66), lsm.VolReadCacheSetImpactWrite)
+	assert.Equal(t, lsm.CapabilityType(100), lsm.CapFs)
+	assert.Equal(t, lsm.CapabilityType(114), lsm.CapFsChildDepRmSpecificFiles)
+	assert.Equal(t, lsm.CapabilityType(120), lsm.CapNfsExportAuthTypeList)
+	assert.Equal(t, lsm.CapabilityType(124), lsm.CapFsExportCustomPath)
+	assert.Equal(t, lsm.CapabilityType(158), lsm.CapSysReadCachePctSet)
+	assert.Equal(t, lsm.CapabilityType(165), lsm.CapDiskLinkType)
+	assert.Equal(t, lsm.CapabilityType(171), lsm.CapVolumeLed)
+	assert.Equal(t, lsm.CapabilityType(216), lsm.CapTargetPorts)
+	assert.Equal(t, lsm.CapabilityType(220), lsm.CapDisks)
+	assert.Equal(t, lsm.CapabilityType(223), lsm.CapDiskVpd83Get)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 
