@@ -43,8 +43,8 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 	args["timeout"] = timeout
 
 	var result string
-	var libError = transport.invoke("plugin_register", args, &result)
-	if libError != nil {
+
+	if libError := transport.invoke("plugin_register", args, &result); libError != nil {
 		return nil, libError
 	}
 
@@ -55,8 +55,7 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 func (c *ClientConnection) PluginInfo() (*PluginInfo, error) {
 	var args = make(map[string]interface{})
 	var info []string
-	var invokeError = c.tp.invoke("plugin_info", args, &info)
-	if invokeError != nil {
+	if invokeError := c.tp.invoke("plugin_info", args, &info); invokeError != nil {
 		return nil, invokeError
 	}
 	return &PluginInfo{Description: info[0], Version: info[1], Name: c.PluginName}, nil
@@ -275,24 +274,24 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 	args["job_id"] = jobID
 
 	var result [3]json.RawMessage
-	var jobError = c.tp.invoke("job_status", args, &result)
-	if jobError != nil {
+
+	if jobError := c.tp.invoke("job_status", args, &result); jobError != nil {
 		return JobStatusError, 0, jobError
 	}
 
 	var status JobStatusType
-	var statusMe = json.Unmarshal(result[0], &status)
-	if statusMe != nil {
+	if statusMe := json.Unmarshal(result[0], &status); statusMe != nil {
 		return JobStatusError, 0, statusMe
 	}
 
 	switch status {
 	case JobStatusInprogress:
 		var percent uint8
-		var percentError = json.Unmarshal(result[1], &percent)
-		if percentError != nil {
+
+		if percentError := json.Unmarshal(result[1], &percent); percentError != nil {
 			return JobStatusError, 0, percentError
 		}
+
 		return status, percent, nil
 	case JobStatusComplete:
 		// Some RPC calls with jobs do not return a value, thus the third item is
@@ -304,10 +303,10 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 	case JobStatusError:
 		// Error
 		var error errors.LsmError
-		var checkErrorE = json.Unmarshal(result[2], &error)
-		if checkErrorE != nil {
+		if checkErrorE := json.Unmarshal(result[2], &error); checkErrorE != nil {
 			return JobStatusError, 0, checkErrorE
 		}
+
 		return JobStatusError, 0, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: "job_status returned error status with no error information"}
@@ -369,8 +368,7 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 			time.Sleep(time.Millisecond * 250)
 			continue
 		} else if status == JobStatusComplete {
-			var freeError = c.JobFree(jobID)
-			if freeError != nil {
+			if freeError := c.JobFree(jobID); freeError != nil {
 				return &errors.LsmError{
 					Code: errors.PluginBug,
 					Message: fmt.Sprintf(
@@ -736,8 +734,7 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 
 	var args = make(map[string]interface{})
 
-	var check = validateInitID(initID, initType)
-	if check != nil {
+	if check := validateInitID(initID, initType); check != nil {
 		return check
 	}
 
@@ -793,8 +790,7 @@ func (c *ClientConnection) VolRaidInfo(vol *Volume) (*VolumeRaidInfo, error) {
 	args["volume"] = *vol
 
 	var ret [5]int32
-	var err = c.tp.invoke("volume_raid_info", args, &ret)
-	if err != nil {
+	if err := c.tp.invoke("volume_raid_info", args, &ret); err != nil {
 		return nil, err
 	}
 	var info VolumeRaidInfo
@@ -812,9 +808,7 @@ func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
 	args["pool"] = *pool
 
 	var ret [3]json.RawMessage
-	var err = c.tp.invoke("pool_member_info", args, &ret)
-
-	if err != nil {
+	if err := c.tp.invoke("pool_member_info", args, &ret); err != nil {
 		return nil, err
 	}
 
@@ -822,22 +816,19 @@ func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
 
 	// JSON is [number, number, [string,] ]
 
-	var uE = json.Unmarshal(ret[0], &info.Raid)
-	if uE != nil {
+	if uE := json.Unmarshal(ret[0], &info.Raid); uE != nil {
 		return nil, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("First array item not a raid type %s", ret[0])}
 	}
 
-	uE = json.Unmarshal(ret[1], &info.Member)
-	if uE != nil {
+	if uE := json.Unmarshal(ret[1], &info.Member); uE != nil {
 		return nil, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Second array item not a pool member type %s", ret[1])}
 	}
 
-	uE = json.Unmarshal(ret[2], &info.ID)
-	if uE != nil {
+	if uE := json.Unmarshal(ret[2], &info.ID); uE != nil {
 		return nil, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Third array item not array of strings %s", ret[2])}
@@ -852,22 +843,18 @@ func (c *ClientConnection) VolRaidCreateCapGet(system *System) (*SupportedRaidCa
 	args["system"] = *system
 
 	var ret []json.RawMessage
-	var err = c.tp.invoke("volume_raid_create_cap_get", args, &ret)
-
-	if err != nil {
+	if err := c.tp.invoke("volume_raid_create_cap_get", args, &ret); err != nil {
 		return nil, err
 	}
 
 	var info SupportedRaidCapability
-	var uE = json.Unmarshal(ret[0], &info.Types)
-	if uE != nil {
+	if uE := json.Unmarshal(ret[0], &info.Types); uE != nil {
 		return nil, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("First array item not array of raid types %s", ret[0])}
 	}
 
-	uE = json.Unmarshal(ret[1], &info.StripeSizes)
-	if uE != nil {
+	if uE := json.Unmarshal(ret[1], &info.StripeSizes); uE != nil {
 		return nil, &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Second array item not array of stripe sizes %s", ret[1])}
@@ -945,9 +932,7 @@ func (c *ClientConnection) VolCacheInfo(volume *Volume) (*VolumeCacheInfo, error
 	args["volume"] = *volume
 
 	var ret [5]uint32
-	var err = c.tp.invoke("volume_cache_info", args, &ret)
-
-	if err != nil {
+	if err := c.tp.invoke("volume_cache_info", args, &ret); err != nil {
 		return nil, err
 	}
 
