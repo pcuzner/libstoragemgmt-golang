@@ -1075,16 +1075,16 @@ type DiskHealthStatus int
 const (
 
 	// DiskHealthStatusUnknown represents unknown health status
-	DiskHealthStatusUnknown DiskHealthStatus = -1
+	DiskHealthStatusUnknown DiskHealthStatus = -1 + iota
 
 	// DiskHealthStatusFail represents fail health status
-	DiskHealthStatusFail DiskHealthStatus = 0
+	DiskHealthStatusFail
 
 	// DiskHealthStatusWarn represents health warning status
-	DiskHealthStatusWarn DiskHealthStatus = 1
+	DiskHealthStatusWarn
 
 	// DiskHealthStatusGood represent good health status
-	DiskHealthStatusGood DiskHealthStatus = 2
+	DiskHealthStatusGood
 )
 
 // DiskLedStatusBitField Bit field for disk LED status indicators
