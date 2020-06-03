@@ -488,19 +488,27 @@ type InitiatorType int
 
 const (
 	// InitiatorTypeUnknown plugin failed to query initiator type
-	InitiatorTypeUnknown InitiatorType = 0
+	InitiatorTypeUnknown InitiatorType = iota
 
 	// InitiatorTypeOther vendor specific initiator type
-	InitiatorTypeOther InitiatorType = 1
+	InitiatorTypeOther
 
 	// InitiatorTypeWwpn FC or FCoE WWPN
-	InitiatorTypeWwpn InitiatorType = 2
+	InitiatorTypeWwpn
+
+	// Reserved "3"
+	_
+	// Reserved "4"
+	_
 
 	// InitiatorTypeIscsiIqn iSCSI IQN
-	InitiatorTypeIscsiIqn InitiatorType = 5
+	InitiatorTypeIscsiIqn
+
+	// Reserved "6"
+	_
 
 	// InitiatorTypeMixed this access group contains more than 1 type of initiator
-	InitiatorTypeMixed InitiatorType = 7
+	InitiatorTypeMixed
 )
 
 // TargetPort represents information about target ports.

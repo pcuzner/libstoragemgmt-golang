@@ -1311,6 +1311,12 @@ func TestDiskStatusType(t *testing.T) {
 	assert.Equal(t, lsm.DiskStatusType(1<<13), lsm.DiskStatusFree)
 }
 
+func TestInitiatorType(t *testing.T) {
+	assert.Equal(t, lsm.InitiatorType(0), lsm.InitiatorTypeUnknown)
+	assert.Equal(t, lsm.InitiatorType(5), lsm.InitiatorTypeIscsiIqn)
+	assert.Equal(t, lsm.InitiatorType(7), lsm.InitiatorTypeMixed)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 
