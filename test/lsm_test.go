@@ -1356,6 +1356,11 @@ func TestMemberType(t *testing.T) {
 	assert.Equal(t, lsm.MemberType(3), lsm.MemberTypePool)
 }
 
+func TestWriteCachePolicy(t *testing.T) {
+	assert.Equal(t, lsm.WriteCachePolicy(1), lsm.WriteCachePolicyUnknown)
+	assert.Equal(t, lsm.WriteCachePolicy(4), lsm.WriteCachePolicyWriteThrough)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

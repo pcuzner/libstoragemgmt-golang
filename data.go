@@ -1000,17 +1000,19 @@ type PhysicalDiskCache uint32
 
 const (
 	// WriteCachePolicyUnknown ...
-	WriteCachePolicyUnknown WriteCachePolicy = 1
+	WriteCachePolicyUnknown WriteCachePolicy = 1 + iota
 
 	// WriteCachePolicyWriteBack ...
-	WriteCachePolicyWriteBack WriteCachePolicy = 2
+	WriteCachePolicyWriteBack
 
 	// WriteCachePolicyAuto ...
-	WriteCachePolicyAuto WriteCachePolicy = 3
+	WriteCachePolicyAuto
 
 	// WriteCachePolicyWriteThrough ...
-	WriteCachePolicyWriteThrough WriteCachePolicy = 4
+	WriteCachePolicyWriteThrough
+)
 
+const (
 	// WriteCacheStatusUnknown ...
 	WriteCacheStatusUnknown WriteCacheStatus = 1
 
