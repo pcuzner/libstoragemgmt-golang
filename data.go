@@ -28,12 +28,6 @@ type System struct {
 	SystemMode   SystemModeType   `json:"mode"`
 }
 
-// SystemModeType type representing system mode.
-type SystemModeType int8
-
-// SystemStatusType type representing system status.
-type SystemStatusType uint32
-
 const (
 	// SystemReadCachePctNoSupport System read cache percentage not supported.
 	SystemReadCachePctNoSupport int8 = -2 + iota
@@ -41,6 +35,9 @@ const (
 	// SystemReadCachePctUnknown System read cache percentage unknown.
 	SystemReadCachePctUnknown
 )
+
+// SystemStatusType type representing system status.
+type SystemStatusType uint32
 
 const (
 	// SystemStatusUnknown System status is unknown.
@@ -61,6 +58,9 @@ const (
 	// SystemStatusOther Vendor specific status.
 	SystemStatusOther
 )
+
+// SystemModeType type representing system mode.
+type SystemModeType int8
 
 const (
 	// SystemModeUnknown Plugin failed to query system mode.
@@ -94,9 +94,6 @@ type Volume struct {
 // JobStatusType is enumerated type returned from Job control
 type JobStatusType uint32
 
-// VolumeReplicateType enumerated type for VolumeReplicate
-type VolumeReplicateType int
-
 const (
 
 	// JobStatusInprogress indicated job is in progress
@@ -108,6 +105,9 @@ const (
 	// JobStatusError indicated job has errored
 	JobStatusError
 )
+
+// VolumeReplicateType enumerated type for VolumeReplicate
+type VolumeReplicateType int
 
 const (
 	// VolumeReplicateTypeUnknown plugin failed to detect volume replication type
@@ -175,12 +175,6 @@ type Pool struct {
 // PoolElementType type used to describe what things can be created from pool
 type PoolElementType uint64
 
-// PoolUnsupportedType type used to describe what actions are unsupported
-type PoolUnsupportedType uint64
-
-// PoolStatusType type used to describe the status of pool
-type PoolStatusType uint64
-
 const (
 
 	// PoolElementPool This pool could allocate space for sub pool.
@@ -212,6 +206,9 @@ const (
 	PoolElementTypeSysReserved
 )
 
+// PoolUnsupportedType type used to describe what actions are unsupported
+type PoolUnsupportedType uint64
+
 const (
 	// PoolUnsupportedVolumeGrow this pool does not allow growing volumes
 	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1 << iota
@@ -219,6 +216,9 @@ const (
 	// PoolUnsupportedVolumeShink this pool does not allow shrinking volumes
 	PoolUnsupportedVolumeShink
 )
+
+// PoolStatusType type used to describe the status of pool
+type PoolStatusType uint64
 
 const (
 
@@ -556,9 +556,6 @@ type Battery struct {
 // BatteryType indicates enumerated type of battery
 type BatteryType int32
 
-// BatteryStatus indicates bitfield for status of battery
-type BatteryStatus uint64
-
 const (
 	// BatteryTypeUnknown plugin failed to detect battery type
 	BatteryTypeUnknown BatteryType = 1 + iota
@@ -572,6 +569,9 @@ const (
 	// BatteryTypeCapacitor indicates capacitor
 	BatteryTypeCapacitor
 )
+
+// BatteryStatus indicates bitfield for status of battery
+type BatteryStatus uint64
 
 const (
 	// BatteryStatusUnknown plugin failed to query battery status
@@ -986,18 +986,6 @@ type SupportedRaidCapability struct {
 // WriteCachePolicy represents write cache policy type
 type WriteCachePolicy uint32
 
-// ReadCachePolicy represents read cache policy type
-type ReadCachePolicy uint32
-
-// WriteCacheStatus represente write cache status type
-type WriteCacheStatus uint32
-
-// ReadCacheStatus represents read cache status type
-type ReadCacheStatus uint32
-
-// PhysicalDiskCache represents pyhsical disk caching type
-type PhysicalDiskCache uint32
-
 const (
 	// WriteCachePolicyUnknown ...
 	WriteCachePolicyUnknown WriteCachePolicy = 1 + iota
@@ -1012,6 +1000,9 @@ const (
 	WriteCachePolicyWriteThrough
 )
 
+// WriteCacheStatus represente write cache status type
+type WriteCacheStatus uint32
+
 const (
 	// WriteCacheStatusUnknown ...
 	WriteCacheStatusUnknown WriteCacheStatus = 1 + iota
@@ -1022,6 +1013,9 @@ const (
 	// WriteCacheStatusWriteThrough ...
 	WriteCacheStatusWriteThrough
 )
+
+// ReadCachePolicy represents read cache policy type
+type ReadCachePolicy uint32
 
 const (
 
@@ -1035,6 +1029,9 @@ const (
 	ReadCachePolicyDisabled
 )
 
+// ReadCacheStatus represents read cache status type
+type ReadCacheStatus uint32
+
 const (
 	// ReadCacheStatusUnknown ...
 	ReadCacheStatusUnknown ReadCacheStatus = 1 + iota
@@ -1045,6 +1042,9 @@ const (
 	// ReadCacheStatusDisabled ...
 	ReadCacheStatusDisabled
 )
+
+// PhysicalDiskCache represents pyhsical disk caching type
+type PhysicalDiskCache uint32
 
 const (
 	// PhysicalDiskCacheUnknown ...
