@@ -200,10 +200,13 @@ const (
 
 const (
 	// PoolUnsupportedVolumeGrow this pool does not allow growing volumes
-	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1
+	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1 << iota
 
 	// PoolUnsupportedVolumeShink this pool does not allow shrinking volumes
-	PoolUnsupportedVolumeShink PoolUnsupportedType = 1 << 1
+	PoolUnsupportedVolumeShink
+)
+
+const (
 
 	// PoolStatusUnknown Plugin failed to query pool status.
 	PoolStatusUnknown PoolStatusType = 1

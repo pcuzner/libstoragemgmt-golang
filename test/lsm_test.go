@@ -1245,6 +1245,11 @@ func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<10), lsm.PoolElementTypeSysReserved)
 }
 
+func TestPoolUnsupportedType(t *testing.T) {
+	assert.Equal(t, lsm.PoolUnsupportedType(1<<0), lsm.PoolUnsupportedVolumeGrow)
+	assert.Equal(t, lsm.PoolUnsupportedType(1<<1), lsm.PoolUnsupportedVolumeShink)
+}
+
 func TestDiskLinkType(t *testing.T) {
 	assert.Equal(t, lsm.DiskLinkType(-2), lsm.DiskLinkTypeNoSupport)
 	assert.Equal(t, lsm.DiskLinkType(-1), lsm.DiskLinkTypeUnknown)
