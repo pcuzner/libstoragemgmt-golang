@@ -1327,6 +1327,11 @@ func TestBatteryType(t *testing.T) {
 	assert.Equal(t, lsm.BatteryType(4), lsm.BatteryTypeCapacitor)
 }
 
+func TestBatteryStatus(t *testing.T) {
+	assert.Equal(t, lsm.BatteryStatus(1), lsm.BatteryStatusUnknown)
+	assert.Equal(t, lsm.BatteryStatus(1<<7), lsm.BatteryStatusError)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

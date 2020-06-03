@@ -575,28 +575,28 @@ const (
 
 const (
 	// BatteryStatusUnknown plugin failed to query battery status
-	BatteryStatusUnknown BatteryStatus = 1
+	BatteryStatusUnknown BatteryStatus = 1 << iota
 
 	// BatteryStatusOther vendor specific status
-	BatteryStatusOther BatteryStatus = 1 << 1
+	BatteryStatusOther
 
 	// BatteryStatusOk indicated battery is healthy and operational
-	BatteryStatusOk BatteryStatus = 1 << 2
+	BatteryStatusOk
 
 	// BatteryStatusDischarging indicates battery is discharging
-	BatteryStatusDischarging BatteryStatus = 1 << 3
+	BatteryStatusDischarging
 
 	// BatteryStatusCharging battery is charging
-	BatteryStatusCharging BatteryStatus = 1 << 4
+	BatteryStatusCharging
 
 	// BatteryStatusLearning indicated battery system is optimizing battery use
-	BatteryStatusLearning BatteryStatus = 1 << 5
+	BatteryStatusLearning
 
 	// BatteryStatusDegraded indicated battery should be checked and/or replaced
-	BatteryStatusDegraded BatteryStatus = 1 << 6
+	BatteryStatusDegraded
 
 	// BatteryStatusError indicates battery is in bad state
-	BatteryStatusError = 1 << 7
+	BatteryStatusError
 )
 
 // Capabilities representation
