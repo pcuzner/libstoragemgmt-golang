@@ -1351,6 +1351,11 @@ func TestCapabilityType(t *testing.T) {
 	assert.Equal(t, lsm.CapabilityType(223), lsm.CapDiskVpd83Get)
 }
 
+func TestMemberType(t *testing.T) {
+	assert.Equal(t, lsm.MemberType(0), lsm.MemberTypeUnknown)
+	assert.Equal(t, lsm.MemberType(3), lsm.MemberTypePool)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

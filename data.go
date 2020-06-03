@@ -958,16 +958,16 @@ type MemberType int
 
 const (
 	// MemberTypeUnknown plugin failed to detect the RAID member type.
-	MemberTypeUnknown MemberType = 0
+	MemberTypeUnknown MemberType = iota
 
 	// MemberTypeOther vendor specific RAID member type.
-	MemberTypeOther MemberType = 1
+	MemberTypeOther
 
 	// MemberTypeDisk pool is created from RAID group using whole disks.
-	MemberTypeDisk MemberType = 2
+	MemberTypeDisk
 
 	// MemberTypePool pool is allocated from other pool.
-	MemberTypePool MemberType = 3
+	MemberTypePool
 )
 
 // PoolMemberInfo information about what a pool is composed from.
