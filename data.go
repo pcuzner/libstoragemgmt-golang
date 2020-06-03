@@ -100,14 +100,16 @@ type VolumeReplicateType int
 const (
 
 	// JobStatusInprogress indicated job is in progress
-	JobStatusInprogress JobStatusType = 1
+	JobStatusInprogress JobStatusType = 1 + iota
 
 	// JobStatusComplete indicates job is complete
-	JobStatusComplete JobStatusType = 2
+	JobStatusComplete
 
 	// JobStatusError indicated job has errored
-	JobStatusError JobStatusType = 3
+	JobStatusError
+)
 
+const (
 	// VolumeReplicateTypeUnknown plugin failed to detect volume replication type
 	VolumeReplicateTypeUnknown VolumeReplicateType = -1
 

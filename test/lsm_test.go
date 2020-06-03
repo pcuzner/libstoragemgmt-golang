@@ -1254,6 +1254,11 @@ func TestSystemModeType(t *testing.T) {
 	assert.Equal(t, lsm.SystemModeType(1), lsm.SystemModeHba)
 }
 
+func TestJobStatusType(t *testing.T) {
+	assert.Equal(t, lsm.JobStatusType(1), lsm.JobStatusInprogress)
+	assert.Equal(t, lsm.JobStatusType(3), lsm.JobStatusError)
+}
+
 func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
 	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)
