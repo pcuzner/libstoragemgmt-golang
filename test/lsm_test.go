@@ -1239,6 +1239,14 @@ func TestLocalDiskLinkSpeed(t *testing.T) {
 	}
 }
 
+func TestDiskLinkType(t *testing.T) {
+	assert.Equal(t, lsm.DiskLinkType(-2), lsm.DiskLinkTypeNoSupport)
+	assert.Equal(t, lsm.DiskLinkType(-1), lsm.DiskLinkTypeUnknown)
+	assert.Equal(t, lsm.DiskLinkType(0), lsm.DiskLinkTypeFc)
+	assert.Equal(t, lsm.DiskLinkType(2), lsm.DiskLinkTypeSsa)
+	assert.Equal(t, lsm.DiskLinkType(11), lsm.DiskLinkTypePciE)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

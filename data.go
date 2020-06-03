@@ -298,43 +298,46 @@ type DiskLinkType int
 
 const (
 	// DiskLinkTypeNoSupport Plugin does not support querying disk link type.
-	DiskLinkTypeNoSupport DiskLinkType = -2
+	DiskLinkTypeNoSupport DiskLinkType = iota + -2
 
 	// DiskLinkTypeUnknown Plugin failed to query disk link type
-	DiskLinkTypeUnknown DiskLinkType = -1
+	DiskLinkTypeUnknown
 
 	// DiskLinkTypeFc Fibre channel
-	DiskLinkTypeFc DiskLinkType = 0
+	DiskLinkTypeFc
+
+	// Skip enumerated value "1" which is unused
+	_
 
 	//DiskLinkTypeSsa Serial Storage Architecture
-	DiskLinkTypeSsa DiskLinkType = 2
+	DiskLinkTypeSsa
 
 	// DiskLinkTypeSbp Serial Bus Protocol, used by IEEE 1394.
-	DiskLinkTypeSbp = 3
+	DiskLinkTypeSbp
 
 	// DiskLinkTypeSrp SCSI RDMA Protocol
-	DiskLinkTypeSrp = 4
+	DiskLinkTypeSrp
 
 	// DiskLinkTypeIscsi Internet Small Computer System Interface
-	DiskLinkTypeIscsi = 5
+	DiskLinkTypeIscsi
 
 	// DiskLinkTypeSas Serial Attached SCSI.
-	DiskLinkTypeSas = 6
+	DiskLinkTypeSas
 
 	// DiskLinkTypeAdt Automation/Drive Interface Transport. Often used by tape.
-	DiskLinkTypeAdt = 7
+	DiskLinkTypeAdt
 
 	// DiskLinkTypeAta PATA/IDE or SATA.
-	DiskLinkTypeAta = 8
+	DiskLinkTypeAta
 
 	// DiskLinkTypeUsb USB
-	DiskLinkTypeUsb = 9
+	DiskLinkTypeUsb
 
 	// DiskLinkTypeSop SCSI over PCI-E.
-	DiskLinkTypeSop = 10
+	DiskLinkTypeSop
 
 	// DiskLinkTypePciE PCI-E, e.g. NVMe.
-	DiskLinkTypePciE = 11
+	DiskLinkTypePciE
 )
 
 // DiskStatusType base type for bitfield
