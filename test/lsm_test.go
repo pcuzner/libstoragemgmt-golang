@@ -1239,6 +1239,11 @@ func TestLocalDiskLinkSpeed(t *testing.T) {
 	}
 }
 
+func TestSystemReadCachePct(t *testing.T) {
+	assert.Equal(t, lsm.SystemReadCachePctNoSupport, int8(-2))
+	assert.Equal(t, lsm.SystemReadCachePctUnknown, int8(-1))
+}
+
 func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
 	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)

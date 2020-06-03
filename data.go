@@ -36,11 +36,13 @@ type SystemStatusType uint32
 
 const (
 	// SystemReadCachePctNoSupport System read cache percentage not supported.
-	SystemReadCachePctNoSupport int8 = -2
+	SystemReadCachePctNoSupport int8 = -2 + iota
 
 	// SystemReadCachePctUnknown System read cache percentage unknown.
-	SystemReadCachePctUnknown int8 = -1
+	SystemReadCachePctUnknown
+)
 
+const (
 	// SystemStatusUnknown System status is unknown.
 	SystemStatusUnknown SystemStatusType = 1
 
