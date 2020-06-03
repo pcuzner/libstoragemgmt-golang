@@ -1266,6 +1266,12 @@ func TestVolumeReplicateType(t *testing.T) {
 	assert.Equal(t, lsm.VolumeReplicateType(5), lsm.VolumeReplicateTypeMirrorAsync)
 }
 
+func TestVolumeProvisionType(t *testing.T) {
+	assert.Equal(t, lsm.VolumeProvisionType(-1), lsm.VolumeProvisionTypeUnknown)
+	assert.Equal(t, lsm.VolumeProvisionType(1), lsm.VolumeProvisionTypeThin)
+	assert.Equal(t, lsm.VolumeProvisionType(3), lsm.VolumeProvisionTypeDefault)
+}
+
 func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
 	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)

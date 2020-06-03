@@ -141,16 +141,19 @@ type VolumeProvisionType int
 
 const (
 	// VolumeProvisionTypeUnknown provision type unknown
-	VolumeProvisionTypeUnknown VolumeProvisionType = -1
+	VolumeProvisionTypeUnknown VolumeProvisionType = -1 + iota
+
+	// Reserved "0"
+	_
 
 	// VolumeProvisionTypeThin thin provision volume
-	VolumeProvisionTypeThin VolumeProvisionType = 1
+	VolumeProvisionTypeThin
 
 	// VolumeProvisionTypeFull fully provision volume
-	VolumeProvisionTypeFull VolumeProvisionType = 2
+	VolumeProvisionTypeFull
 
 	// VolumeProvisionTypeDefault use the default for the storage provider
-	VolumeProvisionTypeDefault VolumeProvisionType = 3
+	VolumeProvisionTypeDefault
 )
 
 // Pool represents the unit of storage where block
