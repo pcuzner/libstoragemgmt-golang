@@ -1259,6 +1259,13 @@ func TestJobStatusType(t *testing.T) {
 	assert.Equal(t, lsm.JobStatusType(3), lsm.JobStatusError)
 }
 
+func TestVolumeReplicateType(t *testing.T) {
+	//VolumeReplicateType
+	assert.Equal(t, lsm.VolumeReplicateType(-1), lsm.VolumeReplicateTypeUnknown)
+	assert.Equal(t, lsm.VolumeReplicateType(2), lsm.VolumeReplicateTypeClone)
+	assert.Equal(t, lsm.VolumeReplicateType(5), lsm.VolumeReplicateTypeMirrorAsync)
+}
+
 func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
 	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)

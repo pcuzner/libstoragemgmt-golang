@@ -111,24 +111,29 @@ const (
 
 const (
 	// VolumeReplicateTypeUnknown plugin failed to detect volume replication type
-	VolumeReplicateTypeUnknown VolumeReplicateType = -1
+	VolumeReplicateTypeUnknown VolumeReplicateType = -1 + iota
+
+	// Reserved "0"
+	_
+	// Reserved "1"
+	_
 
 	// VolumeReplicateTypeClone Point in time read writeable space efficient copy of data
-	VolumeReplicateTypeClone VolumeReplicateType = 2
+	VolumeReplicateTypeClone
 
 	// VolumeReplicateTypeCopy Full bitwise copy of the data (occupies full space)
-	VolumeReplicateTypeCopy VolumeReplicateType = 3
+	VolumeReplicateTypeCopy
 
 	// VolumeReplicateTypeMirrorSync I/O will be blocked until I/O reached
 	// both source and target storage systems. There will be no data difference
 	// between source and target storage systems.
-	VolumeReplicateTypeMirrorSync VolumeReplicateType = 4
+	VolumeReplicateTypeMirrorSync
 
 	// VolumeReplicateTypeMirrorAsync I/O will be blocked until I/O
 	// reached source storage systems.  The source storage system will use
 	// copy the changes data to target system in a predefined interval.
 	// There will be a small data differences between source and target.
-	VolumeReplicateTypeMirrorAsync VolumeReplicateType = 5
+	VolumeReplicateTypeMirrorAsync
 )
 
 // VolumeProvisionType enumerated type for volume creation provisioning
