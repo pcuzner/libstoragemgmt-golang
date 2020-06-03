@@ -1037,14 +1037,16 @@ const (
 
 const (
 	// ReadCacheStatusUnknown ...
-	ReadCacheStatusUnknown ReadCacheStatus = 1
+	ReadCacheStatusUnknown ReadCacheStatus = 1 + iota
 
 	// ReadCacheStatusEnabled ...
-	ReadCacheStatusEnabled ReadCacheStatus = 2
+	ReadCacheStatusEnabled
 
 	// ReadCacheStatusDisabled ...
-	ReadCacheStatusDisabled ReadCacheStatus = 3
+	ReadCacheStatusDisabled
+)
 
+const (
 	// PhysicalDiskCacheUnknown ...
 	PhysicalDiskCacheUnknown PhysicalDiskCache = 1
 

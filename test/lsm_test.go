@@ -1371,6 +1371,11 @@ func TestReadCachePolicy(t *testing.T) {
 	assert.Equal(t, lsm.ReadCachePolicy(3), lsm.ReadCachePolicyDisabled)
 }
 
+func TestReadCacheStatus(t *testing.T) {
+	assert.Equal(t, lsm.ReadCacheStatus(1), lsm.ReadCacheStatusUnknown)
+	assert.Equal(t, lsm.ReadCacheStatus(3), lsm.ReadCacheStatusDisabled)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 
