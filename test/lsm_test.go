@@ -1317,6 +1317,11 @@ func TestInitiatorType(t *testing.T) {
 	assert.Equal(t, lsm.InitiatorType(7), lsm.InitiatorTypeMixed)
 }
 
+func TestPortType(t *testing.T) {
+	assert.Equal(t, lsm.PortType(1), lsm.PortTypeOther)
+	assert.Equal(t, lsm.PortType(4), lsm.PortTypeIscsi)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

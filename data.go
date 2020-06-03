@@ -530,16 +530,16 @@ type PortType int32
 const (
 
 	// PortTypeOther is a vendor specific port type
-	PortTypeOther PortType = 1
+	PortTypeOther PortType = 1 + iota
 
 	// PortTypeFc indicates FC port type
-	PortTypeFc PortType = 2
+	PortTypeFc
 
 	// PortTypeFCoE indicates FC over Ethernet type
-	PortTypeFCoE PortType = 3
+	PortTypeFCoE
 
 	// PortTypeIscsi indicates FC over iSCSI type
-	PortTypeIscsi PortType = 4
+	PortTypeIscsi
 )
 
 // Battery represents a battery in the system.
