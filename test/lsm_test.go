@@ -1250,6 +1250,14 @@ func TestPoolUnsupportedType(t *testing.T) {
 	assert.Equal(t, lsm.PoolUnsupportedType(1<<1), lsm.PoolUnsupportedVolumeShink)
 }
 
+func TestPoolStatusType(t *testing.T) {
+	assert.Equal(t, lsm.PoolStatusType(1), lsm.PoolStatusUnknown)
+	assert.Equal(t, lsm.PoolStatusType(1<<4), lsm.PoolStatusDegraded)
+	assert.Equal(t, lsm.PoolStatusType(1<<9), lsm.PoolStatusStopped)
+	assert.Equal(t, lsm.PoolStatusType(1<<12), lsm.PoolStatusReconstructing)
+	assert.Equal(t, lsm.PoolStatusType(1<<15), lsm.PoolStatusGrowing)
+}
+
 func TestDiskLinkType(t *testing.T) {
 	assert.Equal(t, lsm.DiskLinkType(-2), lsm.DiskLinkTypeNoSupport)
 	assert.Equal(t, lsm.DiskLinkType(-1), lsm.DiskLinkTypeUnknown)

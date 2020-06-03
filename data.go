@@ -209,39 +209,52 @@ const (
 const (
 
 	// PoolStatusUnknown Plugin failed to query pool status.
-	PoolStatusUnknown PoolStatusType = 1
+	PoolStatusUnknown PoolStatusType = 1 << iota
 
 	// PoolStatusOk The data of this pool is accessible with no data loss. But it might
 	// be set with PoolStatusDegraded to indicate redundancy loss.
-	PoolStatusOk PoolStatusType = 1 << 1
+	PoolStatusOk
 
 	// PoolStatusOther Vendor specific status, check Pool.StatusInfo for more information.
-	PoolStatusOther PoolStatusType = 1 << 2
+	PoolStatusOther
+
+	// Reserved 1 << 3
+	_
 
 	// PoolStatusDegraded indicates pool has lost data redundancy.
-	PoolStatusDegraded PoolStatusType = 1 << 4
+	PoolStatusDegraded
 
 	// PoolStatusError indicates pool data is not accessible due to some members offline.
-	PoolStatusError PoolStatusType = 1 << 5
+	PoolStatusError
+
+	// Reserved 1 << 6
+	_
+	// Reserved 1 << 7
+	_
+	// Reserved 1 << 8
+	_
 
 	// PoolStatusStopped pool is stopped by administrator.
-	PoolStatusStopped PoolStatusType = 1 << 9
+	PoolStatusStopped
 
 	// PoolStatusStarting is reviving from STOPPED status. Pool data is not accessible yet.
-	PoolStatusStarting PoolStatusType = 1 << 10
+	PoolStatusStarting
+
+	// Reserved 1 << 11
+	_
 
 	// PoolStatusReconstructing pool is be reconstructing hash or mirror data.
-	PoolStatusReconstructing PoolStatusType = 1 << 12
+	PoolStatusReconstructing
 
 	// PoolStatusVerifying indicates array is running integrity check(s).
-	PoolStatusVerifying PoolStatusType = 1 << 13
+	PoolStatusVerifying
 
 	// PoolStatusInitializing indicates pool is not accessible and performing initialization.
-	PoolStatusInitializing PoolStatusType = 1 << 14
+	PoolStatusInitializing
 
 	// PoolStatusGrowing indicates pool is growing in size.  PoolStatusInfo can contain more
 	// information about this task.  If PoolStatusOk is set, data is still accessible.
-	PoolStatusGrowing PoolStatusType = 1 << 15
+	PoolStatusGrowing
 )
 
 // Disk represents a physical device.
