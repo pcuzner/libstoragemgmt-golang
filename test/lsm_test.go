@@ -1239,6 +1239,12 @@ func TestLocalDiskLinkSpeed(t *testing.T) {
 	}
 }
 
+func TestPoolElementType(t *testing.T) {
+	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
+	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)
+	assert.Equal(t, lsm.PoolElementType(1<<10), lsm.PoolElementTypeSysReserved)
+}
+
 func TestDiskLinkType(t *testing.T) {
 	assert.Equal(t, lsm.DiskLinkType(-2), lsm.DiskLinkTypeNoSupport)
 	assert.Equal(t, lsm.DiskLinkType(-1), lsm.DiskLinkTypeUnknown)

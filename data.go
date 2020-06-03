@@ -170,26 +170,35 @@ type PoolStatusType uint64
 const (
 
 	// PoolElementPool This pool could allocate space for sub pool.
-	PoolElementPool PoolElementType = 1 << 1
+	PoolElementPool PoolElementType = 1 << (iota + 1)
 
 	// PoolElementTypeVolume This pool can be used for volume creation.
-	PoolElementTypeVolume PoolElementType = 1 << 2
+	PoolElementTypeVolume
 
 	// PoolElementTypeFs this pool can be used to for FS creation.
-	PoolElementTypeFs PoolElementType = 1 << 3
+	PoolElementTypeFs
 
 	// PoolElementTypeDelta this pool can hold delta data for snapshots.
-	PoolElementTypeDelta PoolElementType = 1 << 4
+	PoolElementTypeDelta
 
 	// PoolElementTypeVolumeFull this pool could be used to create fully allocated volume.
-	PoolElementTypeVolumeFull PoolElementType = 1 << 5
+	PoolElementTypeVolumeFull
 
 	// PoolElementTypeVolumeThin this pool could be used to create thin provisioned volume.
-	PoolElementTypeVolumeThin PoolElementType = 1 << 6
+	PoolElementTypeVolumeThin
+
+	// Reserved 1 << 7
+	_
+	// Reserved 1 << 8
+	_
+	// Reserved 1 << 9
+	_
 
 	// PoolElementTypeSysReserved this pool is reserved for internal use.
-	PoolElementTypeSysReserved PoolElementType = 1 << 10
+	PoolElementTypeSysReserved
+)
 
+const (
 	// PoolUnsupportedVolumeGrow this pool does not allow growing volumes
 	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1
 
