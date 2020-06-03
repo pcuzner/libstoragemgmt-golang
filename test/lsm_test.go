@@ -1322,6 +1322,11 @@ func TestPortType(t *testing.T) {
 	assert.Equal(t, lsm.PortType(4), lsm.PortTypeIscsi)
 }
 
+func TestBatteryType(t *testing.T) {
+	assert.Equal(t, lsm.BatteryType(1), lsm.BatteryTypeUnknown)
+	assert.Equal(t, lsm.BatteryType(4), lsm.BatteryTypeCapacitor)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

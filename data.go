@@ -561,17 +561,19 @@ type BatteryStatus uint64
 
 const (
 	// BatteryTypeUnknown plugin failed to detect battery type
-	BatteryTypeUnknown BatteryType = 1
+	BatteryTypeUnknown BatteryType = 1 + iota
 
 	// BatteryTypeOther vendor specific battery type
-	BatteryTypeOther BatteryType = 2
+	BatteryTypeOther
 
 	// BatteryTypeChemical indicates li-ion etc.
-	BatteryTypeChemical BatteryType = 3
+	BatteryTypeChemical
 
 	// BatteryTypeCapacitor indicates capacitor
-	BatteryTypeCapacitor BatteryType = 4
+	BatteryTypeCapacitor
+)
 
+const (
 	// BatteryStatusUnknown plugin failed to query battery status
 	BatteryStatusUnknown BatteryStatus = 1
 
