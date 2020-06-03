@@ -64,17 +64,17 @@ const (
 
 const (
 	// SystemModeUnknown Plugin failed to query system mode.
-	SystemModeUnknown SystemModeType = -2
+	SystemModeUnknown SystemModeType = -2 + iota
 
 	// SystemModeNoSupport Plugin does not support querying system mode.
-	SystemModeNoSupport SystemModeType = -1
+	SystemModeNoSupport
 
 	//SystemModeHardwareRaid The storage system is a hardware RAID card
-	SystemModeHardwareRaid SystemModeType = 0
+	SystemModeHardwareRaid
 
 	// SystemModeHba The physical disks can be exposed to OS directly without any
 	// configurations.
-	SystemModeHba SystemModeType = 1
+	SystemModeHba
 )
 
 // Volume represents a storage volume, aka. a logical unit

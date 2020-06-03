@@ -1249,6 +1249,11 @@ func TestSystemStatusType(t *testing.T) {
 	assert.Equal(t, lsm.SystemStatusType(1<<5), lsm.SystemStatusOther)
 }
 
+func TestSystemModeType(t *testing.T) {
+	assert.Equal(t, lsm.SystemModeType(-2), lsm.SystemModeUnknown)
+	assert.Equal(t, lsm.SystemModeType(1), lsm.SystemModeHba)
+}
+
 func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
 	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)
