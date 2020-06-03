@@ -1244,6 +1244,11 @@ func TestSystemReadCachePct(t *testing.T) {
 	assert.Equal(t, lsm.SystemReadCachePctUnknown, int8(-1))
 }
 
+func TestSystemStatusType(t *testing.T) {
+	assert.Equal(t, lsm.SystemStatusType(1<<0), lsm.SystemStatusUnknown)
+	assert.Equal(t, lsm.SystemStatusType(1<<5), lsm.SystemStatusOther)
+}
+
 func TestPoolElementType(t *testing.T) {
 	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
 	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)

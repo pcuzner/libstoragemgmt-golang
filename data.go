@@ -44,23 +44,25 @@ const (
 
 const (
 	// SystemStatusUnknown System status is unknown.
-	SystemStatusUnknown SystemStatusType = 1
+	SystemStatusUnknown SystemStatusType = 1 << iota
 
 	// SystemStatusOk  System status is OK.
-	SystemStatusOk SystemStatusType = 1 << 1
+	SystemStatusOk
 
 	// SystemStatusError System is in error state.
-	SystemStatusError SystemStatusType = 1 << 2
+	SystemStatusError
 
 	// SystemStatusDegraded System is degraded in some way
-	SystemStatusDegraded SystemStatusType = 1 << 3
+	SystemStatusDegraded
 
 	// SystemStatusPredictiveFailure System has potential failure.
-	SystemStatusPredictiveFailure SystemStatusType = 1 << 4
+	SystemStatusPredictiveFailure
 
 	// SystemStatusOther Vendor specific status.
-	SystemStatusOther SystemStatusType = 1 << 5
+	SystemStatusOther
+)
 
+const (
 	// SystemModeUnknown Plugin failed to query system mode.
 	SystemModeUnknown SystemModeType = -2
 
