@@ -1092,23 +1092,23 @@ type DiskLedStatusBitField uint32
 
 const (
 	// DiskLedStatusUnknown unknown
-	DiskLedStatusUnknown DiskLedStatusBitField = 0x0000000000000001
+	DiskLedStatusUnknown DiskLedStatusBitField = 1 << iota
 
 	// DiskLedStatusIdentOn ident LED is on
-	DiskLedStatusIdentOn DiskLedStatusBitField = 0x0000000000000002
+	DiskLedStatusIdentOn
 
 	// DiskLedStatusIdentOff ident LED is off
-	DiskLedStatusIdentOff DiskLedStatusBitField = 0x0000000000000004
+	DiskLedStatusIdentOff
 
 	// DiskLedStatusIdentUnknown ident is unknown
-	DiskLedStatusIdentUnknown DiskLedStatusBitField = 0x0000000000000008
+	DiskLedStatusIdentUnknown
 
 	// DiskLedStatusFaultOn  fault LED is on
-	DiskLedStatusFaultOn DiskLedStatusBitField = 0x0000000000000010
+	DiskLedStatusFaultOn
 
 	// DiskLedStatusFaultOff fault LED is off
-	DiskLedStatusFaultOff DiskLedStatusBitField = 0x0000000000000020
+	DiskLedStatusFaultOff
 
 	// DiskLedStatusFaultUnknown fault LED is unknown
-	DiskLedStatusFaultUnknown DiskLedStatusBitField = 0x0000000000000040
+	DiskLedStatusFaultUnknown
 )

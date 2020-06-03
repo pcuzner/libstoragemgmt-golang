@@ -1386,6 +1386,12 @@ func TestDiskHealthStatus(t *testing.T) {
 	assert.Equal(t, lsm.DiskHealthStatus(2), lsm.DiskHealthStatusGood)
 }
 
+func TestDiskLedStatusBitField(t *testing.T) {
+	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000001), lsm.DiskLedStatusUnknown)
+	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000004), lsm.DiskLedStatusIdentOff)
+	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000040), lsm.DiskLedStatusFaultUnknown)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 
