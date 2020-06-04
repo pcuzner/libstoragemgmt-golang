@@ -330,8 +330,7 @@ func (c *ClientConnection) getJobOrResult(err error, returned [2]json.RawMessage
 		return &job, nil
 	}
 	// We have the result
-	var umO = json.Unmarshal(returned[1], result)
-	return nil, umO
+	return nil, json.Unmarshal(returned[1], result)
 }
 
 func (c *ClientConnection) getJobOrNone(err error, returned json.RawMessage, sync bool) (*string, error) {
@@ -708,8 +707,7 @@ func (c *ClientConnection) FsHasChildDep(fs *FileSystem, files []string) (bool, 
 	args["fs"] = *fs
 	args["files"] = files
 	var result bool
-	var err = c.tp.invoke("fs_child_dependency", args, &result)
-	return result, err
+	return result, c.tp.invoke("fs_child_dependency", args, &result)
 }
 
 // FsChildDepRm remove dependencies for specified file system.
