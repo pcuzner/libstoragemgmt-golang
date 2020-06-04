@@ -28,49 +28,53 @@ type System struct {
 	SystemMode   SystemModeType   `json:"mode"`
 }
 
-// SystemModeType type representing system mode.
-type SystemModeType int8
+const (
+	// SystemReadCachePctNoSupport System read cache percentage not supported.
+	SystemReadCachePctNoSupport int8 = -2 + iota
+
+	// SystemReadCachePctUnknown System read cache percentage unknown.
+	SystemReadCachePctUnknown
+)
 
 // SystemStatusType type representing system status.
 type SystemStatusType uint32
 
 const (
-	// SystemReadCachePctNoSupport System read cache percentage not supported.
-	SystemReadCachePctNoSupport int8 = -2
-
-	// SystemReadCachePctUnknown System read cache percentage unknown.
-	SystemReadCachePctUnknown int8 = -1
-
 	// SystemStatusUnknown System status is unknown.
-	SystemStatusUnknown SystemStatusType = 1
+	SystemStatusUnknown SystemStatusType = 1 << iota
 
 	// SystemStatusOk  System status is OK.
-	SystemStatusOk SystemStatusType = 1 << 1
+	SystemStatusOk
 
 	// SystemStatusError System is in error state.
-	SystemStatusError SystemStatusType = 1 << 2
+	SystemStatusError
 
 	// SystemStatusDegraded System is degraded in some way
-	SystemStatusDegraded SystemStatusType = 1 << 3
+	SystemStatusDegraded
 
 	// SystemStatusPredictiveFailure System has potential failure.
-	SystemStatusPredictiveFailure SystemStatusType = 1 << 4
+	SystemStatusPredictiveFailure
 
 	// SystemStatusOther Vendor specific status.
-	SystemStatusOther SystemStatusType = 1 << 5
+	SystemStatusOther
+)
 
+// SystemModeType type representing system mode.
+type SystemModeType int8
+
+const (
 	// SystemModeUnknown Plugin failed to query system mode.
-	SystemModeUnknown SystemModeType = -2
+	SystemModeUnknown SystemModeType = -2 + iota
 
 	// SystemModeNoSupport Plugin does not support querying system mode.
-	SystemModeNoSupport SystemModeType = -1
+	SystemModeNoSupport
 
 	//SystemModeHardwareRaid The storage system is a hardware RAID card
-	SystemModeHardwareRaid SystemModeType = 0
+	SystemModeHardwareRaid
 
 	// SystemModeHba The physical disks can be exposed to OS directly without any
 	// configurations.
-	SystemModeHba SystemModeType = 1
+	SystemModeHba
 )
 
 // Volume represents a storage volume, aka. a logical unit
@@ -90,39 +94,46 @@ type Volume struct {
 // JobStatusType is enumerated type returned from Job control
 type JobStatusType uint32
 
+const (
+
+	// JobStatusInprogress indicated job is in progress
+	JobStatusInprogress JobStatusType = 1 + iota
+
+	// JobStatusComplete indicates job is complete
+	JobStatusComplete
+
+	// JobStatusError indicated job has errored
+	JobStatusError
+)
+
 // VolumeReplicateType enumerated type for VolumeReplicate
 type VolumeReplicateType int
 
 const (
-
-	// JobStatusInprogress indicated job is in progress
-	JobStatusInprogress JobStatusType = 1
-
-	// JobStatusComplete indicates job is complete
-	JobStatusComplete JobStatusType = 2
-
-	// JobStatusError indicated job has errored
-	JobStatusError JobStatusType = 3
-
 	// VolumeReplicateTypeUnknown plugin failed to detect volume replication type
-	VolumeReplicateTypeUnknown VolumeReplicateType = -1
+	VolumeReplicateTypeUnknown VolumeReplicateType = -1 + iota
+
+	// Reserved "0"
+	_
+	// Reserved "1"
+	_
 
 	// VolumeReplicateTypeClone Point in time read writeable space efficient copy of data
-	VolumeReplicateTypeClone VolumeReplicateType = 2
+	VolumeReplicateTypeClone
 
 	// VolumeReplicateTypeCopy Full bitwise copy of the data (occupies full space)
-	VolumeReplicateTypeCopy VolumeReplicateType = 3
+	VolumeReplicateTypeCopy
 
 	// VolumeReplicateTypeMirrorSync I/O will be blocked until I/O reached
 	// both source and target storage systems. There will be no data difference
 	// between source and target storage systems.
-	VolumeReplicateTypeMirrorSync VolumeReplicateType = 4
+	VolumeReplicateTypeMirrorSync
 
 	// VolumeReplicateTypeMirrorAsync I/O will be blocked until I/O
 	// reached source storage systems.  The source storage system will use
 	// copy the changes data to target system in a predefined interval.
 	// There will be a small data differences between source and target.
-	VolumeReplicateTypeMirrorAsync VolumeReplicateType = 5
+	VolumeReplicateTypeMirrorAsync
 )
 
 // VolumeProvisionType enumerated type for volume creation provisioning
@@ -130,16 +141,19 @@ type VolumeProvisionType int
 
 const (
 	// VolumeProvisionTypeUnknown provision type unknown
-	VolumeProvisionTypeUnknown VolumeProvisionType = -1
+	VolumeProvisionTypeUnknown VolumeProvisionType = -1 + iota
+
+	// Reserved "0"
+	_
 
 	// VolumeProvisionTypeThin thin provision volume
-	VolumeProvisionTypeThin VolumeProvisionType = 1
+	VolumeProvisionTypeThin
 
 	// VolumeProvisionTypeFull fully provision volume
-	VolumeProvisionTypeFull VolumeProvisionType = 2
+	VolumeProvisionTypeFull
 
 	// VolumeProvisionTypeDefault use the default for the storage provider
-	VolumeProvisionTypeDefault VolumeProvisionType = 3
+	VolumeProvisionTypeDefault
 )
 
 // Pool represents the unit of storage where block
@@ -161,75 +175,100 @@ type Pool struct {
 // PoolElementType type used to describe what things can be created from pool
 type PoolElementType uint64
 
+const (
+
+	// PoolElementPool This pool could allocate space for sub pool.
+	PoolElementPool PoolElementType = 1 << (iota + 1)
+
+	// PoolElementTypeVolume This pool can be used for volume creation.
+	PoolElementTypeVolume
+
+	// PoolElementTypeFs this pool can be used to for FS creation.
+	PoolElementTypeFs
+
+	// PoolElementTypeDelta this pool can hold delta data for snapshots.
+	PoolElementTypeDelta
+
+	// PoolElementTypeVolumeFull this pool could be used to create fully allocated volume.
+	PoolElementTypeVolumeFull
+
+	// PoolElementTypeVolumeThin this pool could be used to create thin provisioned volume.
+	PoolElementTypeVolumeThin
+
+	// Reserved 1 << 7
+	_
+	// Reserved 1 << 8
+	_
+	// Reserved 1 << 9
+	_
+
+	// PoolElementTypeSysReserved this pool is reserved for internal use.
+	PoolElementTypeSysReserved
+)
+
 // PoolUnsupportedType type used to describe what actions are unsupported
 type PoolUnsupportedType uint64
+
+const (
+	// PoolUnsupportedVolumeGrow this pool does not allow growing volumes
+	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1 << iota
+
+	// PoolUnsupportedVolumeShink this pool does not allow shrinking volumes
+	PoolUnsupportedVolumeShink
+)
 
 // PoolStatusType type used to describe the status of pool
 type PoolStatusType uint64
 
 const (
 
-	// PoolElementPool This pool could allocate space for sub pool.
-	PoolElementPool PoolElementType = 1 << 1
-
-	// PoolElementTypeVolume This pool can be used for volume creation.
-	PoolElementTypeVolume PoolElementType = 1 << 2
-
-	// PoolElementTypeFs this pool can be used to for FS creation.
-	PoolElementTypeFs PoolElementType = 1 << 3
-
-	// PoolElementTypeDelta this pool can hold delta data for snapshots.
-	PoolElementTypeDelta PoolElementType = 1 << 4
-
-	// PoolElementTypeVolumeFull this pool could be used to create fully allocated volume.
-	PoolElementTypeVolumeFull PoolElementType = 1 << 5
-
-	// PoolElementTypeVolumeThin this pool could be used to create thin provisioned volume.
-	PoolElementTypeVolumeThin PoolElementType = 1 << 6
-
-	// PoolElementTypeSysReserved this pool is reserved for internal use.
-	PoolElementTypeSysReserved PoolElementType = 1 << 10
-
-	// PoolUnsupportedVolumeGrow this pool does not allow growing volumes
-	PoolUnsupportedVolumeGrow PoolUnsupportedType = 1
-
-	// PoolUnsupportedVolumeShink this pool does not allow shrinking volumes
-	PoolUnsupportedVolumeShink PoolUnsupportedType = 1 << 1
-
 	// PoolStatusUnknown Plugin failed to query pool status.
-	PoolStatusUnknown PoolStatusType = 1
+	PoolStatusUnknown PoolStatusType = 1 << iota
 
 	// PoolStatusOk The data of this pool is accessible with no data loss. But it might
 	// be set with PoolStatusDegraded to indicate redundancy loss.
-	PoolStatusOk PoolStatusType = 1 << 1
+	PoolStatusOk
 
 	// PoolStatusOther Vendor specific status, check Pool.StatusInfo for more information.
-	PoolStatusOther PoolStatusType = 1 << 2
+	PoolStatusOther
+
+	// Reserved 1 << 3
+	_
 
 	// PoolStatusDegraded indicates pool has lost data redundancy.
-	PoolStatusDegraded PoolStatusType = 1 << 4
+	PoolStatusDegraded
 
 	// PoolStatusError indicates pool data is not accessible due to some members offline.
-	PoolStatusError PoolStatusType = 1 << 5
+	PoolStatusError
+
+	// Reserved 1 << 6
+	_
+	// Reserved 1 << 7
+	_
+	// Reserved 1 << 8
+	_
 
 	// PoolStatusStopped pool is stopped by administrator.
-	PoolStatusStopped PoolStatusType = 1 << 9
+	PoolStatusStopped
 
 	// PoolStatusStarting is reviving from STOPPED status. Pool data is not accessible yet.
-	PoolStatusStarting PoolStatusType = 1 << 10
+	PoolStatusStarting
+
+	// Reserved 1 << 11
+	_
 
 	// PoolStatusReconstructing pool is be reconstructing hash or mirror data.
-	PoolStatusReconstructing PoolStatusType = 1 << 12
+	PoolStatusReconstructing
 
 	// PoolStatusVerifying indicates array is running integrity check(s).
-	PoolStatusVerifying PoolStatusType = 1 << 13
+	PoolStatusVerifying
 
 	// PoolStatusInitializing indicates pool is not accessible and performing initialization.
-	PoolStatusInitializing PoolStatusType = 1 << 14
+	PoolStatusInitializing
 
 	// PoolStatusGrowing indicates pool is growing in size.  PoolStatusInfo can contain more
 	// information about this task.  If PoolStatusOk is set, data is still accessible.
-	PoolStatusGrowing PoolStatusType = 1 << 15
+	PoolStatusGrowing
 )
 
 // Disk represents a physical device.
@@ -254,43 +293,48 @@ type DiskType int
 
 const (
 	// DiskTypeUnknown Plugin failed to query disk type
-	DiskTypeUnknown DiskType = 0
+	DiskTypeUnknown DiskType = iota
 
 	// DiskTypeOther Vendor specific disk type
-	DiskTypeOther DiskType = 1
+	DiskTypeOther
+
+	// Reserved "2"
+	_
 
 	// DiskTypeAta IDE disk type.
-	DiskTypeAta DiskType = 3
+	DiskTypeAta
 
 	// DiskTypeSata SATA disk
-	DiskTypeSata DiskType = 4
+	DiskTypeSata
 
 	// DiskTypeSas SAS disk.
-	DiskTypeSas DiskType = 5
+	DiskTypeSas
 
 	// DiskTypeFc FC disk.
-	DiskTypeFc DiskType = 6
+	DiskTypeFc
 
 	// DiskTypeSop SCSI over PCI-Express.
-	DiskTypeSop DiskType = 7
+	DiskTypeSop
 
 	// DiskTypeScsi SCSI disk.
-	DiskTypeScsi DiskType = 8
+	DiskTypeScsi
 
 	// DiskTypeLun Remote LUN from SAN array.
-	DiskTypeLun DiskType = 9
+	DiskTypeLun
+
+	// Reserved 10 - 50
 
 	// DiskTypeNlSas Near-Line SAS, just SATA disk + SAS port
-	DiskTypeNlSas DiskType = 51
+	DiskTypeNlSas DiskType = iota + 41
 
 	// DiskTypeHdd Normal HDD, fall back value if failed to detect HDD type(SAS/SATA/etc).
-	DiskTypeHdd DiskType = 52
+	DiskTypeHdd
 
 	// DiskTypeSsd Solid State Drive.
-	DiskTypeSsd DiskType = 53
+	DiskTypeSsd
 
 	// DiskTypeHybrid Hybrid disk uses a combination of HDD and SSD.
-	DiskTypeHybrid DiskType = 54
+	DiskTypeHybrid
 )
 
 // DiskLinkType is an enumerated type representing different types of disk connection.
@@ -298,43 +342,46 @@ type DiskLinkType int
 
 const (
 	// DiskLinkTypeNoSupport Plugin does not support querying disk link type.
-	DiskLinkTypeNoSupport DiskLinkType = -2
+	DiskLinkTypeNoSupport DiskLinkType = iota + -2
 
 	// DiskLinkTypeUnknown Plugin failed to query disk link type
-	DiskLinkTypeUnknown DiskLinkType = -1
+	DiskLinkTypeUnknown
 
 	// DiskLinkTypeFc Fibre channel
-	DiskLinkTypeFc DiskLinkType = 0
+	DiskLinkTypeFc
+
+	// Skip enumerated value "1" which is unused
+	_
 
 	//DiskLinkTypeSsa Serial Storage Architecture
-	DiskLinkTypeSsa DiskLinkType = 2
+	DiskLinkTypeSsa
 
 	// DiskLinkTypeSbp Serial Bus Protocol, used by IEEE 1394.
-	DiskLinkTypeSbp = 3
+	DiskLinkTypeSbp
 
 	// DiskLinkTypeSrp SCSI RDMA Protocol
-	DiskLinkTypeSrp = 4
+	DiskLinkTypeSrp
 
 	// DiskLinkTypeIscsi Internet Small Computer System Interface
-	DiskLinkTypeIscsi = 5
+	DiskLinkTypeIscsi
 
 	// DiskLinkTypeSas Serial Attached SCSI.
-	DiskLinkTypeSas = 6
+	DiskLinkTypeSas
 
 	// DiskLinkTypeAdt Automation/Drive Interface Transport. Often used by tape.
-	DiskLinkTypeAdt = 7
+	DiskLinkTypeAdt
 
 	// DiskLinkTypeAta PATA/IDE or SATA.
-	DiskLinkTypeAta = 8
+	DiskLinkTypeAta
 
 	// DiskLinkTypeUsb USB
-	DiskLinkTypeUsb = 9
+	DiskLinkTypeUsb
 
 	// DiskLinkTypeSop SCSI over PCI-E.
-	DiskLinkTypeSop = 10
+	DiskLinkTypeSop
 
 	// DiskLinkTypePciE PCI-E, e.g. NVMe.
-	DiskLinkTypePciE = 11
+	DiskLinkTypePciE
 )
 
 // DiskStatusType base type for bitfield
@@ -342,47 +389,47 @@ type DiskStatusType uint64
 
 // These constants are bitfields, eg. more than one bit can be set at the same time.
 const (
-	// DiskStatusUNKNOWN Plugin failed to query out the status of disk.
-	DiskStatusUNKNOWN DiskStatusType = 1
+	// DiskStatusUnknown Plugin failed to query out the status of disk.
+	DiskStatusUnknown DiskStatusType = 1 << iota
 
 	// DiskStatusOk Disk is up and healthy.
-	DiskStatusOk DiskStatusType = 1 << 1
+	DiskStatusOk
 
 	//DiskStatusOther Vendor specific status.
-	DiskStatusOther DiskStatusType = 1 << 2
+	DiskStatusOther
 
 	//DiskStatusPredictiveFailure Disk is functional but will fail soon
-	DiskStatusPredictiveFailure DiskStatusType = 1 << 3
+	DiskStatusPredictiveFailure
 
 	//DiskStatusError Disk is not functional
-	DiskStatusError DiskStatusType = 1 << 4
+	DiskStatusError
 
 	//DiskStatusRemoved Disk was removed by administrator
-	DiskStatusRemoved DiskStatusType = 1 << 5
+	DiskStatusRemoved
 
 	// DiskStatusStarting Disk is in the process of becomming ready.
-	DiskStatusStarting DiskStatusType = 1 << 6
+	DiskStatusStarting
 
 	// DiskStatusStopping Disk is shutting down.
-	DiskStatusStopping DiskStatusType = 1 << 7
+	DiskStatusStopping
 
 	// DiskStatusStopped Disk is stopped by administrator.
-	DiskStatusStopped DiskStatusType = 1 << 8
+	DiskStatusStopped
 
 	// DiskStatusInitializing Disk is not yet functional, could be initializing eg. RAID, zeroed or scrubed etc.
-	DiskStatusInitializing DiskStatusType = 1 << 9
+	DiskStatusInitializing
 
 	// DiskStatusMaintenanceMode In maintenance for bad sector scan, integrity check and etc
-	DiskStatusMaintenanceMode DiskStatusType = 1 << 10
+	DiskStatusMaintenanceMode
 
 	// DiskStatusSpareDisk Disk is configured as a spare disk.
-	DiskStatusSpareDisk DiskStatusType = 1 << 11
+	DiskStatusSpareDisk
 
 	// DiskStatusReconstruct Disk is reconstructing its data.
-	DiskStatusReconstruct DiskStatusType = 1 << 12
+	DiskStatusReconstruct
 
 	// DiskStatusFree Disk is not holding any data and it not designated as a spare.
-	DiskStatusFree DiskStatusType = 1 << 13
+	DiskStatusFree
 )
 
 // FileSystem represents a file systems information
@@ -441,19 +488,27 @@ type InitiatorType int
 
 const (
 	// InitiatorTypeUnknown plugin failed to query initiator type
-	InitiatorTypeUnknown InitiatorType = 0
+	InitiatorTypeUnknown InitiatorType = iota
 
 	// InitiatorTypeOther vendor specific initiator type
-	InitiatorTypeOther InitiatorType = 1
+	InitiatorTypeOther
 
 	// InitiatorTypeWwpn FC or FCoE WWPN
-	InitiatorTypeWwpn InitiatorType = 2
+	InitiatorTypeWwpn
+
+	// Reserved "3"
+	_
+	// Reserved "4"
+	_
 
 	// InitiatorTypeIscsiIqn iSCSI IQN
-	InitiatorTypeIscsiIqn InitiatorType = 5
+	InitiatorTypeIscsiIqn
+
+	// Reserved "6"
+	_
 
 	// InitiatorTypeMixed this access group contains more than 1 type of initiator
-	InitiatorTypeMixed InitiatorType = 7
+	InitiatorTypeMixed
 )
 
 // TargetPort represents information about target ports.
@@ -475,16 +530,16 @@ type PortType int32
 const (
 
 	// PortTypeOther is a vendor specific port type
-	PortTypeOther PortType = 1
+	PortTypeOther PortType = 1 + iota
 
 	// PortTypeFc indicates FC port type
-	PortTypeFc PortType = 2
+	PortTypeFc
 
 	// PortTypeFCoE indicates FC over Ethernet type
-	PortTypeFCoE PortType = 3
+	PortTypeFCoE
 
 	// PortTypeIscsi indicates FC over iSCSI type
-	PortTypeIscsi PortType = 4
+	PortTypeIscsi
 )
 
 // Battery represents a battery in the system.
@@ -501,45 +556,47 @@ type Battery struct {
 // BatteryType indicates enumerated type of battery
 type BatteryType int32
 
+const (
+	// BatteryTypeUnknown plugin failed to detect battery type
+	BatteryTypeUnknown BatteryType = 1 + iota
+
+	// BatteryTypeOther vendor specific battery type
+	BatteryTypeOther
+
+	// BatteryTypeChemical indicates li-ion etc.
+	BatteryTypeChemical
+
+	// BatteryTypeCapacitor indicates capacitor
+	BatteryTypeCapacitor
+)
+
 // BatteryStatus indicates bitfield for status of battery
 type BatteryStatus uint64
 
 const (
-	// BatteryTypeUnknown plugin failed to detect battery type
-	BatteryTypeUnknown BatteryType = 1
-
-	// BatteryTypeOther vendor specific battery type
-	BatteryTypeOther BatteryType = 2
-
-	// BatteryTypeChemical indicates li-ion etc.
-	BatteryTypeChemical BatteryType = 3
-
-	// BatteryTypeCapacitor indicates capacitor
-	BatteryTypeCapacitor BatteryType = 4
-
 	// BatteryStatusUnknown plugin failed to query battery status
-	BatteryStatusUnknown BatteryStatus = 1
+	BatteryStatusUnknown BatteryStatus = 1 << iota
 
 	// BatteryStatusOther vendor specific status
-	BatteryStatusOther BatteryStatus = 1 << 1
+	BatteryStatusOther
 
 	// BatteryStatusOk indicated battery is healthy and operational
-	BatteryStatusOk BatteryStatus = 1 << 2
+	BatteryStatusOk
 
 	// BatteryStatusDischarging indicates battery is discharging
-	BatteryStatusDischarging BatteryStatus = 1 << 3
+	BatteryStatusDischarging
 
 	// BatteryStatusCharging battery is charging
-	BatteryStatusCharging BatteryStatus = 1 << 4
+	BatteryStatusCharging
 
 	// BatteryStatusLearning indicated battery system is optimizing battery use
-	BatteryStatusLearning BatteryStatus = 1 << 5
+	BatteryStatusLearning
 
 	// BatteryStatusDegraded indicated battery should be checked and/or replaced
-	BatteryStatusDegraded BatteryStatus = 1 << 6
+	BatteryStatusDegraded
 
 	// BatteryStatusError indicates battery is in bad state
-	BatteryStatusError = 1 << 7
+	BatteryStatusError
 )
 
 // Capabilities representation
@@ -901,16 +958,16 @@ type MemberType int
 
 const (
 	// MemberTypeUnknown plugin failed to detect the RAID member type.
-	MemberTypeUnknown MemberType = 0
+	MemberTypeUnknown MemberType = iota
 
 	// MemberTypeOther vendor specific RAID member type.
-	MemberTypeOther MemberType = 1
+	MemberTypeOther
 
 	// MemberTypeDisk pool is created from RAID group using whole disks.
-	MemberTypeDisk MemberType = 2
+	MemberTypeDisk
 
 	// MemberTypePool pool is allocated from other pool.
-	MemberTypePool MemberType = 3
+	MemberTypePool
 )
 
 // PoolMemberInfo information about what a pool is composed from.
@@ -929,69 +986,78 @@ type SupportedRaidCapability struct {
 // WriteCachePolicy represents write cache policy type
 type WriteCachePolicy uint32
 
-// ReadCachePolicy represents read cache policy type
-type ReadCachePolicy uint32
+const (
+	// WriteCachePolicyUnknown ...
+	WriteCachePolicyUnknown WriteCachePolicy = 1 + iota
+
+	// WriteCachePolicyWriteBack ...
+	WriteCachePolicyWriteBack
+
+	// WriteCachePolicyAuto ...
+	WriteCachePolicyAuto
+
+	// WriteCachePolicyWriteThrough ...
+	WriteCachePolicyWriteThrough
+)
 
 // WriteCacheStatus represente write cache status type
 type WriteCacheStatus uint32
 
+const (
+	// WriteCacheStatusUnknown ...
+	WriteCacheStatusUnknown WriteCacheStatus = 1 + iota
+
+	// WriteCacheStatusWriteBack ...
+	WriteCacheStatusWriteBack
+
+	// WriteCacheStatusWriteThrough ...
+	WriteCacheStatusWriteThrough
+)
+
+// ReadCachePolicy represents read cache policy type
+type ReadCachePolicy uint32
+
+const (
+
+	// ReadCachePolicyUnknown ...
+	ReadCachePolicyUnknown ReadCachePolicy = 1 + iota
+
+	// ReadCachePolicyEnabled ...
+	ReadCachePolicyEnabled
+
+	// ReadCachePolicyDisabled ...
+	ReadCachePolicyDisabled
+)
+
 // ReadCacheStatus represents read cache status type
 type ReadCacheStatus uint32
+
+const (
+	// ReadCacheStatusUnknown ...
+	ReadCacheStatusUnknown ReadCacheStatus = 1 + iota
+
+	// ReadCacheStatusEnabled ...
+	ReadCacheStatusEnabled
+
+	// ReadCacheStatusDisabled ...
+	ReadCacheStatusDisabled
+)
 
 // PhysicalDiskCache represents pyhsical disk caching type
 type PhysicalDiskCache uint32
 
 const (
-	// WriteCachePolicyUnknown ...
-	WriteCachePolicyUnknown WriteCachePolicy = 1
-
-	// WriteCachePolicyWriteBack ...
-	WriteCachePolicyWriteBack WriteCachePolicy = 2
-
-	// WriteCachePolicyAuto ...
-	WriteCachePolicyAuto WriteCachePolicy = 3
-
-	// WriteCachePolicyWriteThrough ...
-	WriteCachePolicyWriteThrough WriteCachePolicy = 4
-
-	// WriteCacheStatusUnknown ...
-	WriteCacheStatusUnknown WriteCacheStatus = 1
-
-	// WriteCacheStatusWriteBack ...
-	WriteCacheStatusWriteBack WriteCacheStatus = 2
-
-	// WriteCacheStatusWriteThrough ...
-	WriteCacheStatusWriteThrough WriteCacheStatus = 3
-
-	// ReadCachePolicyUnknown ...
-	ReadCachePolicyUnknown ReadCachePolicy = 1
-
-	// ReadCachePolicyEnabled ...
-	ReadCachePolicyEnabled ReadCachePolicy = 2
-
-	// ReadCachePolicyDisabled ...
-	ReadCachePolicyDisabled ReadCachePolicy = 3
-
-	// ReadCacheStatusUnknown ...
-	ReadCacheStatusUnknown ReadCacheStatus = 1
-
-	// ReadCacheStatusEnabled ...
-	ReadCacheStatusEnabled ReadCacheStatus = 2
-
-	// ReadCacheStatusDisabled ...
-	ReadCacheStatusDisabled ReadCacheStatus = 3
-
 	// PhysicalDiskCacheUnknown ...
-	PhysicalDiskCacheUnknown PhysicalDiskCache = 1
+	PhysicalDiskCacheUnknown PhysicalDiskCache = 1 + iota
 
 	// PhysicalDiskCacheEnabled ...
-	PhysicalDiskCacheEnabled PhysicalDiskCache = 2
+	PhysicalDiskCacheEnabled
 
 	// PhysicalDiskCacheDisabled ...
-	PhysicalDiskCacheDisabled PhysicalDiskCache = 3
+	PhysicalDiskCacheDisabled
 
 	// PhysicalDiskCacheUseDiskSetting ...
-	PhysicalDiskCacheUseDiskSetting PhysicalDiskCache = 4
+	PhysicalDiskCacheUseDiskSetting
 )
 
 // VolumeCacheInfo contains informationa about volume caching values
@@ -1009,16 +1075,16 @@ type DiskHealthStatus int
 const (
 
 	// DiskHealthStatusUnknown represents unknown health status
-	DiskHealthStatusUnknown DiskHealthStatus = -1
+	DiskHealthStatusUnknown DiskHealthStatus = -1 + iota
 
 	// DiskHealthStatusFail represents fail health status
-	DiskHealthStatusFail DiskHealthStatus = 0
+	DiskHealthStatusFail
 
 	// DiskHealthStatusWarn represents health warning status
-	DiskHealthStatusWarn DiskHealthStatus = 1
+	DiskHealthStatusWarn
 
 	// DiskHealthStatusGood represent good health status
-	DiskHealthStatusGood DiskHealthStatus = 2
+	DiskHealthStatusGood
 )
 
 // DiskLedStatusBitField Bit field for disk LED status indicators
@@ -1026,23 +1092,23 @@ type DiskLedStatusBitField uint32
 
 const (
 	// DiskLedStatusUnknown unknown
-	DiskLedStatusUnknown DiskLedStatusBitField = 0x0000000000000001
+	DiskLedStatusUnknown DiskLedStatusBitField = 1 << iota
 
 	// DiskLedStatusIdentOn ident LED is on
-	DiskLedStatusIdentOn DiskLedStatusBitField = 0x0000000000000002
+	DiskLedStatusIdentOn
 
 	// DiskLedStatusIdentOff ident LED is off
-	DiskLedStatusIdentOff DiskLedStatusBitField = 0x0000000000000004
+	DiskLedStatusIdentOff
 
 	// DiskLedStatusIdentUnknown ident is unknown
-	DiskLedStatusIdentUnknown DiskLedStatusBitField = 0x0000000000000008
+	DiskLedStatusIdentUnknown
 
 	// DiskLedStatusFaultOn  fault LED is on
-	DiskLedStatusFaultOn DiskLedStatusBitField = 0x0000000000000010
+	DiskLedStatusFaultOn
 
 	// DiskLedStatusFaultOff fault LED is off
-	DiskLedStatusFaultOff DiskLedStatusBitField = 0x0000000000000020
+	DiskLedStatusFaultOff
 
 	// DiskLedStatusFaultUnknown fault LED is unknown
-	DiskLedStatusFaultUnknown DiskLedStatusBitField = 0x0000000000000040
+	DiskLedStatusFaultUnknown
 )

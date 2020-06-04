@@ -1239,6 +1239,159 @@ func TestLocalDiskLinkSpeed(t *testing.T) {
 	}
 }
 
+func TestSystemReadCachePct(t *testing.T) {
+	assert.Equal(t, lsm.SystemReadCachePctNoSupport, int8(-2))
+	assert.Equal(t, lsm.SystemReadCachePctUnknown, int8(-1))
+}
+
+func TestSystemStatusType(t *testing.T) {
+	assert.Equal(t, lsm.SystemStatusType(1<<0), lsm.SystemStatusUnknown)
+	assert.Equal(t, lsm.SystemStatusType(1<<5), lsm.SystemStatusOther)
+}
+
+func TestSystemModeType(t *testing.T) {
+	assert.Equal(t, lsm.SystemModeType(-2), lsm.SystemModeUnknown)
+	assert.Equal(t, lsm.SystemModeType(1), lsm.SystemModeHba)
+}
+
+func TestJobStatusType(t *testing.T) {
+	assert.Equal(t, lsm.JobStatusType(1), lsm.JobStatusInprogress)
+	assert.Equal(t, lsm.JobStatusType(3), lsm.JobStatusError)
+}
+
+func TestVolumeReplicateType(t *testing.T) {
+	//VolumeReplicateType
+	assert.Equal(t, lsm.VolumeReplicateType(-1), lsm.VolumeReplicateTypeUnknown)
+	assert.Equal(t, lsm.VolumeReplicateType(2), lsm.VolumeReplicateTypeClone)
+	assert.Equal(t, lsm.VolumeReplicateType(5), lsm.VolumeReplicateTypeMirrorAsync)
+}
+
+func TestVolumeProvisionType(t *testing.T) {
+	assert.Equal(t, lsm.VolumeProvisionType(-1), lsm.VolumeProvisionTypeUnknown)
+	assert.Equal(t, lsm.VolumeProvisionType(1), lsm.VolumeProvisionTypeThin)
+	assert.Equal(t, lsm.VolumeProvisionType(3), lsm.VolumeProvisionTypeDefault)
+}
+
+func TestPoolElementType(t *testing.T) {
+	assert.Equal(t, lsm.PoolElementType(1<<1), lsm.PoolElementPool)
+	assert.Equal(t, lsm.PoolElementType(1<<6), lsm.PoolElementTypeVolumeThin)
+	assert.Equal(t, lsm.PoolElementType(1<<10), lsm.PoolElementTypeSysReserved)
+}
+
+func TestPoolUnsupportedType(t *testing.T) {
+	assert.Equal(t, lsm.PoolUnsupportedType(1<<0), lsm.PoolUnsupportedVolumeGrow)
+	assert.Equal(t, lsm.PoolUnsupportedType(1<<1), lsm.PoolUnsupportedVolumeShink)
+}
+
+func TestPoolStatusType(t *testing.T) {
+	assert.Equal(t, lsm.PoolStatusType(1), lsm.PoolStatusUnknown)
+	assert.Equal(t, lsm.PoolStatusType(1<<4), lsm.PoolStatusDegraded)
+	assert.Equal(t, lsm.PoolStatusType(1<<9), lsm.PoolStatusStopped)
+	assert.Equal(t, lsm.PoolStatusType(1<<12), lsm.PoolStatusReconstructing)
+	assert.Equal(t, lsm.PoolStatusType(1<<15), lsm.PoolStatusGrowing)
+}
+
+func TestDiskType(t *testing.T) {
+	assert.Equal(t, lsm.DiskType(0), lsm.DiskTypeUnknown)
+	assert.Equal(t, lsm.DiskType(3), lsm.DiskTypeAta)
+	assert.Equal(t, lsm.DiskType(51), lsm.DiskTypeNlSas)
+	assert.Equal(t, lsm.DiskType(54), lsm.DiskTypeHybrid)
+}
+
+func TestDiskLinkType(t *testing.T) {
+	assert.Equal(t, lsm.DiskLinkType(-2), lsm.DiskLinkTypeNoSupport)
+	assert.Equal(t, lsm.DiskLinkType(-1), lsm.DiskLinkTypeUnknown)
+	assert.Equal(t, lsm.DiskLinkType(0), lsm.DiskLinkTypeFc)
+	assert.Equal(t, lsm.DiskLinkType(2), lsm.DiskLinkTypeSsa)
+	assert.Equal(t, lsm.DiskLinkType(11), lsm.DiskLinkTypePciE)
+}
+
+func TestDiskStatusType(t *testing.T) {
+	assert.Equal(t, lsm.DiskStatusType(1<<0), lsm.DiskStatusUnknown)
+	assert.Equal(t, lsm.DiskStatusType(1<<13), lsm.DiskStatusFree)
+}
+
+func TestInitiatorType(t *testing.T) {
+	assert.Equal(t, lsm.InitiatorType(0), lsm.InitiatorTypeUnknown)
+	assert.Equal(t, lsm.InitiatorType(5), lsm.InitiatorTypeIscsiIqn)
+	assert.Equal(t, lsm.InitiatorType(7), lsm.InitiatorTypeMixed)
+}
+
+func TestPortType(t *testing.T) {
+	assert.Equal(t, lsm.PortType(1), lsm.PortTypeOther)
+	assert.Equal(t, lsm.PortType(4), lsm.PortTypeIscsi)
+}
+
+func TestBatteryType(t *testing.T) {
+	assert.Equal(t, lsm.BatteryType(1), lsm.BatteryTypeUnknown)
+	assert.Equal(t, lsm.BatteryType(4), lsm.BatteryTypeCapacitor)
+}
+
+func TestBatteryStatus(t *testing.T) {
+	assert.Equal(t, lsm.BatteryStatus(1), lsm.BatteryStatusUnknown)
+	assert.Equal(t, lsm.BatteryStatus(1<<7), lsm.BatteryStatusError)
+}
+
+func TestCapabilityType(t *testing.T) {
+	assert.Equal(t, lsm.CapabilityType(20), lsm.CapVolumes)
+	assert.Equal(t, lsm.CapabilityType(33), lsm.CapVolumeDelete)
+	assert.Equal(t, lsm.CapabilityType(48), lsm.CapAccessGroupInitAddIscsiIqn)
+	assert.Equal(t, lsm.CapabilityType(53), lsm.CapIscsiChapAuthSet)
+	assert.Equal(t, lsm.CapabilityType(54), lsm.CapVolRaidInfo)
+	assert.Equal(t, lsm.CapabilityType(66), lsm.VolReadCacheSetImpactWrite)
+	assert.Equal(t, lsm.CapabilityType(100), lsm.CapFs)
+	assert.Equal(t, lsm.CapabilityType(114), lsm.CapFsChildDepRmSpecificFiles)
+	assert.Equal(t, lsm.CapabilityType(120), lsm.CapNfsExportAuthTypeList)
+	assert.Equal(t, lsm.CapabilityType(124), lsm.CapFsExportCustomPath)
+	assert.Equal(t, lsm.CapabilityType(158), lsm.CapSysReadCachePctSet)
+	assert.Equal(t, lsm.CapabilityType(165), lsm.CapDiskLinkType)
+	assert.Equal(t, lsm.CapabilityType(171), lsm.CapVolumeLed)
+	assert.Equal(t, lsm.CapabilityType(216), lsm.CapTargetPorts)
+	assert.Equal(t, lsm.CapabilityType(220), lsm.CapDisks)
+	assert.Equal(t, lsm.CapabilityType(223), lsm.CapDiskVpd83Get)
+}
+
+func TestMemberType(t *testing.T) {
+	assert.Equal(t, lsm.MemberType(0), lsm.MemberTypeUnknown)
+	assert.Equal(t, lsm.MemberType(3), lsm.MemberTypePool)
+}
+
+func TestWriteCachePolicy(t *testing.T) {
+	assert.Equal(t, lsm.WriteCachePolicy(1), lsm.WriteCachePolicyUnknown)
+	assert.Equal(t, lsm.WriteCachePolicy(4), lsm.WriteCachePolicyWriteThrough)
+}
+
+func TestWriteCacheStatus(t *testing.T) {
+	assert.Equal(t, lsm.WriteCacheStatus(1), lsm.WriteCacheStatusUnknown)
+	assert.Equal(t, lsm.WriteCacheStatus(3), lsm.WriteCacheStatusWriteThrough)
+}
+
+func TestReadCachePolicy(t *testing.T) {
+	assert.Equal(t, lsm.ReadCachePolicy(1), lsm.ReadCachePolicyUnknown)
+	assert.Equal(t, lsm.ReadCachePolicy(3), lsm.ReadCachePolicyDisabled)
+}
+
+func TestReadCacheStatus(t *testing.T) {
+	assert.Equal(t, lsm.ReadCacheStatus(1), lsm.ReadCacheStatusUnknown)
+	assert.Equal(t, lsm.ReadCacheStatus(3), lsm.ReadCacheStatusDisabled)
+}
+
+func TestPhysicalDiskCache(t *testing.T) {
+	assert.Equal(t, lsm.PhysicalDiskCache(1), lsm.PhysicalDiskCacheUnknown)
+	assert.Equal(t, lsm.PhysicalDiskCache(4), lsm.PhysicalDiskCacheUseDiskSetting)
+}
+
+func TestDiskHealthStatus(t *testing.T) {
+	assert.Equal(t, lsm.DiskHealthStatus(-1), lsm.DiskHealthStatusUnknown)
+	assert.Equal(t, lsm.DiskHealthStatus(2), lsm.DiskHealthStatusGood)
+}
+
+func TestDiskLedStatusBitField(t *testing.T) {
+	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000001), lsm.DiskLedStatusUnknown)
+	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000004), lsm.DiskLedStatusIdentOff)
+	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000040), lsm.DiskLedStatusFaultUnknown)
+}
+
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 
