@@ -59,11 +59,14 @@ type responseMsg struct {
 }
 
 func (t *transPort) invoke(cmd string, args map[string]interface{}, result interface{}) error {
-	var msg = make(map[string]interface{})
-	msg["method"] = cmd
-	msg["id"] = 100
+
 	args["flags"] = 0
-	msg["params"] = args
+	msg := map[string]interface{}{
+		"method": cmd,
+		"id":     100,
+		"flags":  0,
+		"params": args,
+	}
 
 	var msgSerialized, serialError = json.Marshal(msg)
 	if serialError != nil {
