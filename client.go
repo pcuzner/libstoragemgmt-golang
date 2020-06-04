@@ -755,13 +755,8 @@ func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
 
 func initSetup(initID string,
 	initType InitiatorType, accessGroup *AccessGroup) (map[string]interface{}, error) {
-
-	var check = validateInitID(initID, initType)
-	var args = make(map[string]interface{})
-	args["access_group"] = *accessGroup
-	args["init_id"] = initID
-	args["init_type"] = initType
-	return args, check
+	args := map[string]interface{}{"access_group": *accessGroup, "init_id": initID, "init_type": initType}
+	return args, validateInitID(initID, initType)
 }
 
 // AccessGroupInitAdd adds an initiator to an access group.
