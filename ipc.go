@@ -151,17 +151,17 @@ func (t *transPort) recv() ([]byte, error) {
 
 func readExact(c net.Conn, buf []byte) error {
 	const tmpBufSize = 1024
-	var requested = len(buf)
-	var tmpBuffer = make([]byte, tmpBufSize)
+	requested := len(buf)
+	tmpBuffer := make([]byte, tmpBufSize)
 	var current int
 
 	for current < requested {
-		var remain = requested - current
+		remain := requested - current
 		if remain > tmpBufSize {
 			remain = tmpBufSize
 		}
 
-		var num, readError = c.Read(tmpBuffer[:remain])
+		num, readError := c.Read(tmpBuffer[:remain])
 		if readError != nil {
 			return readError
 		}
