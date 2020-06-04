@@ -15,8 +15,8 @@ import (
 
 func main() {
 	// Ignoring errors for succinctness
-	var c, _ = lsm.Client("sim://", "", 30000)
-	var systems, _ = c.Systems()
+	c, _ := lsm.Client("sim://", "", 30000)
+	systems, _ := c.Systems()
 	for _, s := range systems {
 		fmt.Printf("ID: %s, Name:%s, Version: %s\n", s.ID, s.Name, s.FwVersion)
 	}
