@@ -22,28 +22,27 @@ type ClientConnection struct {
 // Client establishes a connection to a plugin as specified in the URI.
 func Client(uri string, password string, timeout uint32) (*ClientConnection, error) {
 
-	var p, parseError = url.Parse(uri)
+	p, parseError := url.Parse(uri)
 	if parseError != nil {
 		return nil, &errors.LsmError{
 			Code:    errors.InvalidArgument,
 			Message: fmt.Sprintf("invalid uri: %w", parseError)}
 	}
 
-	var pluginName = p.Scheme
-	var pluginIpcPath = getPluginIpcPath(pluginName)
+	pluginName := p.Scheme
+	pluginIpcPath := getPluginIpcPath(pluginName)
 
-	var transport, transPortError = newTransport(pluginIpcPath, true)
+	transport, transPortError := newTransport(pluginIpcPath, true)
 	if transPortError != nil {
 		return nil, transPortError
 	}
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["password"] = password
 	args["uri"] = uri
 	args["timeout"] = timeout
 
 	var result string
-
 	if libError := transport.invoke("plugin_register", args, &result); libError != nil {
 		return nil, libError
 	}
@@ -53,7 +52,7 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 
 // PluginInfo information about the current plugin
 func (c *ClientConnection) PluginInfo() (*PluginInfo, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var info []string
 	if invokeError := c.tp.invoke("plugin_info", args, &info); invokeError != nil {
 		return nil, invokeError
@@ -80,9 +79,9 @@ func AvailablePlugins() ([]PluginInfo, error) {
 			return nil, transError
 		}
 
-		var args = make(map[string]interface{})
+		args := make(map[string]interface{})
 		var info []string
-		var invokeError = trans.invoke("plugin_info", args, &info)
+		invokeError := trans.invoke("plugin_info", args, &info)
 
 		trans.close()
 
@@ -100,23 +99,23 @@ func AvailablePlugins() ([]PluginInfo, error) {
 
 // Close instructs the plugin to shutdown and exist.
 func (c *ClientConnection) Close() error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var result string
-	var ourError = c.tp.invoke("plugin_unregister", args, &result)
+	ourError := c.tp.invoke("plugin_unregister", args, &result)
 	c.tp.close()
 	return ourError
 }
 
 // Systems returns systems information
 func (c *ClientConnection) Systems() ([]System, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var systems []System
 	return systems, c.tp.invoke("systems", args, &systems)
 }
 
 // Volumes returns block device information
 func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var volumes []Volume
 
 	if !handleSearch(args, search) {
@@ -133,7 +132,7 @@ func (c *ClientConnection) Volumes(search ...string) ([]Volume, error) {
 // Pools returns the units of storage that block devices and FS
 // can be created from.
 func (c *ClientConnection) Pools(search ...string) ([]Pool, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 
 	if !handleSearch(args, search) {
 		return make([]Pool, 0), &errors.LsmError{
@@ -149,21 +148,21 @@ func (c *ClientConnection) Pools(search ...string) ([]Pool, error) {
 
 // Disks returns disks that are present.
 func (c *ClientConnection) Disks() ([]Disk, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var disks []Disk
 	return disks, c.tp.invoke("disks", args, &disks)
 }
 
 // FileSystems returns pools that are present.
 func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var fileSystems []FileSystem
 	return fileSystems, c.tp.invoke("fs", args, &fileSystems)
 }
 
 // NfsExports returns nfs exports  that are present.
 func (c *ClientConnection) NfsExports(search ...string) ([]NfsExport, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 
 	if !handleSearch(args, search) {
 		return make([]NfsExport, 0), &errors.LsmError{
@@ -215,7 +214,7 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 		}
 	}
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["fs_id"] = fs.ID
 	args["export_path"] = exportPath
 	args["root_list"] = emptySliceIfNil(access.Ro)
@@ -231,35 +230,35 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 
 // FsUnExport removes a file system export.
 func (c *ClientConnection) FsUnExport(export *NfsExport) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["export"] = *export
 	return c.tp.invoke("export_remove", args, nil)
 }
 
 // AccessGroups returns access groups  that are present.
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var accessGroups []AccessGroup
 	return accessGroups, c.tp.invoke("access_groups", args, &accessGroups)
 }
 
 // TargetPorts returns target ports that are present.
 func (c *ClientConnection) TargetPorts() ([]TargetPort, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var targetPorts []TargetPort
 	return targetPorts, c.tp.invoke("target_ports", args, &targetPorts)
 }
 
 // Batteries returns batteries that are present
 func (c *ClientConnection) Batteries() ([]Battery, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	var batteries []Battery
 	return batteries, c.tp.invoke("batteries", args, &batteries)
 }
 
 // JobFree instructs the plugin to release resources for the job that was returned.
 func (c *ClientConnection) JobFree(jobID string) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["job_id"] = jobID
 	var result string
 	return c.tp.invoke("job_free", args, &result)
@@ -270,7 +269,7 @@ func (c *ClientConnection) JobFree(jobID string) error {
 // set the other two are meaningless.  If checking on the status of an operation that doesn't return a result
 // or you are not wanting the result, pass nil.
 func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (JobStatusType, uint8, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["job_id"] = jobID
 
 	var result [3]json.RawMessage
@@ -382,7 +381,7 @@ func (c *ClientConnection) JobWait(jobID string, returnedResult interface{}) err
 
 // Capabilities retrieve capabilities
 func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["system"] = *system
 	var cap Capabilities
 	return &cap, c.tp.invoke("capabilities", args, &cap)
@@ -390,7 +389,7 @@ func (c *ClientConnection) Capabilities(system *System) (*Capabilities, error) {
 
 // TimeOutSet sets the connection timeout with the storage device.
 func (c *ClientConnection) TimeOutSet(milliSeconds uint32) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["ms"] = milliSeconds
 	var err = c.tp.invoke("time_out_set", args, nil)
 	if err == nil {
@@ -414,7 +413,7 @@ func (c *ClientConnection) SysReadCachePctSet(system *System, readPercent uint32
 				"Invalid readPercent %d, valid range 0-100", readPercent)}
 	}
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["system"] = *system
 	args["read_pct"] = readPercent
 
@@ -425,7 +424,7 @@ func (c *ClientConnection) SysReadCachePctSet(system *System, readPercent uint32
 func (c *ClientConnection) IscsiChapAuthSet(initID string, inUser *string, inPassword *string,
 	outUser *string, outPassword *string) error {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["init_id"] = initID
 	args["in_user"] = inUser
 	args["in_password"] = inPassword
@@ -444,7 +443,7 @@ func (c *ClientConnection) VolumeCreate(
 	provisioning VolumeProvisionType,
 	sync bool,
 	returnedVolume *Volume) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["pool"] = *pool
 	args["volume_name"] = volumeName
 	args["size_bytes"] = size
@@ -456,7 +455,7 @@ func (c *ClientConnection) VolumeCreate(
 
 // VolumeDelete deletes a block device.
 func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("volume_delete", args, &result), result, sync)
@@ -465,7 +464,7 @@ func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error)
 // VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
 func (c *ClientConnection) VolumeResize(
 	vol *Volume, newSizeBytes uint64, sync bool, returnedVolume *Volume) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	args["new_size_bytes"] = newSizeBytes
 
@@ -478,7 +477,7 @@ func (c *ClientConnection) VolumeReplicate(
 	optionalPool *Pool, repType VolumeReplicateType, sourceVolume *Volume, name string,
 	sync bool, returnedVolume *Volume) (*string, error) {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	if optionalPool != nil {
 		args["pool"] = *optionalPool
 	} else {
@@ -494,7 +493,7 @@ func (c *ClientConnection) VolumeReplicate(
 
 // VolumeRepRangeBlkSize block size for replicating a range of blocks
 func (c *ClientConnection) VolumeRepRangeBlkSize(system *System) (uint32, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["system"] = *system
 
 	var blkSize uint32
@@ -506,7 +505,7 @@ func (c *ClientConnection) VolumeReplicateRange(
 	repType VolumeReplicateType, srcVol *Volume, dstVol *Volume,
 	ranges []BlockRange, sync bool) (*string, error) {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["rep_type"] = repType
 	args["ranges"] = ranges
 	args["volume_src"] = *srcVol
@@ -518,21 +517,21 @@ func (c *ClientConnection) VolumeReplicateRange(
 
 // VolumeEnable sets a volume to online.
 func (c *ClientConnection) VolumeEnable(vol *Volume) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	return c.tp.invoke("volume_enable", args, nil)
 }
 
 // VolumeDisable sets a volume to offline.
 func (c *ClientConnection) VolumeDisable(vol *Volume) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	return c.tp.invoke("volume_disable", args, nil)
 }
 
 // VolumeMask grants access to a volume for the specified access group.
 func (c *ClientConnection) VolumeMask(vol *Volume, ag *AccessGroup) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	args["access_group"] = *ag
 	return c.tp.invoke("volume_mask", args, nil)
@@ -540,7 +539,7 @@ func (c *ClientConnection) VolumeMask(vol *Volume, ag *AccessGroup) error {
 
 // VolumeUnMask removes access to a volume for the specified access group.
 func (c *ClientConnection) VolumeUnMask(vol *Volume, ag *AccessGroup) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	args["access_group"] = *ag
 	return c.tp.invoke("volume_unmask", args, nil)
@@ -548,7 +547,7 @@ func (c *ClientConnection) VolumeUnMask(vol *Volume, ag *AccessGroup) error {
 
 // VolsMaskedToAg returns the volumes accessible to access group
 func (c *ClientConnection) VolsMaskedToAg(ag *AccessGroup) ([]Volume, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["access_group"] = *ag
 	var volumes []Volume
 	return volumes, c.tp.invoke("volumes_accessible_by_access_group", args, &volumes)
@@ -556,7 +555,7 @@ func (c *ClientConnection) VolsMaskedToAg(ag *AccessGroup) ([]Volume, error) {
 
 // AgsGrantedToVol returns access group(s) which have access to specified volume
 func (c *ClientConnection) AgsGrantedToVol(vol *Volume) ([]AccessGroup, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 	var accessGroups []AccessGroup
 	return accessGroups, c.tp.invoke("access_groups_granted_to_volume", args, &accessGroups)
@@ -570,7 +569,7 @@ func (c *ClientConnection) FsCreate(
 	size uint64,
 	sync bool,
 	returnedFs *FileSystem) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["pool"] = *pool
 	args["name"] = name
 	args["size_bytes"] = size
@@ -582,7 +581,7 @@ func (c *ClientConnection) FsCreate(
 // FsResize resizes an existing file system
 func (c *ClientConnection) FsResize(
 	fs *FileSystem, newSizeBytes uint64, sync bool, returnedFs *FileSystem) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["fs"] = *fs
 	args["new_size_bytes"] = newSizeBytes
 
@@ -592,7 +591,7 @@ func (c *ClientConnection) FsResize(
 
 // FsDelete deletes a file system.
 func (c *ClientConnection) FsDelete(fs *FileSystem, sync bool) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["fs"] = *fs
 	var result json.RawMessage
 	return c.getJobOrNone(c.tp.invoke("fs_delete", args, &result), result, sync)
@@ -605,7 +604,7 @@ func (c *ClientConnection) FsClone(
 	optionalSnapShot *FileSystemSnapShot,
 	sync bool,
 	returnedFs *FileSystem) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["src_fs"] = *srcFs
 	args["dest_fs_name"] = destName
 
@@ -627,7 +626,7 @@ func (c *ClientConnection) FsFileClone(
 	optionalSnapShot *FileSystemSnapShot,
 	sync bool,
 ) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 
 	args["fs"] = *fs
 	args["src_file_name"] = srcFileName
@@ -647,7 +646,7 @@ func (c *ClientConnection) FsFileClone(
 // If job id and error are nil, then returnedFs has newly created filesystem.
 func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool,
 	returnedSnapshot *FileSystemSnapShot) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["fs"] = *fs
 	args["snapshot_name"] = name
 	var result [2]json.RawMessage
@@ -656,7 +655,7 @@ func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bo
 
 // FsSnapShotDelete deletes a file system snapshot.
 func (c *ClientConnection) FsSnapShotDelete(fs *FileSystem, snapShot *FileSystemSnapShot, sync bool) (*string, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["fs"] = *fs
 	args["snapshot"] = *snapShot
 	var result json.RawMessage
@@ -680,7 +679,7 @@ func (c *ClientConnection) FsSnapShotRestore(
 	fs *FileSystem, snapShot *FileSystemSnapShot, allFiles bool,
 	files []string, restoreFiles []string, sync bool) (*string, error) {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 
 	if !allFiles {
 		if len(files) == 0 {
@@ -708,7 +707,7 @@ func (c *ClientConnection) FsSnapShotRestore(
 // FsHasChildDep checks whether file system has a child dependency.
 func (c *ClientConnection) FsHasChildDep(fs *FileSystem, files []string) (bool, error) {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 
 	args["fs"] = *fs
 	args["files"] = files
@@ -721,7 +720,7 @@ func (c *ClientConnection) FsHasChildDep(fs *FileSystem, files []string) (bool, 
 func (c *ClientConnection) FsChildDepRm(
 	fs *FileSystem, files []string, sync bool) (*string, error) {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["fs"] = *fs
 	args["files"] = files
 	var result json.RawMessage
@@ -732,7 +731,7 @@ func (c *ClientConnection) FsChildDepRm(
 func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 	initType InitiatorType, system *System, accessGroup *AccessGroup) error {
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 
 	if check := validateInitID(initID, initType); check != nil {
 		return check
@@ -747,7 +746,7 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 
 // AccessGroupDelete deletes an access group.
 func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["access_group"] = *ag
 	var result json.RawMessage
 	return c.tp.invoke("access_group_delete", args, result)
@@ -781,7 +780,7 @@ func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
 
 // VolRaidInfo retrieves RAID information about specified volume.
 func (c *ClientConnection) VolRaidInfo(vol *Volume) (*VolumeRaidInfo, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *vol
 
 	var ret [5]int32
@@ -799,7 +798,7 @@ func (c *ClientConnection) VolRaidInfo(vol *Volume) (*VolumeRaidInfo, error) {
 
 // PoolMemberInfo retrieves RAID information about specified volume.
 func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["pool"] = *pool
 
 	var ret [3]json.RawMessage
@@ -834,7 +833,7 @@ func (c *ClientConnection) PoolMemberInfo(pool *Pool) (*PoolMemberInfo, error) {
 
 // VolRaidCreateCapGet returns supported RAID types and strip sizes for hardware raid.
 func (c *ClientConnection) VolRaidCreateCapGet(system *System) (*SupportedRaidCapability, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["system"] = *system
 
 	var ret []json.RawMessage
@@ -896,7 +895,7 @@ func (c *ClientConnection) VolRaidCreate(name string,
 		return paramError("RAID 60 requires even disks count and 8 or more disks")
 	}
 
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["name"] = name
 	args["raid_type"] = raidType
 	args["disks"] = disks
@@ -906,7 +905,7 @@ func (c *ClientConnection) VolRaidCreate(name string,
 }
 
 func (c *ClientConnection) identLED(volume *Volume, method string) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *volume
 	return c.tp.invoke(method, args, nil)
 }
@@ -923,7 +922,7 @@ func (c *ClientConnection) VolIdentLedOff(volume *Volume) error {
 
 // VolCacheInfo returns cache information for specified volume
 func (c *ClientConnection) VolCacheInfo(volume *Volume) (*VolumeCacheInfo, error) {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *volume
 
 	var ret [5]uint32
@@ -942,7 +941,7 @@ func (c *ClientConnection) VolCacheInfo(volume *Volume) (*VolumeCacheInfo, error
 
 // VolPhyDiskCacheSet set the volume physical disk cache policy
 func (c *ClientConnection) VolPhyDiskCacheSet(volume *Volume, pdc PhysicalDiskCache) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *volume
 	args["pdc"] = pdc
 	return c.tp.invoke("volume_physical_disk_cache_update", args, nil)
@@ -950,7 +949,7 @@ func (c *ClientConnection) VolPhyDiskCacheSet(volume *Volume, pdc PhysicalDiskCa
 
 // VolWriteCacheSet sets volume write cache policy
 func (c *ClientConnection) VolWriteCacheSet(volume *Volume, wcp WriteCachePolicy) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *volume
 	args["wcp"] = wcp
 	return c.tp.invoke("volume_write_cache_policy_update", args, nil)
@@ -958,7 +957,7 @@ func (c *ClientConnection) VolWriteCacheSet(volume *Volume, wcp WriteCachePolicy
 
 // VolReadCacheSet sets volume read cache policy
 func (c *ClientConnection) VolReadCacheSet(volume *Volume, rcp ReadCachePolicy) error {
-	var args = make(map[string]interface{})
+	args := make(map[string]interface{})
 	args["volume"] = *volume
 	args["rcp"] = rcp
 	return c.tp.invoke("volume_read_cache_policy_update", args, nil)
