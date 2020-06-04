@@ -128,20 +128,19 @@ func (t *transPort) send(msg string) error {
 }
 
 func (t *transPort) recv() ([]byte, error) {
-	var hdrLenBuf = make([]byte, headerLen)
-	var readError = readExact(t.uds, hdrLenBuf)
+	hdrLenBuf := make([]byte, headerLen)
 
-	if readError != nil {
+	if readError := readExact(t.uds, hdrLenBuf); readError != nil {
 		return make([]byte, 0), readError
 	}
 
-	var msgLen, parseError = strconv.ParseUint(string(hdrLenBuf), 10, 32)
+	msgLen, parseError := strconv.ParseUint(string(hdrLenBuf), 10, 32)
 	if parseError != nil {
 		return make([]byte, 0), parseError
 	}
 
-	var msgBuffer = make([]byte, msgLen)
-	readError = readExact(t.uds, msgBuffer)
+	msgBuffer := make([]byte, msgLen)
+	readError := readExact(t.uds, msgBuffer)
 
 	if t.debug {
 		fmt.Printf("recv: %s\n", string(msgBuffer))
