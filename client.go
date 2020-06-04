@@ -663,13 +663,11 @@ func (c *ClientConnection) FsSnapShotDelete(fs *FileSystem, snapShot *FileSystem
 // FsSnapShots returns list of file system snapsthos for specified file system.
 // can be created from.
 func (c *ClientConnection) FsSnapShots(fs *FileSystem) ([]FileSystemSnapShot, error) {
-	var args = make(map[string]interface{})
-	var snapShots []FileSystemSnapShot
-
+	args := make(map[string]interface{})
 	args["fs"] = *fs
 
-	var err = c.tp.invoke("fs_snapshots", args, &snapShots)
-	return snapShots, err
+	var snapShots []FileSystemSnapShot
+	return snapShots, c.tp.invoke("fs_snapshots", args, &snapShots)
 }
 
 // FsSnapShotRestore restores all the files for a file systems or specific files.
