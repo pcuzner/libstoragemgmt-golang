@@ -75,8 +75,7 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 			Message: fmt.Sprintf("Errors serializing parameters %w\n", serialError)}
 	}
 
-	var sendError = t.send(string(msgSerialized))
-	if sendError != nil {
+	if sendError := t.send(string(msgSerialized)); sendError != nil {
 		return &errors.LsmError{
 			Code:    errors.TransPortComunication,
 			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
@@ -90,8 +89,7 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 	}
 
 	var what responseMsg
-	var replyUnmarsal = json.Unmarshal(reply, &what)
-	if replyUnmarsal != nil {
+	if replyUnmarsal := json.Unmarshal(reply, &what); replyUnmarsal != nil {
 		return &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Unparsable response from plugin %w\n", replyUnmarsal)}
