@@ -271,7 +271,6 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 	args["job_id"] = jobID
 
 	var result [3]json.RawMessage
-
 	if jobError := c.tp.invoke("job_status", args, &result); jobError != nil {
 		return JobStatusError, 0, jobError
 	}
@@ -284,7 +283,6 @@ func (c *ClientConnection) JobStatus(jobID string, returnedResult interface{}) (
 	switch status {
 	case JobStatusInprogress:
 		var percent uint8
-
 		if percentError := json.Unmarshal(result[1], &percent); percentError != nil {
 			return JobStatusError, 0, percentError
 		}
