@@ -44,11 +44,7 @@ func newTransport(pluginUdsPath string, checkErrors bool) (*transPort, error) {
 		return nil, cError
 	}
 
-	var debug = false
-	if len(os.Getenv("LSM_GO_DEBUG")) > 0 {
-		debug = true
-	}
-
+	debug := len(os.Getenv("LSM_GO_DEBUG")) > 0
 	return &transPort{uds: c, debug: debug}, nil
 }
 
@@ -63,11 +59,14 @@ type responseMsg struct {
 }
 
 func (t *transPort) invoke(cmd string, args map[string]interface{}, result interface{}) error {
-	var msg = make(map[string]interface{})
-	msg["method"] = cmd
-	msg["id"] = 100
+
 	args["flags"] = 0
-	msg["params"] = args
+	msg := map[string]interface{}{
+		"method": cmd,
+		"id":     100,
+		"flags":  0,
+		"params": args,
+	}
 
 	var msgSerialized, serialError = json.Marshal(msg)
 	if serialError != nil {
@@ -76,8 +75,7 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 			Message: fmt.Sprintf("Errors serializing parameters %w\n", serialError)}
 	}
 
-	var sendError = t.send(string(msgSerialized))
-	if sendError != nil {
+	if sendError := t.send(string(msgSerialized)); sendError != nil {
 		return &errors.LsmError{
 			Code:    errors.TransPortComunication,
 			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
@@ -91,8 +89,7 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 	}
 
 	var what responseMsg
-	var replyUnmarsal = json.Unmarshal(reply, &what)
-	if replyUnmarsal != nil {
+	if replyUnmarsal := json.Unmarshal(reply, &what); replyUnmarsal != nil {
 		return &errors.LsmError{
 			Code:    errors.PluginBug,
 			Message: fmt.Sprintf("Unparsable response from plugin %w\n", replyUnmarsal)}
@@ -131,20 +128,19 @@ func (t *transPort) send(msg string) error {
 }
 
 func (t *transPort) recv() ([]byte, error) {
-	var hdrLenBuf = make([]byte, headerLen)
-	var readError = readExact(t.uds, hdrLenBuf)
+	hdrLenBuf := make([]byte, headerLen)
 
-	if readError != nil {
+	if readError := readExact(t.uds, hdrLenBuf); readError != nil {
 		return make([]byte, 0), readError
 	}
 
-	var msgLen, parseError = strconv.ParseUint(string(hdrLenBuf), 10, 32)
+	msgLen, parseError := strconv.ParseUint(string(hdrLenBuf), 10, 32)
 	if parseError != nil {
 		return make([]byte, 0), parseError
 	}
 
-	var msgBuffer = make([]byte, msgLen)
-	readError = readExact(t.uds, msgBuffer)
+	msgBuffer := make([]byte, msgLen)
+	readError := readExact(t.uds, msgBuffer)
 
 	if t.debug {
 		fmt.Printf("recv: %s\n", string(msgBuffer))
@@ -155,17 +151,17 @@ func (t *transPort) recv() ([]byte, error) {
 
 func readExact(c net.Conn, buf []byte) error {
 	const tmpBufSize = 1024
-	var requested = len(buf)
-	var tmpBuffer = make([]byte, tmpBufSize)
+	requested := len(buf)
+	tmpBuffer := make([]byte, tmpBufSize)
 	var current int
 
 	for current < requested {
-		var remain = requested - current
+		remain := requested - current
 		if remain > tmpBufSize {
 			remain = tmpBufSize
 		}
 
-		var num, readError = c.Read(tmpBuffer[:remain])
+		num, readError := c.Read(tmpBuffer[:remain])
 		if readError != nil {
 			return readError
 		}
@@ -177,11 +173,11 @@ func readExact(c net.Conn, buf []byte) error {
 }
 
 func writeExact(c net.Conn, buf []byte) error {
-	var wanted = len(buf)
+	wanted := len(buf)
 	var written int
 
 	for written < wanted {
-		var num, writeError = c.Write(buf[written:])
+		num, writeError := c.Write(buf[written:])
 		if writeError != nil {
 			return writeError
 		}
