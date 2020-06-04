@@ -173,11 +173,11 @@ func readExact(c net.Conn, buf []byte) error {
 }
 
 func writeExact(c net.Conn, buf []byte) error {
-	var wanted = len(buf)
+	wanted := len(buf)
 	var written int
 
 	for written < wanted {
-		var num, writeError = c.Write(buf[written:])
+		num, writeError := c.Write(buf[written:])
 		if writeError != nil {
 			return writeError
 		}
