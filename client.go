@@ -38,8 +38,7 @@ func Client(uri string, password string, timeout uint32) (*ClientConnection, err
 	}
 
 	args := map[string]interface{}{"password": password, "uri": uri, "timeout": timeout}
-	var result string
-	if libError := transport.invoke("plugin_register", args, &result); libError != nil {
+	if libError := transport.invoke("plugin_register", args, nil); libError != nil {
 		return nil, libError
 	}
 
@@ -96,8 +95,7 @@ func AvailablePlugins() ([]PluginInfo, error) {
 // Close instructs the plugin to shutdown and exist.
 func (c *ClientConnection) Close() error {
 	args := make(map[string]interface{})
-	var result string
-	ourError := c.tp.invoke("plugin_unregister", args, &result)
+	ourError := c.tp.invoke("plugin_unregister", args, nil)
 	c.tp.close()
 	return ourError
 }
@@ -696,8 +694,7 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 // AccessGroupDelete deletes an access group.
 func (c *ClientConnection) AccessGroupDelete(ag *AccessGroup) error {
 	args := map[string]interface{}{"access_group": *ag}
-	var result json.RawMessage
-	return c.tp.invoke("access_group_delete", args, result)
+	return c.tp.invoke("access_group_delete", args, nil)
 }
 
 func initSetup(initID string,
