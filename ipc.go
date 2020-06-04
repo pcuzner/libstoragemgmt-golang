@@ -44,11 +44,7 @@ func newTransport(pluginUdsPath string, checkErrors bool) (*transPort, error) {
 		return nil, cError
 	}
 
-	var debug = false
-	if len(os.Getenv("LSM_GO_DEBUG")) > 0 {
-		debug = true
-	}
-
+	debug := len(os.Getenv("LSM_GO_DEBUG")) > 0
 	return &transPort{uds: c, debug: debug}, nil
 }
 
