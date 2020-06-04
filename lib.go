@@ -9,10 +9,9 @@ import (
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
 )
 
-// UdsPath ... returns the unix domain file path
+// UdsPath returns the lsm unix domain file path
 func udsPath() string {
-	var p = os.Getenv(udsPathVarName)
-	if len(p) > 0 {
+	if p := os.Getenv(udsPathVarName); len(p) > 0 {
 		return p
 	}
 	return udsPathDefault
