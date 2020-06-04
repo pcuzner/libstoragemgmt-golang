@@ -178,10 +178,8 @@ func (c *ClientConnection) NfsExports(search ...string) ([]NfsExport, error) {
 
 // NfsExportAuthTypes returns list of support authentication types
 func (c *ClientConnection) NfsExportAuthTypes() ([]string, error) {
-	var args = make(map[string]interface{})
 	var authTypes []string
-	var err = c.tp.invoke("export_auth", args, &authTypes)
-	return authTypes, err
+	return authTypes, c.tp.invoke("export_auth", make(map[string]interface{}), &authTypes)
 }
 
 // FsExport creates or modifies a NFS export.
