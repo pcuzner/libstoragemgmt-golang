@@ -39,8 +39,7 @@ func rs(pre string, n int) string {
 }
 
 func getEnv(variable string, defValue string) string {
-	var p = os.Getenv(variable)
-	if len(p) > 0 {
+	if p := os.Getenv(variable); len(p) > 0 {
 		return p
 	}
 	return defValue
@@ -88,6 +87,7 @@ func TestAvailablePlugins(t *testing.T) {
 
 	var plugins, err = lsm.AvailablePlugins()
 	assert.Nil(t, err)
+	assert.Greater(t, len(plugins), 1)
 
 	t.Logf("%+v", plugins)
 }
@@ -1395,22 +1395,26 @@ func TestDiskLedStatusBitField(t *testing.T) {
 func setup() {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 
-	var pools, _ = c.Pools()
-	var volumes, _ = c.Volumes()
+	if c != nil {
+		var pools, _ = c.Pools()
+		var volumes, _ = c.Volumes()
 
-	if len(volumes) == 0 {
-		var volume lsm.Volume
-		var _, _ = c.VolumeCreate(
-			&pools[1], rs("lsm_go_vol_", 4),
-			1024*1024*100,
-			lsm.VolumeProvisionTypeDefault, true, &volume)
-	}
+		if len(volumes) == 0 {
+			var volume lsm.Volume
+			var _, _ = c.VolumeCreate(
+				&pools[1], rs("lsm_go_vol_", 4),
+				1024*1024*100,
+				lsm.VolumeProvisionTypeDefault, true, &volume)
+		}
 
-	var fs, _ = c.FileSystems()
-	if len(fs) == 0 {
-		var fileSystem lsm.FileSystem
-		var _, _ = c.FsCreate(
-			&pools[1], rs("lsm_go_fs_", 4), 1024*1024*1000, true, &fileSystem)
+		var fs, _ = c.FileSystems()
+		if len(fs) == 0 {
+			var fileSystem lsm.FileSystem
+			var _, _ = c.FsCreate(
+				&pools[1], rs("lsm_go_fs_", 4), 1024*1024*1000, true, &fileSystem)
+		}
+
+		c.Close()
 	}
 }
 func TestMain(m *testing.M) {

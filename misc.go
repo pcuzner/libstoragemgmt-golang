@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func getPluginIpcPath(pluginName string) string {
@@ -15,9 +16,11 @@ func getPluginIpcPath(pluginName string) string {
 func getPlugins(path string) []string {
 	var plugins []string
 
-	// TODO: Put a limit on trying here.  Idea is we could get errors
-	// while the daemon is starting, but we shouldn't loop forever.
-	for true {
+	// If we are walking the path when the daemon is starting we can get errors, loop
+	// until we walk without errors or run out of time trying.  It is possible that
+	// when we are walking the directory we only get a subset of the plugins that are
+	// present.
+	for i := 0; i < 10; i++ {
 
 		plugins = nil
 
@@ -33,6 +36,8 @@ func getPlugins(path string) []string {
 
 		if err == nil {
 			break
+		} else {
+			time.Sleep(time.Millisecond * 200)
 		}
 	}
 	return plugins
