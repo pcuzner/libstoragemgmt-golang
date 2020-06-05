@@ -17,7 +17,9 @@ func getPlugins(path string) []string {
 	var plugins []string
 
 	// If we are walking the path when the daemon is starting we can get errors, loop
-	// until we walk without errors or run out of time trying.
+	// until we walk without errors or run out of time trying.  It is possible that
+	// when we are walking the directory we only get a subset of the plugins that are
+	// present.
 	for i := 0; i < 10; i++ {
 
 		plugins = nil
