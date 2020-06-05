@@ -39,8 +39,7 @@ func rs(pre string, n int) string {
 }
 
 func getEnv(variable string, defValue string) string {
-	var p = os.Getenv(variable)
-	if len(p) > 0 {
+	if p := os.Getenv(variable); len(p) > 0 {
 		return p
 	}
 	return defValue
