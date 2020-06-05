@@ -88,6 +88,7 @@ func TestAvailablePlugins(t *testing.T) {
 
 	var plugins, err = lsm.AvailablePlugins()
 	assert.Nil(t, err)
+	assert.Greater(t, len(plugins), 1)
 
 	t.Logf("%+v", plugins)
 }
