@@ -166,6 +166,29 @@ func (t *transPort) sendResponse(response interface{}) error {
 	return nil
 }
 
+func (t *transPort) sendError(err error) error {
+
+	// TODO Make this work for lsm errors and generic errors
+	msg := map[string]interface{}{
+		"error": err,
+		"id":    100,
+	}
+
+	var msgSerialized, serialError = json.Marshal(msg)
+	if serialError != nil {
+		return &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Errors serializing error %w\n", serialError)}
+	}
+
+	if sendError := t.send(string(msgSerialized)); sendError != nil {
+		return &errors.LsmError{
+			Code:    errors.TransPortComunication,
+			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
+	}
+	return nil
+}
+
 func (t *transPort) send(msg string) error {
 
 	var toSend = fmt.Sprintf("%010d%s", len(msg), msg)
