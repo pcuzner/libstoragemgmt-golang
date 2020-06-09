@@ -29,7 +29,7 @@ type JobStatusCb func(jobId string) ([]interface{}, error)
 type JobFreeCb func(jobID string) error
 
 // PoolsCb callback for pools
-type PoolsCb func() ([]Pool, error)
+type PoolsCb func(search ...string) ([]Pool, error)
 
 // PluginRegisterCb callback to register needed information
 type PluginRegisterCb func(p *PluginRegister) error

@@ -155,6 +155,18 @@ func TestBadSeach(t *testing.T) {
 	assert.Equal(t, nil, c.Close())
 }
 
+func TestPoolSearch(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	poolsExpected, err := c.Pools("system_id", "sim-01")
+	assert.Nil(t, err)
+	assert.Equal(t, 4, len(poolsExpected))
+
+	poolsMissing, err := c.Pools("system_id", "sim-02")
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(poolsMissing))
+}
+
 func TestGoodSeach(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 

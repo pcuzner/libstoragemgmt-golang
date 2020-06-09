@@ -50,8 +50,22 @@ func handleSystems(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Required.Systems()
 }
 
+type search struct {
+	Key   string `json:"search_key"`
+	Value string `json:"search_value"`
+	Flags uint64 `json:"flags"`
+}
+
 func handlePools(p *Plugin, params json.RawMessage) (interface{}, error) {
-	// TODO: Add search
+	var s search
+	if uE := json.Unmarshal(params, &s); uE != nil {
+		return nil, invalidArgs("pools", uE)
+	}
+
+	if len(s.Key) > 0 {
+		return p.cb.Required.Pools(s.Key, s.Value)
+	}
+
 	return p.cb.Required.Pools()
 }
 
