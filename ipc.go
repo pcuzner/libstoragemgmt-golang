@@ -122,7 +122,7 @@ func (t *transPort) send(msg string) error {
 
 	var toSend = fmt.Sprintf("%010d%s", len(msg), msg)
 	if t.debug {
-		fmt.Printf("send: %s\n", msg)
+		fmt.Printf("go-send: %s\n", msg)
 	}
 	return writeExact(t.uds, []byte(toSend))
 }
@@ -143,7 +143,7 @@ func (t *transPort) recv() ([]byte, error) {
 	readError := readExact(t.uds, msgBuffer)
 
 	if t.debug {
-		fmt.Printf("recv: %s\n", string(msgBuffer))
+		fmt.Printf("go-recv: %s\n", string(msgBuffer))
 	}
 
 	return msgBuffer, readError
