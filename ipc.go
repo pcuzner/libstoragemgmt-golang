@@ -81,7 +81,7 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 	var msgSerialized, serialError = json.Marshal(msg)
 	if serialError != nil {
 		return &errors.LsmError{
-			Code:    errors.PluginBug,
+			Code:    errors.LibBug,
 			Message: fmt.Sprintf("Errors serializing parameters %w\n", serialError)}
 	}
 
