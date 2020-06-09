@@ -58,6 +58,16 @@ type responseMsg struct {
 	Result json.RawMessage  `json:"result"`
 }
 
+type requestMsg struct {
+	ID     int             `json:"id"`
+	Method string          `json:"method"`
+	Params json.RawMessage `json:"params"`
+}
+
+func (r *requestMsg) String() string {
+	return fmt.Sprintf("ID: %d, Method: %s, Parms: %s", r.ID, r.Method, string(r.Params))
+}
+
 func (t *transPort) invoke(cmd string, args map[string]interface{}, result interface{}) error {
 
 	args["flags"] = 0
@@ -116,6 +126,23 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 		Code:    errors.PluginBug,
 		Message: fmt.Sprintf("Unexpected response from plugin %s\n", reply)}
 
+}
+
+func (t *transPort) readRequest() (*requestMsg, error) {
+	request, requestError := t.recv()
+	if requestError != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.TransPortComunication,
+			Message: fmt.Sprintf("Error reading from unix domain socket %w\n", requestError)}
+	}
+
+	var what requestMsg
+	if requestUnmarsal := json.Unmarshal(request, &what); requestUnmarsal != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.TransPortInvalidArg,
+			Message: fmt.Sprintf("Unparsable request from client %w\n", requestUnmarsal)}
+	}
+	return &what, nil
 }
 
 func (t *transPort) send(msg string) error {
