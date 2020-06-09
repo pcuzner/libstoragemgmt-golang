@@ -145,6 +145,27 @@ func (t *transPort) readRequest() (*requestMsg, error) {
 	return &what, nil
 }
 
+func (t *transPort) sendResponse(response interface{}) error {
+	msg := map[string]interface{}{
+		"result": response,
+		"id":     100,
+	}
+
+	var msgSerialized, serialError = json.Marshal(msg)
+	if serialError != nil {
+		return &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Errors serializing response %w\n", serialError)}
+	}
+
+	if sendError := t.send(string(msgSerialized)); sendError != nil {
+		return &errors.LsmError{
+			Code:    errors.TransPortComunication,
+			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
+	}
+	return nil
+}
+
 func (t *transPort) send(msg string) error {
 
 	var toSend = fmt.Sprintf("%010d%s", len(msg), msg)
