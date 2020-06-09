@@ -48,4 +48,7 @@ const (
 
 	//TransPortComunication ... Issue reading/writing to plugin
 	TransPortComunication int32 = 400
+
+	// TransPortInvalidArg parameter transported over IPC is invalid
+	TransPortInvalidArg int32 = 402
 )
