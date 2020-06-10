@@ -54,6 +54,10 @@ func handleSystems(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Required.Systems()
 }
 
+func handleDisks(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.San.Disks()
+}
+
 type search struct {
 	Key   string `json:"search_key"`
 	Value string `json:"search_value"`
@@ -196,5 +200,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_create":     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
 		"volume_delete":     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
 		"volumes":           nilAssign(c.San.Volumes, handleVolumes),
+		"disks":             nilAssign(c.San.Disks, handleDisks),
 	}
 }

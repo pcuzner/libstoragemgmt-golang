@@ -46,6 +46,9 @@ type PluginUnregisterCb func() error
 //SystemsCb callback to retrieve systems
 type SystemsCb func() ([]System, error)
 
+//DisksCb callback to retrieve disks
+type DisksCb func() ([]Disk, error)
+
 //VolumesCb callback to retrieve volumes
 type VolumesCb func(search ...string) ([]Volume, error)
 
@@ -76,6 +79,7 @@ type SanOps struct {
 	Volumes      VolumesCb
 	VolumeCreate VolumeCreateCb
 	VolumeDelete VolumeDeleteCb
+	Disks        DisksCb
 }
 
 // CallBacks callbacks for plugin to implement
