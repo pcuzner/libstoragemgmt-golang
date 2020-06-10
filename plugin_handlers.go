@@ -140,6 +140,20 @@ func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return result, nil
 }
 
+func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volumeDeleteArgs struct {
+		Volume *Volume `json:"volume"`
+		Flags  uint64  `json:"flags"`
+	}
+
+	var args volumeDeleteArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_delete", uE)
+	}
+
+	return p.cb.San.VolumeDelete(args.Volume)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -162,5 +176,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
 		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
 		"volume_create":     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
+		"volume_delete":     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
 	}
 }
