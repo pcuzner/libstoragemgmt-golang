@@ -21,9 +21,15 @@ type TmoGetCb func() uint32
 // CapabilitiesCb returns what the plugin is capable of
 type CapabilitiesCb func(system *System) (*Capabilities, error)
 
+// JobInfo is the information about a job
+type JobInfo struct {
+	Status  JobStatusType
+	Percent uint8
+	Item    interface{}
+}
+
 // JobStatusCb callback returns the job status for the specified job
-// The returned array should be [JobStatusType, uint8, result]
-type JobStatusCb func(jobId string) ([]interface{}, error)
+type JobStatusCb func(jobId string) (*JobInfo, error)
 
 // JobFreeCb callback for freeing job resources
 type JobFreeCb func(jobID string) error

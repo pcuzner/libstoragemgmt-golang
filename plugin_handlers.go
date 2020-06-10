@@ -81,6 +81,37 @@ func handleCapabilities(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return p.cb.Required.Capabilities(&args.Sys)
 }
 
+type jobArgs struct {
+	ID string `json:"job_id"`
+}
+
+func handleJobStatus(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args jobArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("job_status", uE)
+	}
+
+	job, err := p.cb.Required.JobStatus(args.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result [3]interface{}
+	result[0] = job.Status
+	result[1] = job.Percent
+	result[2] = job.Item
+
+	return result, nil
+}
+
+func handleJobFree(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args jobArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("job_status", uE)
+	}
+
+	return nil, p.cb.Required.JobFree(args.ID)
+}
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -100,5 +131,7 @@ func buildTable(c *CallBacks) map[string]handler {
 		"time_out_set":      nilAssign(c.Required.TimeOutSet, handleTmoSet),
 		"time_out_get":      nilAssign(c.Required.TimeOutGet, handleTmoGet),
 		"pools":             nilAssign(c.Required.Pools, handlePools),
+		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
+		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
 	}
 }
