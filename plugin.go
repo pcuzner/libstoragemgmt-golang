@@ -49,6 +49,12 @@ type SystemsCb func() ([]System, error)
 //VolumesCb callback to retrieve volumes
 type VolumesCb func(search ...string) ([]Volume, error)
 
+// VolumeCreateCb callback is for creating a volume
+type VolumeCreateCb func(pool *Pool,
+	volumeName string,
+	size uint64,
+	provisioning VolumeProvisionType) (*Volume, *string, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -62,10 +68,16 @@ type RequiredCallbacks struct {
 	PluginUnregister PluginUnregisterCb
 }
 
+// SanOps are storage area network callbacks
+type SanOps struct {
+	Volumes      VolumesCb
+	VolumeCreate VolumeCreateCb
+}
+
 // CallBacks callbacks for plugin to implement
 type CallBacks struct {
 	Required RequiredCallbacks
-	Volumes  VolumesCb
+	San      SanOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)

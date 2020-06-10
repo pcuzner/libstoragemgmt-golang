@@ -112,6 +112,34 @@ func handleJobFree(p *Plugin, params json.RawMessage) (interface{}, error) {
 
 	return nil, p.cb.Required.JobFree(args.ID)
 }
+
+func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	type volumeCreateArgs struct {
+		Pool         *Pool               `json:"pool"`
+		Name         string              `json:"volume_name"`
+		SizeBytes    uint64              `json:"volume_size"`
+		Provisioning VolumeProvisionType `json:"provisioning"`
+		Flags        uint64              `json:"flags"`
+	}
+
+	var args volumeCreateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_create", uE)
+	}
+
+	volume, jobID, error := p.cb.San.VolumeCreate(args.Pool, args.Name, args.SizeBytes, args.Provisioning)
+
+	if error != nil {
+		return nil, error
+	}
+
+	var result [2]interface{}
+	result[0] = jobID
+	result[1] = volume
+	return result, nil
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -133,5 +161,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"pools":             nilAssign(c.Required.Pools, handlePools),
 		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
 		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
+		"volume_create":     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
 	}
 }
