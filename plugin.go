@@ -12,9 +12,6 @@ import (
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
 )
 
-// PluginInfoCb returns description and version strings
-type PluginInfoCb func() (string, string)
-
 // TmoSetCb used to register timeout value for plugin
 type TmoSetCb func(timeout uint32) error
 
@@ -63,7 +60,6 @@ type VolumeDeleteCb func(vol *Volume) (*string, error)
 
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
-	PluginInfo       PluginInfoCb
 	TimeOutSet       TmoSetCb
 	TimeOutGet       TmoGetCb
 	JobStatus        JobStatusCb
@@ -95,6 +91,8 @@ type Plugin struct {
 	tp        transPort
 	cb        *CallBacks
 	callTable map[string]handler
+	desc      string
+	ver       string
 }
 
 // PluginRegister data passed to PluginRegister callback
@@ -106,7 +104,7 @@ type PluginRegister struct {
 }
 
 // PluginInit initializes the plugin with the specified callbacks
-func PluginInit(callbacks *CallBacks, cmdLineArgs []string) (*Plugin, error) {
+func PluginInit(callbacks *CallBacks, cmdLineArgs []string, desc string, ver string) (*Plugin, error) {
 	if len(cmdLineArgs) == 2 {
 		fd, err := strconv.ParseInt(cmdLineArgs[1], 10, 32)
 		if err != nil {
@@ -122,7 +120,7 @@ func PluginInit(callbacks *CallBacks, cmdLineArgs []string) (*Plugin, error) {
 		}
 
 		tp := transPort{uds: s, debug: false}
-		return &Plugin{tp: tp, cb: callbacks, callTable: buildTable(callbacks)}, nil
+		return &Plugin{tp: tp, cb: callbacks, callTable: buildTable(callbacks), desc: desc, ver: ver}, nil
 	}
 	return nil, &errors.LsmError{
 		Code:    errors.LibBug,
