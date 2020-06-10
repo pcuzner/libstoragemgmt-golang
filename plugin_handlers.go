@@ -69,6 +69,19 @@ func handlePools(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Required.Pools()
 }
 
+func handleVolumes(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var s search
+	if uE := json.Unmarshal(params, &s); uE != nil {
+		return nil, invalidArgs("volumes", uE)
+	}
+
+	if len(s.Key) > 0 {
+		return p.cb.San.Volumes(s.Key, s.Value)
+	}
+
+	return p.cb.San.Volumes()
+}
+
 type capArgs struct {
 	Sys System `json:"system"`
 }
@@ -177,5 +190,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
 		"volume_create":     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
 		"volume_delete":     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
+		"volumes":           nilAssign(c.San.Volumes, handleVolumes),
 	}
 }
