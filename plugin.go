@@ -12,6 +12,9 @@ import (
 	errors "github.com/libstorage/libstoragemgmt-golang/errors"
 )
 
+// PluginInfoCb returns description and version strings
+type PluginInfoCb func() (string, string)
+
 // TmoSetCb used to register timeout value for plugin
 type TmoSetCb func(timeout uint32) error
 
@@ -60,6 +63,7 @@ type VolumeDeleteCb func(vol *Volume) (*string, error)
 
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
+	PluginInfo       PluginInfoCb
 	TimeOutSet       TmoSetCb
 	TimeOutGet       TmoGetCb
 	JobStatus        JobStatusCb

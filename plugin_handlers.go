@@ -34,6 +34,11 @@ type tmoSetArgs struct {
 	Flags uint64 `json:"flags"`
 }
 
+func handlePluginInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+	desc, ver := p.cb.Required.PluginInfo()
+	return []string{desc, ver}, nil
+}
+
 func handleTmoSet(p *Plugin, params json.RawMessage) (interface{}, error) {
 	var timeout tmoSetArgs
 	if uE := json.Unmarshal(params, &timeout); uE != nil {
@@ -179,6 +184,7 @@ func nilAssign(present interface{}, cb handler) handler {
 
 func buildTable(c *CallBacks) map[string]handler {
 	return map[string]handler{
+		"plugin_info":       nilAssign(c.Required.PluginInfo, handlePluginInfo),
 		"plugin_register":   nilAssign(c.Required.PluginRegister, handleRegister),
 		"plugin_unregister": nilAssign(c.Required.PluginUnregister, handleUnRegister),
 		"systems":           nilAssign(c.Required.Systems, handleSystems),
