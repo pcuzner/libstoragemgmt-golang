@@ -522,6 +522,8 @@ func TestVolumeCreate(t *testing.T) {
 	var volume = createVolume(t, c, volumeName)
 
 	assert.Equal(t, volumeName, volume.Name)
+	assert.NotZero(t, volume.NumOfBlocks)
+	assert.NotZero(t, volume.BlockSize)
 
 	// Try and clean-up
 	var volDel, volDelErr = c.VolumeDelete(volume, true)
@@ -659,7 +661,10 @@ func TestVolumeResize(t *testing.T) {
 
 	var volume = createVolume(t, c, volumeName)
 	var resized lsm.Volume
-	var _, resizeErr = c.VolumeResize(volume, (volume.BlockSize*volume.NumOfBlocks)*2, true, &resized)
+	newSize := volume.BlockSize * volume.NumOfBlocks * 2
+	assert.NotEqual(t, 0, newSize)
+
+	var _, resizeErr = c.VolumeResize(volume, newSize, true, &resized)
 	assert.Nil(t, resizeErr)
 	assert.NotEqual(t, volume.NumOfBlocks, resized.NumOfBlocks)
 
