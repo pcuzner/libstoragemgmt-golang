@@ -134,6 +134,23 @@ func handleJobFree(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return nil, p.cb.Required.JobFree(args.ID)
 }
 
+func exclusiveOr(item interface{}, job *string, err error) (interface{}, error) {
+	if err != nil {
+		return nil, err
+	}
+
+	var result [2]interface{}
+
+	if job != nil {
+		result[0] = job
+		result[1] = nil
+	} else {
+		result[0] = nil
+		result[1] = item
+	}
+	return result, nil
+}
+
 func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
 
 	type volumeCreateArgs struct {
@@ -150,15 +167,7 @@ func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) 
 	}
 
 	volume, jobID, error := p.cb.San.VolumeCreate(args.Pool, args.Name, args.SizeBytes, args.Provisioning)
-
-	if error != nil {
-		return nil, error
-	}
-
-	var result [2]interface{}
-	result[0] = jobID
-	result[1] = volume
-	return result, nil
+	return exclusiveOr(volume, jobID, error)
 }
 
 func handleVolumeReplicate(p *Plugin, params json.RawMessage) (interface{}, error) {
@@ -176,15 +185,7 @@ func handleVolumeReplicate(p *Plugin, params json.RawMessage) (interface{}, erro
 	}
 
 	volume, jobID, error := p.cb.San.VolumeReplicate(args.Pool, args.RepType, &args.SrcVol, args.Name)
-
-	if error != nil {
-		return nil, error
-	}
-
-	var result [2]interface{}
-	result[0] = jobID
-	result[1] = volume
-	return result, nil
+	return exclusiveOr(volume, jobID, error)
 }
 
 func handleVolumeReplicateRange(p *Plugin, params json.RawMessage) (interface{}, error) {
