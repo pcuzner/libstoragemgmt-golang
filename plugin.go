@@ -61,6 +61,10 @@ type VolumeCreateCb func(pool *Pool,
 // VolumeDeleteCb callback is for deleting a volume
 type VolumeDeleteCb func(vol *Volume) (*string, error)
 
+// VolumeReplicateCb returns volume, job id, error.
+type VolumeReplicateCb func(optionalPool *Pool, repType VolumeReplicateType,
+	sourceVolume *Volume, name string) (*Volume, *string, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -76,10 +80,11 @@ type RequiredCallbacks struct {
 
 // SanOps are storage area network callbacks
 type SanOps struct {
-	Volumes      VolumesCb
-	VolumeCreate VolumeCreateCb
-	VolumeDelete VolumeDeleteCb
-	Disks        DisksCb
+	Volumes         VolumesCb
+	VolumeCreate    VolumeCreateCb
+	VolumeDelete    VolumeDeleteCb
+	Disks           DisksCb
+	VolumeReplicate VolumeReplicateCb
 }
 
 // CallBacks callbacks for plugin to implement

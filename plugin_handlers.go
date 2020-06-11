@@ -161,6 +161,32 @@ func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return result, nil
 }
 
+func handleVolumeReplicate(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volumeReplicateArgs struct {
+		Pool    *Pool               `json:"pool"`
+		RepType VolumeReplicateType `json:"rep_type"`
+		Flags   uint64              `json:"flags"`
+		SrcVol  Volume              `json:"volume_src"`
+		Name    string              `json:"name"`
+	}
+
+	var args volumeReplicateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_replicate", uE)
+	}
+
+	volume, jobID, error := p.cb.San.VolumeReplicate(args.Pool, args.RepType, &args.SrcVol, args.Name)
+
+	if error != nil {
+		return nil, error
+	}
+
+	var result [2]interface{}
+	result[0] = jobID
+	result[1] = volume
+	return result, nil
+}
+
 func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
 	type volumeDeleteArgs struct {
 		Volume *Volume `json:"volume"`
@@ -201,5 +227,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_delete":     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
 		"volumes":           nilAssign(c.San.Volumes, handleVolumes),
 		"disks":             nilAssign(c.San.Disks, handleDisks),
+		"volume_replicate":  nilAssign(c.San.VolumeReplicate, handleVolumeReplicate),
 	}
 }
