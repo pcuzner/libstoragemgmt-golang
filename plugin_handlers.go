@@ -156,7 +156,7 @@ func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) 
 	type volumeCreateArgs struct {
 		Pool         *Pool               `json:"pool"`
 		Name         string              `json:"volume_name"`
-		SizeBytes    uint64              `json:"volume_size"`
+		SizeBytes    uint64              `json:"size_bytes"`
 		Provisioning VolumeProvisionType `json:"provisioning"`
 		Flags        uint64              `json:"flags"`
 	}
