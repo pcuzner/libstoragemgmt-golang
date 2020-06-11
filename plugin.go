@@ -75,6 +75,12 @@ type VolumeRepRangeBlkSizeCb func(system *System) (uint32, error)
 // VolumeResizeCb returns volume, job id, error
 type VolumeResizeCb func(vol *Volume, newSizeBytes uint64) (*Volume, *string, error)
 
+// VolumeEnableCb enables a volume
+type VolumeEnableCb func(vol *Volume) error
+
+// VolumeDisableCb enables a volume
+type VolumeDisableCb func(vol *Volume) error
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -98,6 +104,8 @@ type SanOps struct {
 	VolumeReplicateRange  VolumeReplicateRangeCb
 	VolumeRepRangeBlkSize VolumeRepRangeBlkSizeCb
 	VolumeResize          VolumeResizeCb
+	VolumeEnable          VolumeEnableCb
+	VolumeDisable         VolumeDisableCb
 }
 
 // CallBacks callbacks for plugin to implement

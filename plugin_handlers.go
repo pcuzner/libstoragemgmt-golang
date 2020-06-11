@@ -236,6 +236,29 @@ func handleVolumeResize(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return exclusiveOr(volume, jobID, error)
 }
 
+type volumeArgument struct {
+	Volume *Volume `json:"volume"`
+	Flags  uint64  `json:"flags"`
+}
+
+func handleVolumeEnable(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args volumeArgument
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_enable", uE)
+	}
+
+	return nil, p.cb.San.VolumeEnable(args.Volume)
+}
+
+func handleVolumeDisable(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args volumeArgument
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_disable", uE)
+	}
+
+	return nil, p.cb.San.VolumeDisable(args.Volume)
+}
+
 func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
 	type volumeDeleteArgs struct {
 		Volume *Volume `json:"volume"`
@@ -280,5 +303,7 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_replicate_range":            nilAssign(c.San.VolumeReplicateRange, handleVolumeReplicateRange),
 		"volume_replicate_range_block_size": nilAssign(c.San.VolumeRepRangeBlkSize, handleVolRepRangeBlockSize),
 		"volume_resize":                     nilAssign(c.San.VolumeResize, handleVolumeResize),
+		"volume_enable":                     nilAssign(c.San.VolumeEnable, handleVolumeEnable),
+		"volume_disable":                    nilAssign(c.San.VolumeDisable, handleVolumeDisable),
 	}
 }
