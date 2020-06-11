@@ -187,6 +187,23 @@ func handleVolumeReplicate(p *Plugin, params json.RawMessage) (interface{}, erro
 	return result, nil
 }
 
+func handleVolumeReplicateRange(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volumeReplicateRangeArgs struct {
+		RepType VolumeReplicateType `json:"rep_type"`
+		Ranges  []BlockRange        `json:"ranges"`
+		SrcVol  Volume              `json:"volume_src"`
+		DstVol  Volume              `json:"volume_dest"`
+		Flags   uint64              `json:"flags"`
+	}
+
+	var a volumeReplicateRangeArgs
+	if uE := json.Unmarshal(params, &a); uE != nil {
+		return nil, invalidArgs("volume_replicate", uE)
+	}
+
+	return p.cb.San.VolumeReplicateRange(a.RepType, &a.SrcVol, &a.DstVol, a.Ranges)
+}
+
 func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
 	type volumeDeleteArgs struct {
 		Volume *Volume `json:"volume"`
@@ -213,20 +230,21 @@ func nilAssign(present interface{}, cb handler) handler {
 
 func buildTable(c *CallBacks) map[string]handler {
 	return map[string]handler{
-		"plugin_info":       handlePluginInfo,
-		"plugin_register":   nilAssign(c.Required.PluginRegister, handleRegister),
-		"plugin_unregister": nilAssign(c.Required.PluginUnregister, handleUnRegister),
-		"systems":           nilAssign(c.Required.Systems, handleSystems),
-		"capabilities":      nilAssign(c.Required.Capabilities, handleCapabilities),
-		"time_out_set":      nilAssign(c.Required.TimeOutSet, handleTmoSet),
-		"time_out_get":      nilAssign(c.Required.TimeOutGet, handleTmoGet),
-		"pools":             nilAssign(c.Required.Pools, handlePools),
-		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
-		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
-		"volume_create":     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
-		"volume_delete":     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
-		"volumes":           nilAssign(c.San.Volumes, handleVolumes),
-		"disks":             nilAssign(c.San.Disks, handleDisks),
-		"volume_replicate":  nilAssign(c.San.VolumeReplicate, handleVolumeReplicate),
+		"plugin_info":            handlePluginInfo,
+		"plugin_register":        nilAssign(c.Required.PluginRegister, handleRegister),
+		"plugin_unregister":      nilAssign(c.Required.PluginUnregister, handleUnRegister),
+		"systems":                nilAssign(c.Required.Systems, handleSystems),
+		"capabilities":           nilAssign(c.Required.Capabilities, handleCapabilities),
+		"time_out_set":           nilAssign(c.Required.TimeOutSet, handleTmoSet),
+		"time_out_get":           nilAssign(c.Required.TimeOutGet, handleTmoGet),
+		"pools":                  nilAssign(c.Required.Pools, handlePools),
+		"job_status":             nilAssign(c.Required.JobStatus, handleJobStatus),
+		"job_free":               nilAssign(c.Required.JobFree, handleJobFree),
+		"volume_create":          nilAssign(c.San.VolumeCreate, handleVolumeCreate),
+		"volume_delete":          nilAssign(c.San.VolumeDelete, handleVolumeDelete),
+		"volumes":                nilAssign(c.San.Volumes, handleVolumes),
+		"disks":                  nilAssign(c.San.Disks, handleDisks),
+		"volume_replicate":       nilAssign(c.San.VolumeReplicate, handleVolumeReplicate),
+		"volume_replicate_range": nilAssign(c.San.VolumeReplicateRange, handleVolumeReplicateRange),
 	}
 }
