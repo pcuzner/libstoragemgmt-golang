@@ -218,6 +218,24 @@ func handleVolRepRangeBlockSize(p *Plugin, params json.RawMessage) (interface{},
 	return p.cb.San.VolumeRepRangeBlkSize(a.System)
 }
 
+func handleVolumeResize(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type args struct {
+		Volume *Volume `json:"volume"`
+		Size   uint64  `json:"new_size_bytes"`
+		Flags  uint64  `json:"flags"`
+	}
+
+	var a args
+	if uE := json.Unmarshal(params, &a); uE != nil {
+		return nil, invalidArgs("volume_resize", uE)
+	}
+
+	fmt.Printf("args = %+v\n", a)
+
+	volume, jobID, error := p.cb.San.VolumeResize(a.Volume, a.Size)
+	return exclusiveOr(volume, jobID, error)
+}
+
 func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
 	type volumeDeleteArgs struct {
 		Volume *Volume `json:"volume"`
@@ -261,5 +279,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_replicate":                  nilAssign(c.San.VolumeReplicate, handleVolumeReplicate),
 		"volume_replicate_range":            nilAssign(c.San.VolumeReplicateRange, handleVolumeReplicateRange),
 		"volume_replicate_range_block_size": nilAssign(c.San.VolumeRepRangeBlkSize, handleVolRepRangeBlockSize),
+		"volume_resize":                     nilAssign(c.San.VolumeResize, handleVolumeResize),
 	}
 }
