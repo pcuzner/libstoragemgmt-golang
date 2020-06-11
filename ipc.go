@@ -74,7 +74,6 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 	msg := map[string]interface{}{
 		"method": cmd,
 		"id":     100,
-		"flags":  0,
 		"params": args,
 	}
 
