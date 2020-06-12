@@ -227,7 +227,7 @@ func (p *Plugin) Run() {
 
 				if lsmError.Code != errors.TransPortComunication {
 					p.tp.sendError(lsmError)
-					fmt.Printf("Returned error %+v\n", lsmError)
+					//fmt.Printf("Returned error %+v\n", lsmError)
 					continue
 				} else {
 					fmt.Printf("Communication error: exiting! %s\n", lsmError)
@@ -240,7 +240,7 @@ func (p *Plugin) Run() {
 
 		var response interface{}
 		if f, ok := p.callTable[request.Method]; ok == true && f != nil {
-			fmt.Printf("Executing %s(%s)\n", request.Method, string(request.Params))
+			//fmt.Printf("Executing %s(%s)\n", request.Method, string(request.Params))
 			response, err = f(p, request.Params)
 			if err != nil {
 				p.tp.sendError(err)
