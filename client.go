@@ -445,11 +445,12 @@ func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error)
 }
 
 // VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
-func (c *ClientConnection) VolumeResize(
-	vol *Volume, newSizeBytes uint64, sync bool, returnedVolume *Volume) (*string, error) {
+func (c *ClientConnection) VolumeResize(vol *Volume, newSizeBytes uint64, sync bool) (*Volume, *string, error) {
 	args := map[string]interface{}{"volume": *vol, "new_size_bytes": newSizeBytes}
+	var returnedVolume Volume
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("volume_resize", args, &result), result, sync, returnedVolume)
+	job, err := c.getJobOrResult(c.tp.invoke("volume_resize", args, &result), result, sync, &returnedVolume)
+	return ensureExclusiveVol(&returnedVolume, job, err)
 }
 
 // VolumeReplicate makes a replicated image of existing Volume

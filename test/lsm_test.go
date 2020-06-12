@@ -701,15 +701,14 @@ func TestVolumeResize(t *testing.T) {
 	assert.NotNil(t, c)
 
 	var volume = createVolume(t, c, volumeName)
-	var resized lsm.Volume
 	newSize := volume.BlockSize * volume.NumOfBlocks * 2
 	assert.NotEqual(t, 0, newSize)
 
-	var _, resizeErr = c.VolumeResize(volume, newSize, true, &resized)
+	var resized, _, resizeErr = c.VolumeResize(volume, newSize, true)
 	assert.Nil(t, resizeErr)
 	assert.NotEqual(t, volume.NumOfBlocks, resized.NumOfBlocks)
 
-	c.VolumeDelete(&resized, true)
+	c.VolumeDelete(resized, true)
 	assert.Equal(t, nil, c.Close())
 }
 
