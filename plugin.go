@@ -116,6 +116,9 @@ type IscsiChapAuthSetCb func(initID string, inUser *string, inPassword *string, 
 // VolHasChildDepCb returns boolean on if specified volume has child dependencies
 type VolHasChildDepCb func(vol *Volume) (bool, error)
 
+// VolChildDepRmCb removes any child dependencies
+type VolChildDepRmCb func(vol *Volume) (*string, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -145,6 +148,7 @@ type SanOps struct {
 	VolumeUnMask          VolumeUnMaskCb
 	VolsMaskedToAg        VolsMaskedToAgCb
 	VolHasChildDep        VolHasChildDepCb
+	VolChildDepRm         VolChildDepRmCb
 	AccessGroups          AccessGroupsCb
 	AccessGroupCreate     AccessGroupCreateCb
 	AccessGroupDelete     AccessGroupDeleteCb

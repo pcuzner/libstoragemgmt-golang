@@ -418,6 +418,15 @@ func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error
 	return p.cb.San.VolHasChildDep(args.Vol)
 }
 
+func handleVolChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args argsChildDep
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_child_dependency_rm", uE)
+	}
+
+	return p.cb.San.VolChildDepRm(args.Vol)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -454,6 +463,7 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_mask":                        nilAssign(c.San.VolumeMask, handleVolumeMask),
 		"volume_unmask":                      nilAssign(c.San.VolumeUnMask, handleVolumeUnMask),
 		"volume_child_dependency":            nilAssign(c.San.VolHasChildDep, handleVolHasChildDep),
+		"volume_child_dependency_rm":         nilAssign(c.San.VolChildDepRm, handleVolChildDepRm),
 		"volumes_accessible_by_access_group": nilAssign(c.San.VolsMaskedToAg, handleVolsMaskedToAg),
 		"access_groups":                      nilAssign(c.San.AccessGroups, handleAccessGroups),
 		"access_group_create":                nilAssign(c.San.AccessGroupCreate, handleAccessGroupCreate),
