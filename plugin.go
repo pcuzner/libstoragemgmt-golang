@@ -102,6 +102,14 @@ type AccessGroupCreateCb func(name string, initID string, initType InitiatorType
 // AccessGroupDeleteCb deletes an access group
 type AccessGroupDeleteCb func(ag *AccessGroup) error
 
+// AccessGroupInitAddCb adds an initiator to an AccessGroup
+type AccessGroupInitAddCb func(ag *AccessGroup,
+	initID string, initType InitiatorType) (*AccessGroup, error)
+
+// AccessGroupInitDeleteCb removes an initiator from an AccessGroup
+type AccessGroupInitDeleteCb func(ag *AccessGroup,
+	initID string, initType InitiatorType) (*AccessGroup, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -133,6 +141,8 @@ type SanOps struct {
 	AccessGroups          AccessGroupsCb
 	AccessGroupCreate     AccessGroupCreateCb
 	AccessGroupDelete     AccessGroupDeleteCb
+	AccessGroupInitAdd    AccessGroupInitAddCb
+	AccessGroupInitDelete AccessGroupInitDeleteCb
 	AgsGrantedToVol       AgsGrantedToVolCb
 }
 

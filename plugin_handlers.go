@@ -346,6 +346,32 @@ func handleAccessGroupDelete(p *Plugin, params json.RawMessage) (interface{}, er
 	return nil, p.cb.San.AccessGroupDelete(args.Ag)
 }
 
+type accessGroupInitArgs struct {
+	Ag       *AccessGroup  `json:"access_group"`
+	ID       string        `json:"init_id"`
+	InitType InitiatorType `json:"init_type"`
+	Flags    uint64        `json:"flags"`
+}
+
+func handleAccessGroupInitAdd(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	var args accessGroupInitArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("access_group_initiator_add", uE)
+	}
+
+	return p.cb.San.AccessGroupInitAdd(args.Ag, args.ID, args.InitType)
+}
+
+func handleAccessGroupInitDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args accessGroupInitArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("access_group_initiator_delete", uE)
+	}
+
+	return p.cb.San.AccessGroupInitDelete(args.Ag, args.ID, args.InitType)
+}
+
 func handleAgsGrantedToVol(p *Plugin, params json.RawMessage) (interface{}, error) {
 	type argsVol struct {
 		Vol   *Volume `json:"volume"`
@@ -383,22 +409,24 @@ func buildTable(c *CallBacks) map[string]handler {
 		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
 		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
 
-		"volume_create":                     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
-		"volume_delete":                     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
-		"volumes":                           nilAssign(c.San.Volumes, handleVolumes),
-		"disks":                             nilAssign(c.San.Disks, handleDisks),
-		"volume_replicate":                  nilAssign(c.San.VolumeReplicate, handleVolumeReplicate),
-		"volume_replicate_range":            nilAssign(c.San.VolumeReplicateRange, handleVolumeReplicateRange),
-		"volume_replicate_range_block_size": nilAssign(c.San.VolumeRepRangeBlkSize, handleVolRepRangeBlockSize),
-		"volume_resize":                     nilAssign(c.San.VolumeResize, handleVolumeResize),
-		"volume_enable":                     nilAssign(c.San.VolumeEnable, handleVolumeEnable),
-		"volume_disable":                    nilAssign(c.San.VolumeDisable, handleVolumeDisable),
-		"access_groups":                     nilAssign(c.San.AccessGroups, handleAccessGroups),
-		"access_group_create":               nilAssign(c.San.AccessGroupCreate, handleAccessGroupCreate),
-		"access_group_delete":               nilAssign(c.San.AccessGroupDelete, handleAccessGroupDelete),
+		"volume_create":                      nilAssign(c.San.VolumeCreate, handleVolumeCreate),
+		"volume_delete":                      nilAssign(c.San.VolumeDelete, handleVolumeDelete),
+		"volumes":                            nilAssign(c.San.Volumes, handleVolumes),
+		"disks":                              nilAssign(c.San.Disks, handleDisks),
+		"volume_replicate":                   nilAssign(c.San.VolumeReplicate, handleVolumeReplicate),
+		"volume_replicate_range":             nilAssign(c.San.VolumeReplicateRange, handleVolumeReplicateRange),
+		"volume_replicate_range_block_size":  nilAssign(c.San.VolumeRepRangeBlkSize, handleVolRepRangeBlockSize),
+		"volume_resize":                      nilAssign(c.San.VolumeResize, handleVolumeResize),
+		"volume_enable":                      nilAssign(c.San.VolumeEnable, handleVolumeEnable),
+		"volume_disable":                     nilAssign(c.San.VolumeDisable, handleVolumeDisable),
 		"volume_mask":                        nilAssign(c.San.VolumeMask, handleVolumeMask),
 		"volume_unmask":                      nilAssign(c.San.VolumeUnMask, handleVolumeUnMask),
 		"volumes_accessible_by_access_group": nilAssign(c.San.VolsMaskedToAg, handleVolsMaskedToAg),
+		"access_groups":                      nilAssign(c.San.AccessGroups, handleAccessGroups),
+		"access_group_create":                nilAssign(c.San.AccessGroupCreate, handleAccessGroupCreate),
+		"access_group_delete":                nilAssign(c.San.AccessGroupDelete, handleAccessGroupDelete),
+		"access_group_initiator_add":         nilAssign(c.San.AccessGroupInitAdd, handleAccessGroupInitAdd),
+		"access_group_initiator_delete":      nilAssign(c.San.AccessGroupInitDelete, handleAccessGroupInitDelete),
 		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
 	}
 }
