@@ -404,6 +404,20 @@ func handleIscsiChapAuthSet(p *Plugin, params json.RawMessage) (interface{}, err
 	return nil, p.cb.San.IscsiChapAuthSet(args.InitID, args.InUser, args.InPassword, args.OutUser, args.OutPassword)
 }
 
+type argsChildDep struct {
+	Vol   *Volume `json:"volume"`
+	Flags uint64  `json:"flags"`
+}
+
+func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args argsChildDep
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_child_dependency", uE)
+	}
+
+	return p.cb.San.VolHasChildDep(args.Vol)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -439,6 +453,7 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_disable":                     nilAssign(c.San.VolumeDisable, handleVolumeDisable),
 		"volume_mask":                        nilAssign(c.San.VolumeMask, handleVolumeMask),
 		"volume_unmask":                      nilAssign(c.San.VolumeUnMask, handleVolumeUnMask),
+		"volume_child_dependency":            nilAssign(c.San.VolHasChildDep, handleVolHasChildDep),
 		"volumes_accessible_by_access_group": nilAssign(c.San.VolsMaskedToAg, handleVolsMaskedToAg),
 		"access_groups":                      nilAssign(c.San.AccessGroups, handleAccessGroups),
 		"access_group_create":                nilAssign(c.San.AccessGroupCreate, handleAccessGroupCreate),

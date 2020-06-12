@@ -113,6 +113,9 @@ type AccessGroupInitDeleteCb func(ag *AccessGroup,
 // IscsiChapAuthSetCb iSCSI CHAP authentication
 type IscsiChapAuthSetCb func(initID string, inUser *string, inPassword *string, outUser *string, outPassword *string) error
 
+// VolHasChildDepCb returns boolean on if specified volume has child dependencies
+type VolHasChildDepCb func(vol *Volume) (bool, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -141,6 +144,7 @@ type SanOps struct {
 	VolumeMask            VolumeMaskCb
 	VolumeUnMask          VolumeUnMaskCb
 	VolsMaskedToAg        VolsMaskedToAgCb
+	VolHasChildDep        VolHasChildDepCb
 	AccessGroups          AccessGroupsCb
 	AccessGroupCreate     AccessGroupCreateCb
 	AccessGroupDelete     AccessGroupDeleteCb
