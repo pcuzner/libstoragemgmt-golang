@@ -531,6 +531,13 @@ func (c *ClientConnection) AgsGrantedToVol(vol *Volume) ([]AccessGroup, error) {
 	return accessGroups, c.tp.invoke("access_groups_granted_to_volume", args, &accessGroups)
 }
 
+// VolHasChildDep returns true|false if volume has child dependency
+func (c *ClientConnection) VolHasChildDep(vol *Volume) (bool, error) {
+	args := map[string]interface{}{"volume": *vol}
+	var deps bool
+	return deps, c.tp.invoke("volume_child_dependency", args, &deps)
+}
+
 // FsCreate creates a file system, returns job id, error.
 // If job id and error are nil, then returnedFs has newly created filesystem.
 func (c *ClientConnection) FsCreate(
