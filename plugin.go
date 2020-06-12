@@ -122,8 +122,8 @@ type VolChildDepRmCb func(vol *Volume) (*string, error)
 // TargetPortsCb returns target ports
 type TargetPortsCb func() ([]TargetPort, error)
 
-// RequiredCallbacks are the callbacks that plugins must implement
-type RequiredCallbacks struct {
+// ManagementOps are the callbacks that plugins must implement
+type ManagementOps struct {
 	TimeOutSet       TmoSetCb
 	TimeOutGet       TmoGetCb
 	JobStatus        JobStatusCb
@@ -164,8 +164,8 @@ type SanOps struct {
 
 // CallBacks callbacks for plugin to implement
 type CallBacks struct {
-	Required RequiredCallbacks
-	San      SanOps
+	Mgmt ManagementOps
+	San  SanOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)

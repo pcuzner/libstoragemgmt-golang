@@ -22,11 +22,11 @@ func handleRegister(p *Plugin, params json.RawMessage) (interface{}, error) {
 	if uE := json.Unmarshal(params, &register); uE != nil {
 		return nil, invalidArgs("plugin_register", uE)
 	}
-	return nil, p.cb.Required.PluginRegister(&register)
+	return nil, p.cb.Mgmt.PluginRegister(&register)
 }
 
 func handleUnRegister(p *Plugin, params json.RawMessage) (interface{}, error) {
-	return nil, p.cb.Required.PluginUnregister()
+	return nil, p.cb.Mgmt.PluginUnregister()
 }
 
 type tmoSetArgs struct {
@@ -43,15 +43,15 @@ func handleTmoSet(p *Plugin, params json.RawMessage) (interface{}, error) {
 	if uE := json.Unmarshal(params, &timeout); uE != nil {
 		return nil, invalidArgs("time_out_set", uE)
 	}
-	return nil, p.cb.Required.TimeOutSet(timeout.MS)
+	return nil, p.cb.Mgmt.TimeOutSet(timeout.MS)
 }
 
 func handleTmoGet(p *Plugin, params json.RawMessage) (interface{}, error) {
-	return p.cb.Required.TimeOutGet(), nil
+	return p.cb.Mgmt.TimeOutGet(), nil
 }
 
 func handleSystems(p *Plugin, params json.RawMessage) (interface{}, error) {
-	return p.cb.Required.Systems()
+	return p.cb.Mgmt.Systems()
 }
 
 func handleDisks(p *Plugin, params json.RawMessage) (interface{}, error) {
@@ -71,10 +71,10 @@ func handlePools(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	if len(s.Key) > 0 {
-		return p.cb.Required.Pools(s.Key, s.Value)
+		return p.cb.Mgmt.Pools(s.Key, s.Value)
 	}
 
-	return p.cb.Required.Pools()
+	return p.cb.Mgmt.Pools()
 }
 
 func handleVolumes(p *Plugin, params json.RawMessage) (interface{}, error) {
@@ -99,7 +99,7 @@ func handleCapabilities(p *Plugin, params json.RawMessage) (interface{}, error) 
 	if uE := json.Unmarshal(params, &args); uE != nil {
 		return nil, invalidArgs("time_out_set", uE)
 	}
-	return p.cb.Required.Capabilities(&args.Sys)
+	return p.cb.Mgmt.Capabilities(&args.Sys)
 }
 
 type jobArgs struct {
@@ -112,7 +112,7 @@ func handleJobStatus(p *Plugin, params json.RawMessage) (interface{}, error) {
 		return nil, invalidArgs("job_status", uE)
 	}
 
-	job, err := p.cb.Required.JobStatus(args.ID)
+	job, err := p.cb.Mgmt.JobStatus(args.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func handleJobFree(p *Plugin, params json.RawMessage) (interface{}, error) {
 		return nil, invalidArgs("job_status", uE)
 	}
 
-	return nil, p.cb.Required.JobFree(args.ID)
+	return nil, p.cb.Mgmt.JobFree(args.ID)
 }
 
 func exclusiveOr(item interface{}, job *string, err error) (interface{}, error) {
@@ -444,15 +444,15 @@ func nilAssign(present interface{}, cb handler) handler {
 func buildTable(c *CallBacks) map[string]handler {
 	return map[string]handler{
 		"plugin_info":       handlePluginInfo,
-		"plugin_register":   nilAssign(c.Required.PluginRegister, handleRegister),
-		"plugin_unregister": nilAssign(c.Required.PluginUnregister, handleUnRegister),
-		"systems":           nilAssign(c.Required.Systems, handleSystems),
-		"capabilities":      nilAssign(c.Required.Capabilities, handleCapabilities),
-		"time_out_set":      nilAssign(c.Required.TimeOutSet, handleTmoSet),
-		"time_out_get":      nilAssign(c.Required.TimeOutGet, handleTmoGet),
-		"pools":             nilAssign(c.Required.Pools, handlePools),
-		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
-		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
+		"plugin_register":   nilAssign(c.Mgmt.PluginRegister, handleRegister),
+		"plugin_unregister": nilAssign(c.Mgmt.PluginUnregister, handleUnRegister),
+		"systems":           nilAssign(c.Mgmt.Systems, handleSystems),
+		"capabilities":      nilAssign(c.Mgmt.Capabilities, handleCapabilities),
+		"time_out_set":      nilAssign(c.Mgmt.TimeOutSet, handleTmoSet),
+		"time_out_get":      nilAssign(c.Mgmt.TimeOutGet, handleTmoGet),
+		"pools":             nilAssign(c.Mgmt.Pools, handlePools),
+		"job_status":        nilAssign(c.Mgmt.JobStatus, handleJobStatus),
+		"job_free":          nilAssign(c.Mgmt.JobFree, handleJobFree),
 
 		"volume_create":                      nilAssign(c.San.VolumeCreate, handleVolumeCreate),
 		"volume_delete":                      nilAssign(c.San.VolumeDelete, handleVolumeDelete),
