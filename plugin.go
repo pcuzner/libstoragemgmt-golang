@@ -81,6 +81,9 @@ type VolumeEnableCb func(vol *Volume) error
 // VolumeDisableCb enables a volume
 type VolumeDisableCb func(vol *Volume) error
 
+// AccessGroupsCb returns all the access groups
+type AccessGroupsCb func() ([]AccessGroup, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -106,6 +109,7 @@ type SanOps struct {
 	VolumeResize          VolumeResizeCb
 	VolumeEnable          VolumeEnableCb
 	VolumeDisable         VolumeDisableCb
+	AccessGroups          AccessGroupsCb
 }
 
 // CallBacks callbacks for plugin to implement

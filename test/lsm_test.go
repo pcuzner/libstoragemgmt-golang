@@ -351,6 +351,12 @@ func TestNfsAuthTypes(t *testing.T) {
 	assert.Equal(t, nil, c.Close())
 }
 
+func TestAccessGroupList(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+	var _, err = c.AccessGroups()
+	assert.Nil(t, err)
+}
+
 func TestAccessGroups(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var items, err = c.AccessGroups()

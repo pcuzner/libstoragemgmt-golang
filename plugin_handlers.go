@@ -273,6 +273,10 @@ func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return p.cb.San.VolumeDelete(args.Volume)
 }
 
+func handleAccessGroups(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.San.AccessGroups()
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -285,16 +289,17 @@ func nilAssign(present interface{}, cb handler) handler {
 
 func buildTable(c *CallBacks) map[string]handler {
 	return map[string]handler{
-		"plugin_info":                       handlePluginInfo,
-		"plugin_register":                   nilAssign(c.Required.PluginRegister, handleRegister),
-		"plugin_unregister":                 nilAssign(c.Required.PluginUnregister, handleUnRegister),
-		"systems":                           nilAssign(c.Required.Systems, handleSystems),
-		"capabilities":                      nilAssign(c.Required.Capabilities, handleCapabilities),
-		"time_out_set":                      nilAssign(c.Required.TimeOutSet, handleTmoSet),
-		"time_out_get":                      nilAssign(c.Required.TimeOutGet, handleTmoGet),
-		"pools":                             nilAssign(c.Required.Pools, handlePools),
-		"job_status":                        nilAssign(c.Required.JobStatus, handleJobStatus),
-		"job_free":                          nilAssign(c.Required.JobFree, handleJobFree),
+		"plugin_info":       handlePluginInfo,
+		"plugin_register":   nilAssign(c.Required.PluginRegister, handleRegister),
+		"plugin_unregister": nilAssign(c.Required.PluginUnregister, handleUnRegister),
+		"systems":           nilAssign(c.Required.Systems, handleSystems),
+		"capabilities":      nilAssign(c.Required.Capabilities, handleCapabilities),
+		"time_out_set":      nilAssign(c.Required.TimeOutSet, handleTmoSet),
+		"time_out_get":      nilAssign(c.Required.TimeOutGet, handleTmoGet),
+		"pools":             nilAssign(c.Required.Pools, handlePools),
+		"job_status":        nilAssign(c.Required.JobStatus, handleJobStatus),
+		"job_free":          nilAssign(c.Required.JobFree, handleJobFree),
+
 		"volume_create":                     nilAssign(c.San.VolumeCreate, handleVolumeCreate),
 		"volume_delete":                     nilAssign(c.San.VolumeDelete, handleVolumeDelete),
 		"volumes":                           nilAssign(c.San.Volumes, handleVolumes),
@@ -305,5 +310,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_resize":                     nilAssign(c.San.VolumeResize, handleVolumeResize),
 		"volume_enable":                     nilAssign(c.San.VolumeEnable, handleVolumeEnable),
 		"volume_disable":                    nilAssign(c.San.VolumeDisable, handleVolumeDisable),
+		"access_groups":                     nilAssign(c.San.AccessGroups, handleAccessGroups),
 	}
 }
