@@ -100,9 +100,8 @@ func TestJobs(t *testing.T) {
 	assert.Nil(t, pE)
 
 	var name = rs("lsm_go_vol_", 12)
-	var volume lsm.Volume
-	var jobID, vcE = c.VolumeCreate(&pools[0],
-		name, 1024*1024*100, lsm.VolumeProvisionTypeDefault, false, &volume)
+	var volume, jobID, vcE = c.VolumeCreate(&pools[0],
+		name, 1024*1024*100, lsm.VolumeProvisionTypeDefault, false)
 	assert.Nil(t, vcE)
 	assert.NotNil(t, jobID)
 
@@ -153,6 +152,18 @@ func TestBadSeach(t *testing.T) {
 	assert.NotNil(t, sE)
 
 	assert.Equal(t, nil, c.Close())
+}
+
+func TestPoolSearch(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	poolsExpected, err := c.Pools("system_id", "sim-01")
+	assert.Nil(t, err)
+	assert.Equal(t, 4, len(poolsExpected))
+
+	poolsMissing, err := c.Pools("system_id", "sim-02")
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(poolsMissing))
 }
 
 func TestGoodSeach(t *testing.T) {
@@ -339,6 +350,47 @@ func TestNfsAuthTypes(t *testing.T) {
 	assert.Equal(t, nil, c.Close())
 }
 
+func TestAccessGroupList(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+	var _, err = c.AccessGroups()
+	assert.Nil(t, err)
+
+}
+
+func TestAccessGroupCreate(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+	var systems, sysErr = c.Systems()
+	assert.Nil(t, sysErr)
+
+	initID := fmt.Sprintf("iqn.1994-05.com.domain:01.89%s", rs("", 4))
+	var _, agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
+		initID, lsm.InitiatorTypeIscsiIqn, &systems[0])
+	assert.Nil(t, agCreateErr)
+
+	assert.Equal(t, nil, c.Close())
+}
+
+func TestAccessGroupDelete(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+	var systems, sysErr = c.Systems()
+	assert.Nil(t, sysErr)
+
+	initID := fmt.Sprintf("iqn.1994-05.com.domain:01.89%s", rs("", 4))
+	_, agCreateErr := c.AccessGroupCreate(rs("lsm_ag_", 4),
+		initID, lsm.InitiatorTypeIscsiIqn, &systems[0])
+	assert.Nil(t, agCreateErr)
+
+	items, agE := c.AccessGroups()
+	assert.Nil(t, agE)
+
+	for _, i := range items {
+		delErr := c.AccessGroupDelete(&i)
+		assert.Nil(t, delErr)
+	}
+
+	assert.Equal(t, nil, c.Close())
+}
+
 func TestAccessGroups(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
 	var items, err = c.AccessGroups()
@@ -351,15 +403,14 @@ func TestAccessGroups(t *testing.T) {
 		var systems, sysErr = c.Systems()
 		assert.Nil(t, sysErr)
 
-		var ag lsm.AccessGroup
-		var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
-			"iqn.1994-05.com.domain:01.89bd01", lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
+		ag, agCreateErr := c.AccessGroupCreate(rs("lsm_ag_", 4),
+			"iqn.1994-05.com.domain:01.89bd01", lsm.InitiatorTypeIscsiIqn, &systems[0])
 		assert.Nil(t, agCreateErr)
 
-		var maskErr = c.VolumeMask(&volumes[0], &ag)
+		var maskErr = c.VolumeMask(&volumes[0], ag)
 		assert.Nil(t, maskErr)
 
-		var volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
+		var volsMasked, volsMaskedErr = c.VolsMaskedToAg(ag)
 		assert.Nil(t, volsMaskedErr)
 		assert.Equal(t, 1, len(volsMasked))
 		assert.Equal(t, volumes[0].Name, volsMasked[0].Name)
@@ -369,10 +420,10 @@ func TestAccessGroups(t *testing.T) {
 		assert.Equal(t, 1, len(agsGranted))
 		assert.Equal(t, ag.Name, agsGranted[0].Name)
 
-		var unmaskErr = c.VolumeUnMask(&volumes[0], &ag)
+		var unmaskErr = c.VolumeUnMask(&volumes[0], ag)
 		assert.Nil(t, unmaskErr)
 
-		volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
+		volsMasked, volsMaskedErr = c.VolsMaskedToAg(ag)
 		assert.Nil(t, volsMaskedErr)
 		assert.Equal(t, 0, len(volsMasked))
 
@@ -381,26 +432,24 @@ func TestAccessGroups(t *testing.T) {
 		assert.Equal(t, 0, len(agsGranted))
 
 		// Try to add a bad iSCSI iqn
-		var agInitAdd lsm.AccessGroup
-		var initAddErr = c.AccessGroupInitAdd(&ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		agInitAdd, initAddErr := c.AccessGroupInitAdd(ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "not_even_close", lsm.InitiatorTypeWwpn, &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "not_even_close", lsm.InitiatorTypeWwpn)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100), &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100))
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn, &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
-		var agInitDel lsm.AccessGroup
-		var initDelErr = c.AccessGroupInitDelete(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitDel)
+		_, initDelErr := c.AccessGroupInitDelete(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn)
 		assert.Nil(t, initDelErr)
 
 		items, err = c.AccessGroups()
@@ -494,12 +543,11 @@ func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volum
 
 	var poolToUse = pools[3] // Arbitrary
 
-	var volume lsm.Volume
-	var jobID, errVolCreate = c.VolumeCreate(&poolToUse, name, 1024*1024*1, 2, true, &volume)
+	volume, jobID, errVolCreate := c.VolumeCreate(&poolToUse, name, 1024*1024*1, 2, true)
 	assert.Nil(t, errVolCreate)
 	assert.Nil(t, jobID)
 
-	return &volume
+	return volume
 }
 
 func TestVolumeCreate(t *testing.T) {
@@ -510,6 +558,8 @@ func TestVolumeCreate(t *testing.T) {
 	var volume = createVolume(t, c, volumeName)
 
 	assert.Equal(t, volumeName, volume.Name)
+	assert.NotZero(t, volume.NumOfBlocks)
+	assert.NotZero(t, volume.BlockSize)
 
 	// Try and clean-up
 	var volDel, volDelErr = c.VolumeDelete(volume, true)
@@ -572,9 +622,7 @@ func TestScale(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		var volumeName = rs("lsm_go_vol_", 8)
-
-		var volume lsm.Volume
-		var jobID, errVolCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*10, 2, true, &volume)
+		var _, jobID, errVolCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*10, 2, true)
 		if errVolCreate != nil {
 			fmt.Printf("Created %d volume before we got error %s\n", i, errVolCreate)
 			break
@@ -612,9 +660,7 @@ func TestJobWait(t *testing.T) {
 	var poolToUse = pools[2] // Arbitrary
 
 	var volumeName = rs("lsm_go_vol_async_", 8)
-
-	var volume lsm.Volume
-	var jobID, errCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*100, 2, false, &volume)
+	var volume, jobID, errCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*100, 2, false)
 	assert.Nil(t, errCreate)
 	assert.NotNil(t, jobID)
 
@@ -623,7 +669,7 @@ func TestJobWait(t *testing.T) {
 
 	assert.Equal(t, volumeName, volume.Name)
 
-	c.VolumeDelete(&volume, true)
+	c.VolumeDelete(volume, true)
 	assert.Equal(t, nil, c.Close())
 }
 
@@ -646,12 +692,14 @@ func TestVolumeResize(t *testing.T) {
 	assert.NotNil(t, c)
 
 	var volume = createVolume(t, c, volumeName)
-	var resized lsm.Volume
-	var _, resizeErr = c.VolumeResize(volume, (volume.BlockSize*volume.NumOfBlocks)*2, true, &resized)
+	newSize := volume.BlockSize * volume.NumOfBlocks * 2
+	assert.NotEqual(t, 0, newSize)
+
+	var resized, _, resizeErr = c.VolumeResize(volume, newSize, true)
 	assert.Nil(t, resizeErr)
 	assert.NotEqual(t, volume.NumOfBlocks, resized.NumOfBlocks)
 
-	c.VolumeDelete(&resized, true)
+	c.VolumeDelete(resized, true)
 	assert.Equal(t, nil, c.Close())
 }
 
@@ -802,24 +850,31 @@ func TestVolumeReplicate(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
 	var repName = rs("lsm_go_rep_", 4)
 
-	var repVol lsm.Volume
 	var srcVol = createVolume(t, c, volumeName)
-	var jobID, errRep = c.VolumeReplicate(nil, lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	var repVol, jobID, errRep = c.VolumeReplicate(nil, lsm.VolumeReplicateTypeCopy, srcVol, repName, true)
 	assert.Nil(t, jobID)
 	assert.Nil(t, errRep)
 
 	assert.Equal(t, repName, repVol.Name)
 
-	c.VolumeDelete(&repVol, true)
+	c.VolumeDelete(repVol, true)
 
 	var pools, poolError = c.Pools()
 	assert.Nil(t, poolError)
 
-	jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	repVol, jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeClone, srcVol, repName, true)
 	assert.Nil(t, jobID)
 	assert.Nil(t, errRep)
 
-	c.VolumeDelete(&repVol, true)
+	volDep, volDepE := c.VolHasChildDep(srcVol)
+	assert.Nil(t, volDepE)
+	assert.True(t, volDep)
+
+	volDepRm, volDepRmE := c.VolChildDepRm(srcVol, true)
+	assert.Nil(t, volDepRmE)
+	assert.Nil(t, volDepRm)
+
+	c.VolumeDelete(repVol, true)
 
 	c.VolumeDelete(srcVol, true)
 	assert.Equal(t, nil, c.Close())
@@ -1400,11 +1455,10 @@ func setup() {
 		var volumes, _ = c.Volumes()
 
 		if len(volumes) == 0 {
-			var volume lsm.Volume
-			var _, _ = c.VolumeCreate(
+			c.VolumeCreate(
 				&pools[1], rs("lsm_go_vol_", 4),
 				1024*1024*100,
-				lsm.VolumeProvisionTypeDefault, true, &volume)
+				lsm.VolumeProvisionTypeDefault, true)
 		}
 
 		var fs, _ = c.FileSystems()

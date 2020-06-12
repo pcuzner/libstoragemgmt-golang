@@ -227,6 +227,7 @@ func (c *ClientConnection) FsUnExport(export *NfsExport) error {
 }
 
 // AccessGroups returns access groups  that are present.
+// TODO: Add search arguments
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	args := make(map[string]interface{})
 	var accessGroups []AccessGroup
@@ -422,8 +423,7 @@ func (c *ClientConnection) VolumeCreate(
 	volumeName string,
 	size uint64,
 	provisioning VolumeProvisionType,
-	sync bool,
-	returnedVolume *Volume) (*string, error) {
+	sync bool) (*Volume, *string, error) {
 	args := map[string]interface{}{
 		"pool":         *pool,
 		"volume_name":  volumeName,
@@ -431,8 +431,10 @@ func (c *ClientConnection) VolumeCreate(
 		"provisioning": provisioning,
 	}
 
+	var returnedVolume Volume
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("volume_create", args, &result), result, sync, returnedVolume)
+	jobID, err := c.getJobOrResult(c.tp.invoke("volume_create", args, &result), result, sync, &returnedVolume)
+	return ensureExclusiveVol(&returnedVolume, jobID, err)
 }
 
 // VolumeDelete deletes a block device.
@@ -443,17 +445,18 @@ func (c *ClientConnection) VolumeDelete(vol *Volume, sync bool) (*string, error)
 }
 
 // VolumeResize resizes an existing volume, data loss may occur depending on storage implementation.
-func (c *ClientConnection) VolumeResize(
-	vol *Volume, newSizeBytes uint64, sync bool, returnedVolume *Volume) (*string, error) {
+func (c *ClientConnection) VolumeResize(vol *Volume, newSizeBytes uint64, sync bool) (*Volume, *string, error) {
 	args := map[string]interface{}{"volume": *vol, "new_size_bytes": newSizeBytes}
+	var returnedVolume Volume
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("volume_resize", args, &result), result, sync, returnedVolume)
+	job, err := c.getJobOrResult(c.tp.invoke("volume_resize", args, &result), result, sync, &returnedVolume)
+	return ensureExclusiveVol(&returnedVolume, job, err)
 }
 
 // VolumeReplicate makes a replicated image of existing Volume
 func (c *ClientConnection) VolumeReplicate(
 	optionalPool *Pool, repType VolumeReplicateType, sourceVolume *Volume, name string,
-	sync bool, returnedVolume *Volume) (*string, error) {
+	sync bool) (*Volume, *string, error) {
 
 	args := map[string]interface{}{
 		"volume_src": *sourceVolume,
@@ -466,8 +469,10 @@ func (c *ClientConnection) VolumeReplicate(
 		args["pool"] = nil
 	}
 
+	var returnedVolume Volume
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("volume_replicate", args, &result), result, sync, returnedVolume)
+	job, err := c.getJobOrResult(c.tp.invoke("volume_replicate", args, &result), result, sync, &returnedVolume)
+	return ensureExclusiveVol(&returnedVolume, job, err)
 }
 
 // VolumeRepRangeBlkSize block size for replicating a range of blocks
@@ -528,6 +533,20 @@ func (c *ClientConnection) AgsGrantedToVol(vol *Volume) ([]AccessGroup, error) {
 	args := map[string]interface{}{"volume": *vol}
 	var accessGroups []AccessGroup
 	return accessGroups, c.tp.invoke("access_groups_granted_to_volume", args, &accessGroups)
+}
+
+// VolHasChildDep returns true|false if volume has child dependency
+func (c *ClientConnection) VolHasChildDep(vol *Volume) (bool, error) {
+	args := map[string]interface{}{"volume": *vol}
+	var deps bool
+	return deps, c.tp.invoke("volume_child_dependency", args, &deps)
+}
+
+// VolChildDepRm removes any child dependencies
+func (c *ClientConnection) VolChildDepRm(vol *Volume, sync bool) (*string, error) {
+	args := map[string]interface{}{"volume": *vol}
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("volume_child_dependency_rm", args, &result), result, sync)
 }
 
 // FsCreate creates a file system, returns job id, error.
@@ -676,10 +695,10 @@ func (c *ClientConnection) FsChildDepRm(
 
 // AccessGroupCreate creates an access group.
 func (c *ClientConnection) AccessGroupCreate(name string, initID string,
-	initType InitiatorType, system *System, accessGroup *AccessGroup) error {
+	initType InitiatorType, system *System) (*AccessGroup, error) {
 
 	if check := validateInitID(initID, initType); check != nil {
-		return check
+		return nil, check
 	}
 
 	args := map[string]interface{}{
@@ -688,7 +707,11 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 		"init_type": initType,
 		"system":    *system,
 	}
-	return c.tp.invoke("access_group_create", args, accessGroup)
+	var accessGroup AccessGroup
+	if err := c.tp.invoke("access_group_create", args, &accessGroup); err != nil {
+		return nil, err
+	}
+	return &accessGroup, nil
 }
 
 // AccessGroupDelete deletes an access group.
@@ -705,22 +728,32 @@ func initSetup(initID string,
 
 // AccessGroupInitAdd adds an initiator to an access group.
 func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
-	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
+	initID string, initType InitiatorType) (*AccessGroup, error) {
+
 	var args, setupErr = initSetup(initID, initType, ag)
 	if setupErr != nil {
-		return setupErr
+		return nil, setupErr
 	}
-	return c.tp.invoke("access_group_initiator_add", args, accessGroup)
+
+	var accessGroup AccessGroup
+	if err := c.tp.invoke("access_group_initiator_add", args, &accessGroup); err != nil {
+		return nil, err
+	}
+	return &accessGroup, nil
 }
 
 // AccessGroupInitDelete deletes an initiator from an access group.
 func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
-	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
+	initID string, initType InitiatorType) (*AccessGroup, error) {
 	var args, setupErr = initSetup(initID, initType, ag)
 	if setupErr != nil {
-		return setupErr
+		return nil, setupErr
 	}
-	return c.tp.invoke("access_group_initiator_delete", args, accessGroup)
+	var accessGroup AccessGroup
+	if err := c.tp.invoke("access_group_initiator_delete", args, &accessGroup); err != nil {
+		return nil, err
+	}
+	return &accessGroup, nil
 }
 
 // VolRaidInfo retrieves RAID information about specified volume.

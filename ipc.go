@@ -58,20 +58,29 @@ type responseMsg struct {
 	Result json.RawMessage  `json:"result"`
 }
 
+type requestMsg struct {
+	ID     int             `json:"id"`
+	Method string          `json:"method"`
+	Params json.RawMessage `json:"params"`
+}
+
+func (r *requestMsg) String() string {
+	return fmt.Sprintf("ID: %d, Method: %s, Parms: %s", r.ID, r.Method, string(r.Params))
+}
+
 func (t *transPort) invoke(cmd string, args map[string]interface{}, result interface{}) error {
 
 	args["flags"] = 0
 	msg := map[string]interface{}{
 		"method": cmd,
 		"id":     100,
-		"flags":  0,
 		"params": args,
 	}
 
 	var msgSerialized, serialError = json.Marshal(msg)
 	if serialError != nil {
 		return &errors.LsmError{
-			Code:    errors.PluginBug,
+			Code:    errors.LibBug,
 			Message: fmt.Sprintf("Errors serializing parameters %w\n", serialError)}
 	}
 
@@ -118,11 +127,72 @@ func (t *transPort) invoke(cmd string, args map[string]interface{}, result inter
 
 }
 
+func (t *transPort) readRequest() (*requestMsg, error) {
+	request, requestError := t.recv()
+	if requestError != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.TransPortComunication,
+			Message: fmt.Sprintf("Error reading from unix domain socket %w\n", requestError)}
+	}
+
+	var what requestMsg
+	if requestUnmarsal := json.Unmarshal(request, &what); requestUnmarsal != nil {
+		return nil, &errors.LsmError{
+			Code:    errors.TransPortInvalidArg,
+			Message: fmt.Sprintf("Unparsable request from client %w\n", requestUnmarsal)}
+	}
+	return &what, nil
+}
+
+func (t *transPort) sendResponse(response interface{}) error {
+	msg := map[string]interface{}{
+		"result": response,
+		"id":     100,
+	}
+
+	var msgSerialized, serialError = json.Marshal(msg)
+	if serialError != nil {
+		return &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Errors serializing response %w\n", serialError)}
+	}
+
+	if sendError := t.send(string(msgSerialized)); sendError != nil {
+		return &errors.LsmError{
+			Code:    errors.TransPortComunication,
+			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
+	}
+	return nil
+}
+
+func (t *transPort) sendError(err error) error {
+
+	// TODO Make this work for lsm errors and generic errors
+	msg := map[string]interface{}{
+		"error": err,
+		"id":    100,
+	}
+
+	var msgSerialized, serialError = json.Marshal(msg)
+	if serialError != nil {
+		return &errors.LsmError{
+			Code:    errors.PluginBug,
+			Message: fmt.Sprintf("Errors serializing error %w\n", serialError)}
+	}
+
+	if sendError := t.send(string(msgSerialized)); sendError != nil {
+		return &errors.LsmError{
+			Code:    errors.TransPortComunication,
+			Message: fmt.Sprintf("Error writing to unix domain socket %w\n", sendError)}
+	}
+	return nil
+}
+
 func (t *transPort) send(msg string) error {
 
 	var toSend = fmt.Sprintf("%010d%s", len(msg), msg)
 	if t.debug {
-		fmt.Printf("send: %s\n", msg)
+		fmt.Printf("go-send: %s\n", msg)
 	}
 	return writeExact(t.uds, []byte(toSend))
 }
@@ -143,7 +213,7 @@ func (t *transPort) recv() ([]byte, error) {
 	readError := readExact(t.uds, msgBuffer)
 
 	if t.debug {
-		fmt.Printf("recv: %s\n", string(msgBuffer))
+		fmt.Printf("go-recv: %s\n", string(msgBuffer))
 	}
 
 	return msgBuffer, readError
