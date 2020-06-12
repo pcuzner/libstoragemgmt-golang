@@ -297,6 +297,20 @@ func handleVolumeUnMask(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return nil, p.cb.San.VolumeUnMask(args.Vol, args.Ag)
 }
 
+func handleVolsMaskedToAg(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type argsAg struct {
+		Ag    *AccessGroup `json:"access_group"`
+		Flags uint64       `json:"flags"`
+	}
+
+	var args argsAg
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volumes_accessible_by_access_group", uE)
+	}
+
+	return p.cb.San.VolsMaskedToAg(args.Ag)
+}
+
 func handleAccessGroups(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.San.AccessGroups()
 }
@@ -370,5 +384,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"access_group_delete":               nilAssign(c.San.AccessGroupDelete, handleAccessGroupDelete),
 		"volume_mask":                        nilAssign(c.San.VolumeMask, handleVolumeMask),
 		"volume_unmask":                      nilAssign(c.San.VolumeUnMask, handleVolumeUnMask),
+		"volumes_accessible_by_access_group": nilAssign(c.San.VolsMaskedToAg, handleVolsMaskedToAg),
 	}
 }

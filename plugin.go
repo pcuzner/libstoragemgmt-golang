@@ -87,6 +87,9 @@ type VolumeMaskCb func(vol *Volume, ag *AccessGroup) error
 // VolumeUnMaskCb unmaskes a volume from the associated access group
 type VolumeUnMaskCb func(vol *Volume, ag *AccessGroup) error
 
+// VolsMaskedToAgCb returns those volumes accessible from specified access group
+type VolsMaskedToAgCb func(ag *AccessGroup) ([]Volume, error)
+
 // AccessGroupsCb returns all the access groups
 type AccessGroupsCb func() ([]AccessGroup, error)
 
@@ -123,6 +126,7 @@ type SanOps struct {
 	VolumeDisable         VolumeDisableCb
 	VolumeMask            VolumeMaskCb
 	VolumeUnMask          VolumeUnMaskCb
+	VolsMaskedToAg        VolsMaskedToAgCb
 	AccessGroups          AccessGroupsCb
 	AccessGroupCreate     AccessGroupCreateCb
 	AccessGroupDelete     AccessGroupDeleteCb
