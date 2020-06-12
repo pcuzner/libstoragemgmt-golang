@@ -293,6 +293,21 @@ func handleAccessGroupCreate(p *Plugin, params json.RawMessage) (interface{}, er
 
 	return p.cb.San.AccessGroupCreate(args.Name, args.InitID, args.InitType, args.System)
 }
+
+func handleAccessGroupDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type agDeleteArgs struct {
+		Ag    *AccessGroup `json:"access_group"`
+		Flags uint64       `json:"flags"`
+	}
+
+	var args agDeleteArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("access_group_delete", uE)
+	}
+
+	return nil, p.cb.San.AccessGroupDelete(args.Ag)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -328,5 +343,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_disable":                    nilAssign(c.San.VolumeDisable, handleVolumeDisable),
 		"access_groups":                     nilAssign(c.San.AccessGroups, handleAccessGroups),
 		"access_group_create":               nilAssign(c.San.AccessGroupCreate, handleAccessGroupCreate),
+		"access_group_delete":               nilAssign(c.San.AccessGroupDelete, handleAccessGroupDelete),
 	}
 }

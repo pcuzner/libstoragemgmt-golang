@@ -373,6 +373,29 @@ func TestAccessGroupCreate(t *testing.T) {
 
 	assert.Equal(t, nil, c.Close())
 }
+
+func TestAccessGroupDelete(t *testing.T) {
+	var c, _ = lsm.Client(URI, PASSWORD, TMO)
+
+	var ag lsm.AccessGroup
+
+	var systems, sysErr = c.Systems()
+	assert.Nil(t, sysErr)
+
+	initID := fmt.Sprintf("iqn.1994-05.com.domain:01.89%s", rs("", 4))
+	var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
+		initID, lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
+	assert.Nil(t, agCreateErr)
+
+	items, agE := c.AccessGroups()
+	assert.Nil(t, agE)
+
+	for _, i := range items {
+		delErr := c.AccessGroupDelete(&i)
+		assert.Nil(t, delErr)
+	}
+
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestAccessGroups(t *testing.T) {

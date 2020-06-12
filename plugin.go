@@ -87,6 +87,9 @@ type AccessGroupsCb func() ([]AccessGroup, error)
 // AccessGroupCreateCb creates an access group
 type AccessGroupCreateCb func(name string, initID string, initType InitiatorType, system *System) (*AccessGroup, error)
 
+// AccessGroupDeleteCb deletes an access group
+type AccessGroupDeleteCb func(ag *AccessGroup) error
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -114,6 +117,7 @@ type SanOps struct {
 	VolumeDisable         VolumeDisableCb
 	AccessGroups          AccessGroupsCb
 	AccessGroupCreate     AccessGroupCreateCb
+	AccessGroupDelete     AccessGroupDeleteCb
 }
 
 // CallBacks callbacks for plugin to implement
