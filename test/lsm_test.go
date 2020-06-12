@@ -449,8 +449,7 @@ func TestAccessGroups(t *testing.T) {
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
-		var agInitDel lsm.AccessGroup
-		var initDelErr = c.AccessGroupInitDelete(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitDel)
+		_, initDelErr := c.AccessGroupInitDelete(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn)
 		assert.Nil(t, initDelErr)
 
 		items, err = c.AccessGroups()

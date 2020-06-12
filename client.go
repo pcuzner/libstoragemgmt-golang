@@ -744,12 +744,16 @@ func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
 
 // AccessGroupInitDelete deletes an initiator from an access group.
 func (c *ClientConnection) AccessGroupInitDelete(ag *AccessGroup,
-	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
+	initID string, initType InitiatorType) (*AccessGroup, error) {
 	var args, setupErr = initSetup(initID, initType, ag)
 	if setupErr != nil {
-		return setupErr
+		return nil, setupErr
 	}
-	return c.tp.invoke("access_group_initiator_delete", args, accessGroup)
+	var accessGroup AccessGroup
+	if err := c.tp.invoke("access_group_initiator_delete", args, &accessGroup); err != nil {
+		return nil, err
+	}
+	return &accessGroup, nil
 }
 
 // VolRaidInfo retrieves RAID information about specified volume.
