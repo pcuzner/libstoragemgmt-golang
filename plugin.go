@@ -110,6 +110,9 @@ type AccessGroupInitAddCb func(ag *AccessGroup,
 type AccessGroupInitDeleteCb func(ag *AccessGroup,
 	initID string, initType InitiatorType) (*AccessGroup, error)
 
+// IscsiChapAuthSetCb iSCSI CHAP authentication
+type IscsiChapAuthSetCb func(initID string, inUser *string, inPassword *string, outUser *string, outPassword *string) error
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -144,6 +147,7 @@ type SanOps struct {
 	AccessGroupInitAdd    AccessGroupInitAddCb
 	AccessGroupInitDelete AccessGroupInitDeleteCb
 	AgsGrantedToVol       AgsGrantedToVolCb
+	IscsiChapAuthSet      IscsiChapAuthSetCb
 }
 
 // CallBacks callbacks for plugin to implement

@@ -386,6 +386,24 @@ func handleAgsGrantedToVol(p *Plugin, params json.RawMessage) (interface{}, erro
 	return p.cb.San.AgsGrantedToVol(args.Vol)
 }
 
+func handleIscsiChapAuthSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type argsIscsi struct {
+		InitID      string  `json:"init_id"`
+		InUser      *string `json:"in_user"`
+		InPassword  *string `json:"in_password"`
+		OutUser     *string `json:"out_user"`
+		OutPassword *string `json:"out_password"`
+		Flags       uint64  `json:"flags"`
+	}
+
+	var args argsIscsi
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("iscsi_chap_auth", uE)
+	}
+
+	return nil, p.cb.San.IscsiChapAuthSet(args.InitID, args.InUser, args.InPassword, args.OutUser, args.OutPassword)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -428,5 +446,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"access_group_initiator_add":         nilAssign(c.San.AccessGroupInitAdd, handleAccessGroupInitAdd),
 		"access_group_initiator_delete":      nilAssign(c.San.AccessGroupInitDelete, handleAccessGroupInitDelete),
 		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
+		"iscsi_chap_auth":                    nilAssign(c.San.IscsiChapAuthSet, handleIscsiChapAuthSet),
 	}
 }
