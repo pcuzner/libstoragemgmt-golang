@@ -432,21 +432,20 @@ func TestAccessGroups(t *testing.T) {
 		assert.Equal(t, 0, len(agsGranted))
 
 		// Try to add a bad iSCSI iqn
-		var agInitAdd lsm.AccessGroup
-		var initAddErr = c.AccessGroupInitAdd(ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		agInitAdd, initAddErr := c.AccessGroupInitAdd(ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(ag, "not_even_close", lsm.InitiatorTypeWwpn, &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "not_even_close", lsm.InitiatorTypeWwpn)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100), &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100))
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
-		initAddErr = c.AccessGroupInitAdd(ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn, &agInitAdd)
+		agInitAdd, initAddErr = c.AccessGroupInitAdd(ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 

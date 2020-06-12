@@ -728,12 +728,18 @@ func initSetup(initID string,
 
 // AccessGroupInitAdd adds an initiator to an access group.
 func (c *ClientConnection) AccessGroupInitAdd(ag *AccessGroup,
-	initID string, initType InitiatorType, accessGroup *AccessGroup) error {
+	initID string, initType InitiatorType) (*AccessGroup, error) {
+
 	var args, setupErr = initSetup(initID, initType, ag)
 	if setupErr != nil {
-		return setupErr
+		return nil, setupErr
 	}
-	return c.tp.invoke("access_group_initiator_add", args, accessGroup)
+
+	var accessGroup AccessGroup
+	if err := c.tp.invoke("access_group_initiator_add", args, &accessGroup); err != nil {
+		return nil, err
+	}
+	return &accessGroup, nil
 }
 
 // AccessGroupInitDelete deletes an initiator from an access group.
