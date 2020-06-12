@@ -441,7 +441,7 @@ func nilAssign(present interface{}, cb handler) handler {
 	return cb
 }
 
-func buildTable(c *CallBacks) map[string]handler {
+func buildTable(c *PluginCallBacks) map[string]handler {
 	return map[string]handler{
 		"plugin_info":       handlePluginInfo,
 		"plugin_register":   nilAssign(c.Mgmt.PluginRegister, handleRegister),

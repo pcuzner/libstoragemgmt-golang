@@ -162,8 +162,8 @@ type SanOps struct {
 	TargetPorts           TargetPortsCb
 }
 
-// CallBacks callbacks for plugin to implement
-type CallBacks struct {
+// PluginCallBacks callbacks for plugin to implement
+type PluginCallBacks struct {
 	Mgmt ManagementOps
 	San  SanOps
 }
@@ -173,7 +173,7 @@ type handler func(p *Plugin, params json.RawMessage) (interface{}, error)
 // Plugin represents plugin
 type Plugin struct {
 	tp        transPort
-	cb        *CallBacks
+	cb        *PluginCallBacks
 	callTable map[string]handler
 	desc      string
 	ver       string
@@ -188,7 +188,7 @@ type PluginRegister struct {
 }
 
 // PluginInit initializes the plugin with the specified callbacks
-func PluginInit(callbacks *CallBacks, cmdLineArgs []string, desc string, ver string) (*Plugin, error) {
+func PluginInit(callbacks *PluginCallBacks, cmdLineArgs []string, desc string, ver string) (*Plugin, error) {
 	if len(cmdLineArgs) == 2 {
 		fd, err := strconv.ParseInt(cmdLineArgs[1], 10, 32)
 		if err != nil {
