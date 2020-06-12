@@ -346,6 +346,20 @@ func handleAccessGroupDelete(p *Plugin, params json.RawMessage) (interface{}, er
 	return nil, p.cb.San.AccessGroupDelete(args.Ag)
 }
 
+func handleAgsGrantedToVol(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type argsVol struct {
+		Vol   *Volume `json:"volume"`
+		Flags uint64  `json:"flags"`
+	}
+
+	var args argsVol
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("access_groups_granted_to_volume", uE)
+	}
+
+	return p.cb.San.AgsGrantedToVol(args.Vol)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -385,5 +399,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"volume_mask":                        nilAssign(c.San.VolumeMask, handleVolumeMask),
 		"volume_unmask":                      nilAssign(c.San.VolumeUnMask, handleVolumeUnMask),
 		"volumes_accessible_by_access_group": nilAssign(c.San.VolsMaskedToAg, handleVolsMaskedToAg),
+		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
 	}
 }

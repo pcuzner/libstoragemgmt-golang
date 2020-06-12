@@ -90,6 +90,9 @@ type VolumeUnMaskCb func(vol *Volume, ag *AccessGroup) error
 // VolsMaskedToAgCb returns those volumes accessible from specified access group
 type VolsMaskedToAgCb func(ag *AccessGroup) ([]Volume, error)
 
+// AgsGrantedToVolCb returns access group(s) which have access to specified volume
+type AgsGrantedToVolCb func(vol *Volume) ([]AccessGroup, error)
+
 // AccessGroupsCb returns all the access groups
 type AccessGroupsCb func() ([]AccessGroup, error)
 
@@ -130,6 +133,7 @@ type SanOps struct {
 	AccessGroups          AccessGroupsCb
 	AccessGroupCreate     AccessGroupCreateCb
 	AccessGroupDelete     AccessGroupDeleteCb
+	AgsGrantedToVol       AgsGrantedToVolCb
 }
 
 // CallBacks callbacks for plugin to implement
