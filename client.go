@@ -695,10 +695,10 @@ func (c *ClientConnection) FsChildDepRm(
 
 // AccessGroupCreate creates an access group.
 func (c *ClientConnection) AccessGroupCreate(name string, initID string,
-	initType InitiatorType, system *System, accessGroup *AccessGroup) error {
+	initType InitiatorType, system *System) (*AccessGroup, error) {
 
 	if check := validateInitID(initID, initType); check != nil {
-		return check
+		return nil, check
 	}
 
 	args := map[string]interface{}{
@@ -707,7 +707,11 @@ func (c *ClientConnection) AccessGroupCreate(name string, initID string,
 		"init_type": initType,
 		"system":    *system,
 	}
-	return c.tp.invoke("access_group_create", args, accessGroup)
+	var accessGroup AccessGroup
+	if err := c.tp.invoke("access_group_create", args, &accessGroup); err != nil {
+		return nil, err
+	}
+	return &accessGroup, nil
 }
 
 // AccessGroupDelete deletes an access group.

@@ -359,15 +359,12 @@ func TestAccessGroupList(t *testing.T) {
 
 func TestAccessGroupCreate(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
-
-	var ag lsm.AccessGroup
-
 	var systems, sysErr = c.Systems()
 	assert.Nil(t, sysErr)
 
 	initID := fmt.Sprintf("iqn.1994-05.com.domain:01.89%s", rs("", 4))
-	var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
-		initID, lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
+	var _, agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
+		initID, lsm.InitiatorTypeIscsiIqn, &systems[0])
 	assert.Nil(t, agCreateErr)
 
 	assert.Equal(t, nil, c.Close())
@@ -375,15 +372,12 @@ func TestAccessGroupCreate(t *testing.T) {
 
 func TestAccessGroupDelete(t *testing.T) {
 	var c, _ = lsm.Client(URI, PASSWORD, TMO)
-
-	var ag lsm.AccessGroup
-
 	var systems, sysErr = c.Systems()
 	assert.Nil(t, sysErr)
 
 	initID := fmt.Sprintf("iqn.1994-05.com.domain:01.89%s", rs("", 4))
-	var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
-		initID, lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
+	_, agCreateErr := c.AccessGroupCreate(rs("lsm_ag_", 4),
+		initID, lsm.InitiatorTypeIscsiIqn, &systems[0])
 	assert.Nil(t, agCreateErr)
 
 	items, agE := c.AccessGroups()
@@ -409,15 +403,14 @@ func TestAccessGroups(t *testing.T) {
 		var systems, sysErr = c.Systems()
 		assert.Nil(t, sysErr)
 
-		var ag lsm.AccessGroup
-		var agCreateErr = c.AccessGroupCreate(rs("lsm_ag_", 4),
-			"iqn.1994-05.com.domain:01.89bd01", lsm.InitiatorTypeIscsiIqn, &systems[0], &ag)
+		ag, agCreateErr := c.AccessGroupCreate(rs("lsm_ag_", 4),
+			"iqn.1994-05.com.domain:01.89bd01", lsm.InitiatorTypeIscsiIqn, &systems[0])
 		assert.Nil(t, agCreateErr)
 
-		var maskErr = c.VolumeMask(&volumes[0], &ag)
+		var maskErr = c.VolumeMask(&volumes[0], ag)
 		assert.Nil(t, maskErr)
 
-		var volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
+		var volsMasked, volsMaskedErr = c.VolsMaskedToAg(ag)
 		assert.Nil(t, volsMaskedErr)
 		assert.Equal(t, 1, len(volsMasked))
 		assert.Equal(t, volumes[0].Name, volsMasked[0].Name)
@@ -427,10 +420,10 @@ func TestAccessGroups(t *testing.T) {
 		assert.Equal(t, 1, len(agsGranted))
 		assert.Equal(t, ag.Name, agsGranted[0].Name)
 
-		var unmaskErr = c.VolumeUnMask(&volumes[0], &ag)
+		var unmaskErr = c.VolumeUnMask(&volumes[0], ag)
 		assert.Nil(t, unmaskErr)
 
-		volsMasked, volsMaskedErr = c.VolsMaskedToAg(&ag)
+		volsMasked, volsMaskedErr = c.VolsMaskedToAg(ag)
 		assert.Nil(t, volsMaskedErr)
 		assert.Equal(t, 0, len(volsMasked))
 
@@ -440,25 +433,25 @@ func TestAccessGroups(t *testing.T) {
 
 		// Try to add a bad iSCSI iqn
 		var agInitAdd lsm.AccessGroup
-		var initAddErr = c.AccessGroupInitAdd(&ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		var initAddErr = c.AccessGroupInitAdd(ag, "iqz.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "not_even_close", lsm.InitiatorTypeWwpn, &agInitAdd)
+		initAddErr = c.AccessGroupInitAdd(ag, "not_even_close", lsm.InitiatorTypeWwpn, &agInitAdd)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100), &agInitAdd)
+		initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorType(100), &agInitAdd)
 		assert.NotNil(t, initAddErr)
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
+		initAddErr = c.AccessGroupInitAdd(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitAdd)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
-		initAddErr = c.AccessGroupInitAdd(&ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn, &agInitAdd)
+		initAddErr = c.AccessGroupInitAdd(ag, "0x002538c571b06a6d", lsm.InitiatorTypeWwpn, &agInitAdd)
 		assert.Nil(t, initAddErr)
 		assert.NotEqual(t, len(ag.InitIDs), len(agInitAdd.InitIDs))
 
 		var agInitDel lsm.AccessGroup
-		var initDelErr = c.AccessGroupInitDelete(&ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitDel)
+		var initDelErr = c.AccessGroupInitDelete(ag, "iqn.1994-05.com.domain:01.89bd02", lsm.InitiatorTypeIscsiIqn, &agInitDel)
 		assert.Nil(t, initDelErr)
 
 		items, err = c.AccessGroups()
