@@ -164,6 +164,8 @@ func TestPoolSearch(t *testing.T) {
 	poolsMissing, err := c.Pools("system_id", "sim-02")
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(poolsMissing))
+
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestGoodSeach(t *testing.T) {
@@ -355,6 +357,7 @@ func TestAccessGroupList(t *testing.T) {
 	var _, err = c.AccessGroups()
 	assert.Nil(t, err)
 
+	assert.Equal(t, nil, c.Close())
 }
 
 func TestAccessGroupCreate(t *testing.T) {
