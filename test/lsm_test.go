@@ -879,9 +879,17 @@ func TestVolumeReplicate(t *testing.T) {
 	var pools, poolError = c.Pools()
 	assert.Nil(t, poolError)
 
-	jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeClone, srcVol, repName, true, &repVol)
 	assert.Nil(t, jobID)
 	assert.Nil(t, errRep)
+
+	volDep, volDepE := c.VolHasChildDep(srcVol)
+	assert.Nil(t, volDepE)
+	assert.True(t, volDep)
+
+	volDepRm, volDepRmE := c.VolChildDepRm(srcVol, true)
+	assert.Nil(t, volDepRmE)
+	assert.Nil(t, volDepRm)
 
 	c.VolumeDelete(&repVol, true)
 
