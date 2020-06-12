@@ -423,8 +423,7 @@ func (c *ClientConnection) VolumeCreate(
 	volumeName string,
 	size uint64,
 	provisioning VolumeProvisionType,
-	sync bool,
-	returnedVolume *Volume) (*string, error) {
+	sync bool) (*Volume, *string, error) {
 	args := map[string]interface{}{
 		"pool":         *pool,
 		"volume_name":  volumeName,
@@ -432,8 +431,10 @@ func (c *ClientConnection) VolumeCreate(
 		"provisioning": provisioning,
 	}
 
+	var returnedVolume Volume
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("volume_create", args, &result), result, sync, returnedVolume)
+	jobID, err := c.getJobOrResult(c.tp.invoke("volume_create", args, &result), result, sync, &returnedVolume)
+	return ensureExclusiveVol(&returnedVolume, jobID, err)
 }
 
 // VolumeDelete deletes a block device.

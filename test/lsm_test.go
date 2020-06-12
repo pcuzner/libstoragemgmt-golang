@@ -100,9 +100,8 @@ func TestJobs(t *testing.T) {
 	assert.Nil(t, pE)
 
 	var name = rs("lsm_go_vol_", 12)
-	var volume lsm.Volume
-	var jobID, vcE = c.VolumeCreate(&pools[0],
-		name, 1024*1024*100, lsm.VolumeProvisionTypeDefault, false, &volume)
+	var volume, jobID, vcE = c.VolumeCreate(&pools[0],
+		name, 1024*1024*100, lsm.VolumeProvisionTypeDefault, false)
 	assert.Nil(t, vcE)
 	assert.NotNil(t, jobID)
 
@@ -553,12 +552,11 @@ func createVolume(t *testing.T, c *lsm.ClientConnection, name string) *lsm.Volum
 
 	var poolToUse = pools[3] // Arbitrary
 
-	var volume lsm.Volume
-	var jobID, errVolCreate = c.VolumeCreate(&poolToUse, name, 1024*1024*1, 2, true, &volume)
+	volume, jobID, errVolCreate := c.VolumeCreate(&poolToUse, name, 1024*1024*1, 2, true)
 	assert.Nil(t, errVolCreate)
 	assert.Nil(t, jobID)
 
-	return &volume
+	return volume
 }
 
 func TestVolumeCreate(t *testing.T) {
@@ -633,9 +631,7 @@ func TestScale(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		var volumeName = rs("lsm_go_vol_", 8)
-
-		var volume lsm.Volume
-		var jobID, errVolCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*10, 2, true, &volume)
+		var _, jobID, errVolCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*10, 2, true)
 		if errVolCreate != nil {
 			fmt.Printf("Created %d volume before we got error %s\n", i, errVolCreate)
 			break
@@ -673,9 +669,7 @@ func TestJobWait(t *testing.T) {
 	var poolToUse = pools[2] // Arbitrary
 
 	var volumeName = rs("lsm_go_vol_async_", 8)
-
-	var volume lsm.Volume
-	var jobID, errCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*100, 2, false, &volume)
+	var volume, jobID, errCreate = c.VolumeCreate(&poolToUse, volumeName, 1024*1024*100, 2, false)
 	assert.Nil(t, errCreate)
 	assert.NotNil(t, jobID)
 
@@ -684,7 +678,7 @@ func TestJobWait(t *testing.T) {
 
 	assert.Equal(t, volumeName, volume.Name)
 
-	c.VolumeDelete(&volume, true)
+	c.VolumeDelete(volume, true)
 	assert.Equal(t, nil, c.Close())
 }
 
@@ -1472,11 +1466,10 @@ func setup() {
 		var volumes, _ = c.Volumes()
 
 		if len(volumes) == 0 {
-			var volume lsm.Volume
-			var _, _ = c.VolumeCreate(
+			c.VolumeCreate(
 				&pools[1], rs("lsm_go_vol_", 4),
 				1024*1024*100,
-				lsm.VolumeProvisionTypeDefault, true, &volume)
+				lsm.VolumeProvisionTypeDefault, true)
 		}
 
 		var fs, _ = c.FileSystems()
