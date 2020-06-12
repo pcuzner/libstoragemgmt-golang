@@ -859,20 +859,19 @@ func TestVolumeReplicate(t *testing.T) {
 	var volumeName = rs("lsm_go_vol_", 8)
 	var repName = rs("lsm_go_rep_", 4)
 
-	var repVol lsm.Volume
 	var srcVol = createVolume(t, c, volumeName)
-	var jobID, errRep = c.VolumeReplicate(nil, lsm.VolumeReplicateTypeCopy, srcVol, repName, true, &repVol)
+	var repVol, jobID, errRep = c.VolumeReplicate(nil, lsm.VolumeReplicateTypeCopy, srcVol, repName, true)
 	assert.Nil(t, jobID)
 	assert.Nil(t, errRep)
 
 	assert.Equal(t, repName, repVol.Name)
 
-	c.VolumeDelete(&repVol, true)
+	c.VolumeDelete(repVol, true)
 
 	var pools, poolError = c.Pools()
 	assert.Nil(t, poolError)
 
-	jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeClone, srcVol, repName, true, &repVol)
+	repVol, jobID, errRep = c.VolumeReplicate(&pools[3], lsm.VolumeReplicateTypeClone, srcVol, repName, true)
 	assert.Nil(t, jobID)
 	assert.Nil(t, errRep)
 
@@ -884,7 +883,7 @@ func TestVolumeReplicate(t *testing.T) {
 	assert.Nil(t, volDepRmE)
 	assert.Nil(t, volDepRm)
 
-	c.VolumeDelete(&repVol, true)
+	c.VolumeDelete(repVol, true)
 
 	c.VolumeDelete(srcVol, true)
 	assert.Equal(t, nil, c.Close())

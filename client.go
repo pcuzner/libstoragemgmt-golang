@@ -456,7 +456,7 @@ func (c *ClientConnection) VolumeResize(vol *Volume, newSizeBytes uint64, sync b
 // VolumeReplicate makes a replicated image of existing Volume
 func (c *ClientConnection) VolumeReplicate(
 	optionalPool *Pool, repType VolumeReplicateType, sourceVolume *Volume, name string,
-	sync bool, returnedVolume *Volume) (*string, error) {
+	sync bool) (*Volume, *string, error) {
 
 	args := map[string]interface{}{
 		"volume_src": *sourceVolume,
@@ -469,8 +469,10 @@ func (c *ClientConnection) VolumeReplicate(
 		args["pool"] = nil
 	}
 
+	var returnedVolume Volume
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("volume_replicate", args, &result), result, sync, returnedVolume)
+	job, err := c.getJobOrResult(c.tp.invoke("volume_replicate", args, &result), result, sync, &returnedVolume)
+	return ensureExclusiveVol(&returnedVolume, job, err)
 }
 
 // VolumeRepRangeBlkSize block size for replicating a range of blocks
