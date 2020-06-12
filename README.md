@@ -23,3 +23,5 @@ func main() {
 }
 
 ```
+
+Example plugin library use can be found here: [https://github.com/tasleson/simgo](https://github.com/tasleson/simgo)
