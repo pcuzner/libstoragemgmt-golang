@@ -538,6 +538,13 @@ func (c *ClientConnection) VolHasChildDep(vol *Volume) (bool, error) {
 	return deps, c.tp.invoke("volume_child_dependency", args, &deps)
 }
 
+// VolChildDepRm removes any child dependencies
+func (c *ClientConnection) VolChildDepRm(vol *Volume, sync bool) (*string, error) {
+	args := map[string]interface{}{"volume": *vol}
+	var result json.RawMessage
+	return c.getJobOrNone(c.tp.invoke("volume_child_dependency_rm", args, &result), result, sync)
+}
+
 // FsCreate creates a file system, returns job id, error.
 // If job id and error are nil, then returnedFs has newly created filesystem.
 func (c *ClientConnection) FsCreate(
