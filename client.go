@@ -227,6 +227,7 @@ func (c *ClientConnection) FsUnExport(export *NfsExport) error {
 }
 
 // AccessGroups returns access groups  that are present.
+// TODO: Add search arguments
 func (c *ClientConnection) AccessGroups() ([]AccessGroup, error) {
 	args := make(map[string]interface{})
 	var accessGroups []AccessGroup
