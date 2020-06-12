@@ -119,6 +119,9 @@ type VolHasChildDepCb func(vol *Volume) (bool, error)
 // VolChildDepRmCb removes any child dependencies
 type VolChildDepRmCb func(vol *Volume) (*string, error)
 
+// TargetPortsCb returns target ports
+type TargetPortsCb func() ([]TargetPort, error)
+
 // RequiredCallbacks are the callbacks that plugins must implement
 type RequiredCallbacks struct {
 	TimeOutSet       TmoSetCb
@@ -156,6 +159,7 @@ type SanOps struct {
 	AccessGroupInitDelete AccessGroupInitDeleteCb
 	AgsGrantedToVol       AgsGrantedToVolCb
 	IscsiChapAuthSet      IscsiChapAuthSetCb
+	TargetPorts           TargetPortsCb
 }
 
 // CallBacks callbacks for plugin to implement

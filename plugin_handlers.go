@@ -427,6 +427,10 @@ func handleVolChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error)
 	return p.cb.San.VolChildDepRm(args.Vol)
 }
 
+func handleTargetPorts(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.San.TargetPorts()
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -472,5 +476,6 @@ func buildTable(c *CallBacks) map[string]handler {
 		"access_group_initiator_delete":      nilAssign(c.San.AccessGroupInitDelete, handleAccessGroupInitDelete),
 		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
 		"iscsi_chap_auth":                    nilAssign(c.San.IscsiChapAuthSet, handleIscsiChapAuthSet),
+		"target_ports":                       nilAssign(c.San.TargetPorts, handleTargetPorts),
 	}
 }
