@@ -162,10 +162,70 @@ type SanOps struct {
 	TargetPorts           TargetPortsCb
 }
 
+// FsCb callback returns filesystems
+type FsCb func(search ...string) ([]FileSystem, error)
+
+// FsCreateCb callback creates a file system
+type FsCreateCb func(pool *Pool, name string, size uint64) (*FileSystem, *string, error)
+
+// FsDeleteCb callback deletes a file system
+type FsDeleteCb func(fs *FileSystem) (*string, error)
+
+// FsResizeCb callback resizes a file system
+type FsResizeCb func(fs *FileSystem, newSizeBytes uint64) (*FileSystem, *string, error)
+
+// FsCloneCb callback clones a file system
+type FsCloneCb func(srcFs *FileSystem,
+	destName string,
+	optionalSnapShot *FileSystemSnapShot) (*FileSystem, *string, error)
+
+// FsFileCloneCb callback snap shots files on a file system
+type FsFileCloneCb func(fs *FileSystem,
+	srcFileName string,
+	dstFileName string,
+	optionalSnapShot *FileSystemSnapShot) (*string, error)
+
+// FsSnapShotCreateCb callback creates a snapshot
+type FsSnapShotCreateCb func(s *FileSystem, name string) (*FileSystemSnapShot, *string, error)
+
+// FsSnapShotDeleteCb callback deletes a snapshot
+type FsSnapShotDeleteCb func(fs *FileSystem, snapShot *FileSystemSnapShot) (*string, error)
+
+// FsSnapShotsCb callback returns array of file system snapshots
+type FsSnapShotsCb func(fs *FileSystem) ([]FileSystemSnapShot, error)
+
+// FsSnapShotRestoreCb callback restores a file system from a snapshot
+type FsSnapShotRestoreCb func(
+	fs *FileSystem, snapShot *FileSystemSnapShot, allFiles bool,
+	files []string, restoreFiles []string) (*string, error)
+
+// FsHasChildDepCb callback returns boolean indicating if filesystem has child dependencies
+type FsHasChildDepCb func(fs *FileSystem, files []string) (bool, error)
+
+// FsChildDepRmCb callback removes child filesystem dependecies by replicating as needed
+type FsChildDepRmCb func(fs *FileSystem, files []string) (*string, error)
+
+// FsOps file system callbacks
+type FsOps struct {
+	FileSystems       FsCb
+	FsCreate          FsCreateCb
+	FsDelete          FsDeleteCb
+	FsResize          FsResizeCb
+	FsClone           FsCloneCb
+	FsFileClone       FsFileCloneCb
+	FsSnapShotCreate  FsSnapShotCreateCb
+	FsSnapShotDelete  FsSnapShotDeleteCb
+	FsSnapShots       FsSnapShotsCb
+	FsSnapShotRestore FsSnapShotRestoreCb
+	FsHasChildDep     FsHasChildDepCb
+	FsChildDepRm      FsChildDepRmCb
+}
+
 // PluginCallBacks callbacks for plugin to implement
 type PluginCallBacks struct {
 	Mgmt ManagementOps
 	San  SanOps
+	File FsOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)

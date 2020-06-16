@@ -148,9 +148,18 @@ func (c *ClientConnection) Disks() ([]Disk, error) {
 }
 
 // FileSystems returns pools that are present.
-func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
+func (c *ClientConnection) FileSystems(search ...string) ([]FileSystem, error) {
 	args := make(map[string]interface{})
 	var fileSystems []FileSystem
+
+	if !handleSearch(args, search) {
+		return make([]FileSystem, 0), &errors.LsmError{
+			Code: errors.InvalidArgument,
+			Message: fmt.Sprintf(
+				"fs supports 0 or 2 search parameters (key, value), provide %d", len(search)),
+			Data: ""}
+	}
+
 	return fileSystems, c.tp.invoke("fs", args, &fileSystems)
 }
 
@@ -555,23 +564,26 @@ func (c *ClientConnection) FsCreate(
 	pool *Pool,
 	name string,
 	size uint64,
-	sync bool,
-	returnedFs *FileSystem) (*string, error) {
+	sync bool) (*FileSystem, *string, error) {
 	args := map[string]interface{}{
 		"pool":       *pool,
 		"name":       name,
 		"size_bytes": size,
 	}
+	var returnedFs FileSystem
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_create", args, &result), result, sync, returnedFs)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_create", args, &result), result, sync, &returnedFs)
+	return ensureExclusiveFs(&returnedFs, job, err)
 }
 
 // FsResize resizes an existing file system
 func (c *ClientConnection) FsResize(
-	fs *FileSystem, newSizeBytes uint64, sync bool, returnedFs *FileSystem) (*string, error) {
+	fs *FileSystem, newSizeBytes uint64, sync bool) (*FileSystem, *string, error) {
 	args := map[string]interface{}{"fs": *fs, "new_size_bytes": newSizeBytes}
+	var returnedFs FileSystem
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_resize", args, &result), result, sync, returnedFs)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_resize", args, &result), result, sync, &returnedFs)
+	return ensureExclusiveFs(&returnedFs, job, err)
 }
 
 // FsDelete deletes a file system.
@@ -586,8 +598,7 @@ func (c *ClientConnection) FsClone(
 	srcFs *FileSystem,
 	destName string,
 	optionalSnapShot *FileSystemSnapShot,
-	sync bool,
-	returnedFs *FileSystem) (*string, error) {
+	sync bool) (*FileSystem, *string, error) {
 	args := map[string]interface{}{"src_fs": *srcFs, "dest_fs_name": destName}
 
 	if optionalSnapShot != nil {
@@ -596,8 +607,10 @@ func (c *ClientConnection) FsClone(
 		args["snapshot"] = nil
 	}
 
+	var returnedFs FileSystem
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_clone", args, &result), result, sync, returnedFs)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_clone", args, &result), result, sync, &returnedFs)
+	return ensureExclusiveFs(&returnedFs, job, err)
 }
 
 // FsFileClone makes a clone of an existing file system
@@ -626,11 +639,12 @@ func (c *ClientConnection) FsFileClone(
 
 // FsSnapShotCreate creates a file system snapshot for the supplied snapshot
 // If job id and error are nil, then returnedFs has newly created filesystem.
-func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool,
-	returnedSnapshot *FileSystemSnapShot) (*string, error) {
+func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool) (*FileSystemSnapShot, *string, error) {
 	args := map[string]interface{}{"fs": *fs, "snapshot_name": name}
+	var returnedSnapshot FileSystemSnapShot
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_snapshot_create", args, &result), result, sync, returnedSnapshot)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_snapshot_create", args, &result), result, sync, &returnedSnapshot)
+	return ensureExclusiveSs(&returnedSnapshot, job, err)
 }
 
 // FsSnapShotDelete deletes a file system snapshot.

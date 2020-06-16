@@ -431,6 +431,195 @@ func handleTargetPorts(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.San.TargetPorts()
 }
 
+func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var s search
+	if uE := json.Unmarshal(params, &s); uE != nil {
+		return nil, invalidArgs("fs", uE)
+	}
+
+	if len(s.Key) > 0 {
+		return p.cb.File.FileSystems(s.Key, s.Value)
+	}
+	return p.cb.File.FileSystems()
+}
+
+func handleFsCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsCreateArgs struct {
+		Pool      *Pool  `json:"pool"`
+		Name      string `json:"name"`
+		SizeBytes uint64 `json:"size_bytes"`
+		Flags     uint64 `json:"flags"`
+	}
+
+	var args fsCreateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_create", uE)
+	}
+
+	fs, jobID, error := p.cb.File.FsCreate(args.Pool, args.Name, args.SizeBytes)
+	return exclusiveOr(fs, jobID, error)
+}
+
+func handleFsDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsDeleteArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsDeleteArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_delete", uE)
+	}
+	return p.cb.File.FsDelete(args.Fs)
+}
+
+func handleFsResize(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsResizeArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Size  uint64      `json:"new_size_bytes"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsResizeArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_resize", uE)
+	}
+
+	fs, job, err := p.cb.File.FsResize(args.Fs, args.Size)
+	return exclusiveOr(fs, job, err)
+
+}
+
+func handleFsClone(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsCloneArgs struct {
+		Fs    *FileSystem         `json:"src_fs"`
+		Name  string              `json:"dest_fs_name"`
+		Ss    *FileSystemSnapShot `json:"snapshot"`
+		Flags uint64              `json:"flags"`
+	}
+
+	var args fsCloneArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_clone", uE)
+	}
+
+	fs, job, err := p.cb.File.FsClone(args.Fs, args.Name, args.Ss)
+	return exclusiveOr(fs, job, err)
+
+}
+
+func handleFsFileClone(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsFileCloneArgs struct {
+		Fs    *FileSystem         `json:"fs"`
+		Src   string              `json:"src_file_name"`
+		Dst   string              `json:"dest_file_name"`
+		Ss    *FileSystemSnapShot `json:"snapshot"`
+		Flags uint64              `json:"flags"`
+	}
+
+	var args fsFileCloneArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_clone", uE)
+	}
+
+	return p.cb.File.FsFileClone(args.Fs, args.Src, args.Dst, args.Ss)
+}
+
+func handleFsSnapShotCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsSnapShotCreateArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Name  string      `json:"snapshot_name"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsSnapShotCreateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_snapshot_create", uE)
+	}
+
+	fs, job, err := p.cb.File.FsSnapShotCreate(args.Fs, args.Name)
+	return exclusiveOr(fs, job, err)
+}
+
+func handleFsSnapShotDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsSnapShotDeleteArgs struct {
+		Fs    *FileSystem         `json:"fs"`
+		Ss    *FileSystemSnapShot `json:"snapshot"`
+		Flags uint64              `json:"flags"`
+	}
+
+	var args fsSnapShotDeleteArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_snapshot_delete", uE)
+	}
+
+	return p.cb.File.FsSnapShotDelete(args.Fs, args.Ss)
+}
+
+func handleFsSnapShots(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	type fsSnapShotArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsSnapShotArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_snapshots", uE)
+	}
+
+	return p.cb.File.FsSnapShots(args.Fs)
+}
+
+func handleFsSnapShotRestore(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	type fsSnapShotRestoreArgs struct {
+		Fs           *FileSystem         `json:"fs"`
+		Ss           *FileSystemSnapShot `json:"snapshot"`
+		All          bool                `json:"all_files"`
+		Files        []string            `json:"files"`
+		RestoreFiles []string            `json:"restore_files"`
+		Flags        uint64              `json:"flags"`
+	}
+
+	var args fsSnapShotRestoreArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_snapshot_restore", uE)
+	}
+
+	return p.cb.File.FsSnapShotRestore(args.Fs, args.Ss, args.All, args.Files, args.RestoreFiles)
+}
+
+func handleFsHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsHasChildDepsArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Files []string    `json:"files"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsHasChildDepsArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_child_dependency", uE)
+	}
+
+	return p.cb.File.FsHasChildDep(args.Fs, args.Files)
+}
+
+func handleFsChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsHasChildDepsArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Files []string    `json:"files"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsHasChildDepsArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_child_dependency_rm", uE)
+	}
+
+	return p.cb.File.FsChildDepRm(args.Fs, args.Files)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -477,5 +666,18 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
 		"iscsi_chap_auth":                    nilAssign(c.San.IscsiChapAuthSet, handleIscsiChapAuthSet),
 		"target_ports":                       nilAssign(c.San.TargetPorts, handleTargetPorts),
+
+		"fs":                     nilAssign(c.File.FileSystems, handleFs),
+		"fs_create":              nilAssign(c.File.FsCreate, handleFsCreate),
+		"fs_delete":              nilAssign(c.File.FsDelete, handleFsDelete),
+		"fs_resize":              nilAssign(c.File.FsResize, handleFsResize),
+		"fs_clone":               nilAssign(c.File.FsClone, handleFsClone),
+		"fs_file_clone":          nilAssign(c.File.FsFileClone, handleFsFileClone),
+		"fs_snapshot_create":     nilAssign(c.File.FsSnapShotCreate, handleFsSnapShotCreate),
+		"fs_snapshot_delete":     nilAssign(c.File.FsSnapShotDelete, handleFsSnapShotDelete),
+		"fs_snapshots":           nilAssign(c.File.FsSnapShots, handleFsSnapShots),
+		"fs_snapshot_restore":    nilAssign(c.File.FsSnapShotRestore, handleFsSnapShotRestore),
+		"fs_child_dependency":    nilAssign(c.File.FsHasChildDep, handleFsHasChildDep),
+		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
 	}
 }
