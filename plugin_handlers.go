@@ -668,6 +668,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"target_ports":                       nilAssign(c.San.TargetPorts, handleTargetPorts),
 
 		"fs":                     nilAssign(c.File.FileSystems, handleFs),
+		"fs_create":              nilAssign(c.File.FsCreate, handleFsCreate),
 		"fs_child_dependency":    nilAssign(c.File.FsHasChildDep, handleFsHasChildDep),
 		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
 	}
