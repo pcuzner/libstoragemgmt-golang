@@ -924,24 +924,22 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	var _, ssE = c.FsSnapShotCreate(resizedFs, rs("lsm_go_ss_", 8), true, &snapShot)
 	assert.Nil(t, ssE)
 
-	var cloned lsm.FileSystem
-	var cloneFsJob, cloneErr = c.FsClone(resizedFs, "lsm_go_cloned_fs", nil, true, &cloned)
+	var cloned, cloneFsJob, cloneErr = c.FsClone(resizedFs, "lsm_go_cloned_fs", nil, true)
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
-	var cloned2 lsm.FileSystem
-	cloneFsJob, cloneErr = c.FsClone(resizedFs, "lsm_go_cloned_fs_from_ss", &snapShot, true, &cloned2)
+	cloned2, cloneFsJob, cloneErr := c.FsClone(resizedFs, "lsm_go_cloned_fs_from_ss", &snapShot, true)
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
 	assert.Equal(t, "lsm_go_cloned_fs", cloned.Name)
 	assert.Equal(t, resizedFs.TotalSpace, cloned.TotalSpace)
 
-	var delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned, true)
+	var delcloneFsJob, delCloneFsErr = c.FsDelete(cloned, true)
 	assert.Nil(t, delcloneFsJob)
 	assert.Nil(t, delCloneFsErr)
 
-	delcloneFsJob, delCloneFsErr = c.FsDelete(&cloned2, true)
+	delcloneFsJob, delCloneFsErr = c.FsDelete(cloned2, true)
 	assert.Nil(t, delcloneFsJob)
 	assert.Nil(t, delCloneFsErr)
 
