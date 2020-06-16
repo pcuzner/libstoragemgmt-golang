@@ -199,6 +199,9 @@ type FsSnapShotRestoreCb func(
 	fs *FileSystem, snapShot *FileSystemSnapShot, allFiles bool,
 	files []string, restoreFiles []string) (*string, error)
 
+// FsHasChildDepCb callback returns boolean indicating if filesystem has child dependencies
+type FsHasChildDepCb func(fs *FileSystem, files []string) (bool, error)
+
 // FsOps file system callbacks
 type FsOps struct {
 	FileSystems       FsCb
@@ -211,6 +214,7 @@ type FsOps struct {
 	FsSnapShotDelete  FsSnapShotDeleteCb
 	FsSnapShots       FsSnapShotsCb
 	FsSnapShotRestore FsSnapShotRestoreCb
+	FsHasChildDep     FsHasChildDepCb
 }
 
 // PluginCallBacks callbacks for plugin to implement
