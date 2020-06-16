@@ -639,11 +639,12 @@ func (c *ClientConnection) FsFileClone(
 
 // FsSnapShotCreate creates a file system snapshot for the supplied snapshot
 // If job id and error are nil, then returnedFs has newly created filesystem.
-func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool,
-	returnedSnapshot *FileSystemSnapShot) (*string, error) {
+func (c *ClientConnection) FsSnapShotCreate(fs *FileSystem, name string, sync bool) (*FileSystemSnapShot, *string, error) {
 	args := map[string]interface{}{"fs": *fs, "snapshot_name": name}
+	var returnedSnapshot FileSystemSnapShot
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_snapshot_create", args, &result), result, sync, returnedSnapshot)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_snapshot_create", args, &result), result, sync, &returnedSnapshot)
+	return ensureExclusiveSs(&returnedSnapshot, job, err)
 }
 
 // FsSnapShotDelete deletes a file system snapshot.

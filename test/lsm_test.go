@@ -920,15 +920,14 @@ func TestFsCreateResizeCloneDelete(t *testing.T) {
 	assert.Nil(t, resizedErr)
 	assert.NotEqual(t, newFs.TotalSpace, resizedFs)
 
-	var snapShot lsm.FileSystemSnapShot
-	var _, ssE = c.FsSnapShotCreate(resizedFs, rs("lsm_go_ss_", 8), true, &snapShot)
+	var snapShot, _, ssE = c.FsSnapShotCreate(resizedFs, rs("lsm_go_ss_", 8), true)
 	assert.Nil(t, ssE)
 
 	var cloned, cloneFsJob, cloneErr = c.FsClone(resizedFs, "lsm_go_cloned_fs", nil, true)
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
-	cloned2, cloneFsJob, cloneErr := c.FsClone(resizedFs, "lsm_go_cloned_fs_from_ss", &snapShot, true)
+	cloned2, cloneFsJob, cloneErr := c.FsClone(resizedFs, "lsm_go_cloned_fs_from_ss", snapShot, true)
 	assert.Nil(t, cloneFsJob)
 	assert.Nil(t, cloneErr)
 
@@ -985,8 +984,7 @@ func TestFsSnapShots(t *testing.T) {
 	assert.Nil(t, fsCreateJob)
 	assert.Nil(t, fsCreateErr)
 
-	var ss lsm.FileSystemSnapShot
-	var ssJob, ssE = c.FsSnapShotCreate(newFs, "lsm_go_ss", true, &ss)
+	var ss, ssJob, ssE = c.FsSnapShotCreate(newFs, "lsm_go_ss", true)
 
 	assert.Nil(t, ssJob)
 	assert.Nil(t, ssE)
@@ -1002,7 +1000,7 @@ func TestFsSnapShots(t *testing.T) {
 	assert.True(t, hasDep)
 	assert.Nil(t, jobRm)
 
-	ssJob, ssE = c.FsSnapShotCreate(newFs, "lsm_go_ss", true, &ss)
+	ss, ssJob, ssE = c.FsSnapShotCreate(newFs, "lsm_go_ss", true)
 
 	var snaps, snapsErr = c.FsSnapShots(newFs)
 	assert.Nil(t, snapsErr)
@@ -1013,7 +1011,7 @@ func TestFsSnapShots(t *testing.T) {
 		t.Logf("%+v", i)
 	}
 
-	var ssDelJob, ssDelErr = c.FsSnapShotDelete(newFs, &ss, true)
+	var ssDelJob, ssDelErr = c.FsSnapShotDelete(newFs, ss, true)
 	assert.Nil(t, ssDelJob)
 	assert.Nil(t, ssDelErr)
 
@@ -1033,16 +1031,15 @@ func TestFsSnapShotRestore(t *testing.T) {
 	assert.Nil(t, fsCreateJob)
 	assert.Nil(t, fsCreateErr)
 
-	var ss lsm.FileSystemSnapShot
 	var ssName = rs("lsm_go_ss_", 4)
-	var ssJob, ssE = c.FsSnapShotCreate(newFs, ssName, true, &ss)
+	var ss, ssJob, ssE = c.FsSnapShotCreate(newFs, ssName, true)
 
 	assert.Nil(t, ssJob)
 	assert.Nil(t, ssE)
 	assert.Equal(t, ssName, ss.Name)
 
 	var ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
-		newFs, &ss, false, make([]string, 0), make([]string, 0), true)
+		newFs, ss, false, make([]string, 0), make([]string, 0), true)
 	assert.NotNil(t, ssRestoreErr)
 
 	var files = []string{"/tmp/bar", "/tmp/other"}
@@ -1050,11 +1047,11 @@ func TestFsSnapShotRestore(t *testing.T) {
 	assert.NotEqual(t, len(files), len(restoreFiles))
 
 	ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
-		newFs, &ss, false, files, restoreFiles, true)
+		newFs, ss, false, files, restoreFiles, true)
 	assert.NotNil(t, ssRestoreErr)
 
 	ssRestoreJob, ssRestoreErr = c.FsSnapShotRestore(
-		newFs, &ss, true, make([]string, 0), make([]string, 0), true)
+		newFs, ss, true, make([]string, 0), make([]string, 0), true)
 
 	assert.Nil(t, ssRestoreJob)
 	assert.Nil(t, ssRestoreErr)
@@ -1063,12 +1060,12 @@ func TestFsSnapShotRestore(t *testing.T) {
 	var rst = []string{"/tmp/fubar"}
 
 	var ssRestoreJobF, ssRestoreErrF = c.FsSnapShotRestore(
-		newFs, &ss, false, org, rst, true)
+		newFs, ss, false, org, rst, true)
 
 	assert.Nil(t, ssRestoreJobF)
 	assert.Nil(t, ssRestoreErrF)
 
-	var ssDelJob, ssDelErr = c.FsSnapShotDelete(newFs, &ss, true)
+	var ssDelJob, ssDelErr = c.FsSnapShotDelete(newFs, ss, true)
 	assert.Nil(t, ssDelJob)
 	assert.Nil(t, ssDelErr)
 
