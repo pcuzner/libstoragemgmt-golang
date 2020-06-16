@@ -148,9 +148,18 @@ func (c *ClientConnection) Disks() ([]Disk, error) {
 }
 
 // FileSystems returns pools that are present.
-func (c *ClientConnection) FileSystems() ([]FileSystem, error) {
+func (c *ClientConnection) FileSystems(search ...string) ([]FileSystem, error) {
 	args := make(map[string]interface{})
 	var fileSystems []FileSystem
+
+	if !handleSearch(args, search) {
+		return make([]FileSystem, 0), &errors.LsmError{
+			Code: errors.InvalidArgument,
+			Message: fmt.Sprintf(
+				"fs supports 0 or 2 search parameters (key, value), provide %d", len(search)),
+			Data: ""}
+	}
+
 	return fileSystems, c.tp.invoke("fs", args, &fileSystems)
 }
 
