@@ -75,6 +75,17 @@ func ensureExclusiveVol(vol *Volume, job *string, err error) (*Volume, *string, 
 	return vol, nil, nil
 }
 
+// Callers should check for errors, then job id, then file system, but if they don't we want to make
+// sure we we don't return something unexpected by mistake.
+func ensureExclusiveFs(fs *FileSystem, job *string, err error) (*FileSystem, *string, error) {
+	if err != nil {
+		return nil, nil, err
+	} else if job != nil {
+		return nil, job, nil
+	}
+	return fs, nil, nil
+}
+
 // LsmBool is used to express booleans as we use 0 == false, 1 = true
 // for the JSON RPC interface.
 type LsmBool bool

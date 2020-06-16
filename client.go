@@ -564,15 +564,16 @@ func (c *ClientConnection) FsCreate(
 	pool *Pool,
 	name string,
 	size uint64,
-	sync bool,
-	returnedFs *FileSystem) (*string, error) {
+	sync bool) (*FileSystem, *string, error) {
 	args := map[string]interface{}{
 		"pool":       *pool,
 		"name":       name,
 		"size_bytes": size,
 	}
+	var returnedFs FileSystem
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_create", args, &result), result, sync, returnedFs)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_create", args, &result), result, sync, &returnedFs)
+	return ensureExclusiveFs(&returnedFs, job, err)
 }
 
 // FsResize resizes an existing file system
