@@ -174,12 +174,18 @@ type FsDeleteCb func(fs *FileSystem) (*string, error)
 // FsResizeCb callback resizes a file system
 type FsResizeCb func(fs *FileSystem, newSizeBytes uint64) (*FileSystem, *string, error)
 
+// FsCloneCb callback clones a file system
+type FsCloneCb func(srcFs *FileSystem,
+	destName string,
+	optionalSnapShot *FileSystemSnapShot) (*FileSystem, *string, error)
+
 // FsOps file system callbacks
 type FsOps struct {
 	FileSystems       FsCb
 	FsCreate          FsCreateCb
 	FsDelete          FsDeleteCb
 	FsResize          FsResizeCb
+	FsClone           FsCloneCb
 }
 
 // PluginCallBacks callbacks for plugin to implement

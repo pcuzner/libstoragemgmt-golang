@@ -490,6 +490,24 @@ func handleFsResize(p *Plugin, params json.RawMessage) (interface{}, error) {
 
 }
 
+func handleFsClone(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsCloneArgs struct {
+		Fs    *FileSystem         `json:"src_fs"`
+		Name  string              `json:"dest_fs_name"`
+		Ss    *FileSystemSnapShot `json:"snapshot"`
+		Flags uint64              `json:"flags"`
+	}
+
+	var args fsCloneArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_clone", uE)
+	}
+
+	fs, job, err := p.cb.File.FsClone(args.Fs, args.Name, args.Ss)
+	return exclusiveOr(fs, job, err)
+
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
