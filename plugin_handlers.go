@@ -473,6 +473,23 @@ func handleFsDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.File.FsDelete(args.Fs)
 }
 
+func handleFsResize(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsResizeArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Size  uint64      `json:"new_size_bytes"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsResizeArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_resize", uE)
+	}
+
+	fs, job, err := p.cb.File.FsResize(args.Fs, args.Size)
+	return exclusiveOr(fs, job, err)
+
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
