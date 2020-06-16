@@ -578,10 +578,12 @@ func (c *ClientConnection) FsCreate(
 
 // FsResize resizes an existing file system
 func (c *ClientConnection) FsResize(
-	fs *FileSystem, newSizeBytes uint64, sync bool, returnedFs *FileSystem) (*string, error) {
+	fs *FileSystem, newSizeBytes uint64, sync bool) (*FileSystem, *string, error) {
 	args := map[string]interface{}{"fs": *fs, "new_size_bytes": newSizeBytes}
+	var returnedFs FileSystem
 	var result [2]json.RawMessage
-	return c.getJobOrResult(c.tp.invoke("fs_resize", args, &result), result, sync, returnedFs)
+	job, err := c.getJobOrResult(c.tp.invoke("fs_resize", args, &result), result, sync, &returnedFs)
+	return ensureExclusiveFs(&returnedFs, job, err)
 }
 
 // FsDelete deletes a file system.
