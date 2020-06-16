@@ -188,6 +188,9 @@ type FsFileCloneCb func(fs *FileSystem,
 // FsSnapShotCreateCb callback creates a snapshot
 type FsSnapShotCreateCb func(s *FileSystem, name string) (*FileSystemSnapShot, *string, error)
 
+// FsSnapShotDeleteCb callback deletes a snapshot
+type FsSnapShotDeleteCb func(fs *FileSystem, snapShot *FileSystemSnapShot) (*string, error)
+
 // FsOps file system callbacks
 type FsOps struct {
 	FileSystems       FsCb
@@ -197,6 +200,7 @@ type FsOps struct {
 	FsClone           FsCloneCb
 	FsFileClone       FsFileCloneCb
 	FsSnapShotCreate  FsSnapShotCreateCb
+	FsSnapShotDelete  FsSnapShotDeleteCb
 }
 
 // PluginCallBacks callbacks for plugin to implement
