@@ -605,6 +605,21 @@ func handleFsHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error)
 	return p.cb.File.FsHasChildDep(args.Fs, args.Files)
 }
 
+func handleFsChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsHasChildDepsArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Files []string    `json:"files"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsHasChildDepsArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_child_dependency_rm", uE)
+	}
+
+	return p.cb.File.FsChildDepRm(args.Fs, args.Files)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -654,5 +669,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 
 		"fs":                     nilAssign(c.File.FileSystems, handleFs),
 		"fs_child_dependency":    nilAssign(c.File.FsHasChildDep, handleFsHasChildDep),
+		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
 	}
 }
