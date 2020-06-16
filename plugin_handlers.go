@@ -431,6 +431,17 @@ func handleTargetPorts(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.San.TargetPorts()
 }
 
+func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var s search
+	if uE := json.Unmarshal(params, &s); uE != nil {
+		return nil, invalidArgs("fs", uE)
+	}
+
+	if len(s.Key) > 0 {
+		return p.cb.File.FileSystems(s.Key, s.Value)
+	}
+	return p.cb.File.FileSystems()
+}
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -477,5 +488,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
 		"iscsi_chap_auth":                    nilAssign(c.San.IscsiChapAuthSet, handleIscsiChapAuthSet),
 		"target_ports":                       nilAssign(c.San.TargetPorts, handleTargetPorts),
+
+		"fs":                     nilAssign(c.File.FileSystems, handleFs),
 	}
 }

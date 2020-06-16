@@ -162,10 +162,18 @@ type SanOps struct {
 	TargetPorts           TargetPortsCb
 }
 
+// FsCb callback returns filesystems
+type FsCb func(search ...string) ([]FileSystem, error)
+// FsOps file system callbacks
+type FsOps struct {
+	FileSystems       FsCb
+}
+
 // PluginCallBacks callbacks for plugin to implement
 type PluginCallBacks struct {
 	Mgmt ManagementOps
 	San  SanOps
+	File FsOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)
