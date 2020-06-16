@@ -673,6 +673,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"fs_resize":              nilAssign(c.File.FsResize, handleFsResize),
 		"fs_clone":               nilAssign(c.File.FsClone, handleFsClone),
 		"fs_file_clone":          nilAssign(c.File.FsFileClone, handleFsFileClone),
+		"fs_snapshot_create":     nilAssign(c.File.FsSnapShotCreate, handleFsSnapShotCreate),
 		"fs_child_dependency":    nilAssign(c.File.FsHasChildDep, handleFsHasChildDep),
 		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
 	}
