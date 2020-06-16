@@ -168,10 +168,14 @@ type FsCb func(search ...string) ([]FileSystem, error)
 // FsCreateCb callback creates a file system
 type FsCreateCb func(pool *Pool, name string, size uint64) (*FileSystem, *string, error)
 
+// FsDeleteCb callback deletes a file system
+type FsDeleteCb func(fs *FileSystem) (*string, error)
+
 // FsOps file system callbacks
 type FsOps struct {
 	FileSystems       FsCb
 	FsCreate          FsCreateCb
+	FsDelete          FsDeleteCb
 }
 
 // PluginCallBacks callbacks for plugin to implement

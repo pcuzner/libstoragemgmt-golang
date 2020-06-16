@@ -460,6 +460,19 @@ func handleFsCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return exclusiveOr(fs, jobID, error)
 }
 
+func handleFsDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsDeleteArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsDeleteArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_delete", uE)
+	}
+	return p.cb.File.FsDelete(args.Fs)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
