@@ -556,6 +556,21 @@ func handleFsSnapShotDelete(p *Plugin, params json.RawMessage) (interface{}, err
 	return p.cb.File.FsSnapShotDelete(args.Fs, args.Ss)
 }
 
+func handleFsSnapShots(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	type fsSnapShotArgs struct {
+		Fs    *FileSystem `json:"fs"`
+		Flags uint64      `json:"flags"`
+	}
+
+	var args fsSnapShotArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_snapshots", uE)
+	}
+
+	return p.cb.File.FsSnapShots(args.Fs)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
