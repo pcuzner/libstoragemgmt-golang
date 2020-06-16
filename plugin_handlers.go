@@ -442,6 +442,24 @@ func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 	return p.cb.File.FileSystems()
 }
+
+func handleFsCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type fsCreateArgs struct {
+		Pool      *Pool  `json:"pool"`
+		Name      string `json:"name"`
+		SizeBytes uint64 `json:"size_bytes"`
+		Flags     uint64 `json:"flags"`
+	}
+
+	var args fsCreateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("fs_create", uE)
+	}
+
+	fs, jobID, error := p.cb.File.FsCreate(args.Pool, args.Name, args.SizeBytes)
+	return exclusiveOr(fs, jobID, error)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil

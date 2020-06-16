@@ -164,9 +164,14 @@ type SanOps struct {
 
 // FsCb callback returns filesystems
 type FsCb func(search ...string) ([]FileSystem, error)
+
+// FsCreateCb callback creates a file system
+type FsCreateCb func(pool *Pool, name string, size uint64) (*FileSystem, *string, error)
+
 // FsOps file system callbacks
 type FsOps struct {
 	FileSystems       FsCb
+	FsCreate          FsCreateCb
 }
 
 // PluginCallBacks callbacks for plugin to implement
