@@ -666,6 +666,20 @@ func handleExportFs(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Nfs.FsExport(&fs[0], a.Path, &access, a.AuthType, a.Options)
 }
 
+func handleFsUnexport(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type unexportArgs struct {
+		Export *NfsExport `json:"export"`
+		Flags  uint64     `json:"flags"`
+	}
+
+	var args unexportArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("export_remove", uE)
+	}
+
+	return nil, p.cb.Nfs.FsUnExport(args.Export)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -728,5 +742,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 
 		"exports":       nilAssign(c.Nfs.Exports, handleNfsExports),
 		"export_fs":     nilAssign(c.Nfs.FsExport, handleExportFs),
+		"export_remove": nilAssign(c.Nfs.FsUnExport, handleFsUnexport),
 	}
 }
