@@ -221,11 +221,32 @@ type FsOps struct {
 	FsChildDepRm      FsChildDepRmCb
 }
 
+// ExportsCb returns all exported file systems
+type ExportsCb func(search ...string) ([]NfsExport, error)
+
+// ExportAuthTypesCb returns array of strings that state what authentication types are supported
+type ExportAuthTypesCb func() ([]string, error)
+
+// FsExportCb exports a file system over NFS
+type FsExportCb func(fs *FileSystem, exportPath *string,
+	access *NfsAccess, authType *string, options *string) (*NfsExport, error)
+
+// FsUnExportCb removes a NFS export
+type FsUnExportCb func(export *NfsExport) error
+
+// NfsOps orientated callbacks
+type NfsOps struct {
+	Exports         ExportsCb
+	ExportAuthTypes ExportAuthTypesCb
+	FsExport        FsExportCb
+	FsUnExport      FsUnExportCb
+}
 // PluginCallBacks callbacks for plugin to implement
 type PluginCallBacks struct {
 	Mgmt ManagementOps
 	San  SanOps
 	File FsOps
+	Nfs  NfsOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)
