@@ -830,13 +830,12 @@ func TestVolRaidCreate(t *testing.T) {
 		}
 	}
 
-	var volume lsm.Volume
-	var volumeErr = c.VolRaidCreate(name, lsm.Raid5, freeDisks, 0, &volume)
+	var volume, volumeErr = c.VolRaidCreate(name, lsm.Raid5, freeDisks, 0)
 	assert.Nil(t, volumeErr)
 
 	if volumeErr == nil {
 		assert.Equal(t, name, volume.Name)
-		var jobID, volDelErr = c.VolumeDelete(&volume, true)
+		var jobID, volDelErr = c.VolumeDelete(volume, true)
 		assert.Nil(t, jobID)
 		assert.Nil(t, volDelErr)
 	}
