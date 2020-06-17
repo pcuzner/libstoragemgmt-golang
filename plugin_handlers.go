@@ -723,6 +723,29 @@ func handleVolRaidCreateCapGet(p *Plugin, params json.RawMessage) (interface{}, 
 	return rc, nil
 }
 
+func handlePoolMemberInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type poolMemberInfoArgs struct {
+		Pool  *Pool  `json:"pool"`
+		Flags uint64 `json:"flags"`
+	}
+
+	var args poolMemberInfoArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("pool_member_info", uE)
+	}
+
+	result, err := p.cb.Hba.PoolMemberInfo(args.Pool)
+	if err != nil {
+		return nil, err
+	}
+
+	var rc [3]interface{}
+	rc[0] = result.Raid
+	rc[1] = result.Member
+	rc[2] = result.ID
+	return rc, nil
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -790,5 +813,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 
 		"volume_raid_create":         nilAssign(c.Hba.VolRaidCreate, handleVolRaidCreate),
 		"volume_raid_create_cap_get": nilAssign(c.Hba.VolRaidCreateCapGet, handleVolRaidCreateCapGet),
+		"pool_member_info":           nilAssign(c.Hba.PoolMemberInfo, handlePoolMemberInfo),
 	}
 }
