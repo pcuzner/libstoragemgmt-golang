@@ -632,6 +632,40 @@ func handleNfsExports(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Nfs.Exports()
 }
 
+func handleExportFs(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type exportArgs struct {
+		FsID     *string  `json:"fs_id"`
+		Path     *string  `json:"export_path"`
+		Root     []string `json:"root_list"`
+		Rw       []string `json:"rw_list"`
+		Ro       []string `json:"ro_list"`
+		AnonUID  int64    `json:"anon_uid"`
+		AnonGID  int64    `json:"anon_gid"`
+		AuthType *string  `json:"auth_type"`
+		Options  *string  `json:"options"`
+		Flags    uint64   `json:"flags"`
+	}
+
+	var a exportArgs
+	if uE := json.Unmarshal(params, &a); uE != nil {
+		return nil, invalidArgs("export_fs", uE)
+	}
+
+	// This seems like a blunder in the original API or maybe the preferred way to do it.
+	fs, err := p.cb.File.FileSystems("id", *a.FsID)
+	if err != nil {
+		return nil, err
+	}
+	if len(fs) != 1 {
+		return nil, &errors.LsmError{
+			Code:    errors.NotFoundFs,
+			Message: fmt.Sprintf("file system with ID=%s not found %d!", *a.FsID, len(fs))}
+	}
+
+	access := NfsAccess{Root: a.Root, Rw: a.Rw, Ro: a.Ro, AnonUID: a.AnonUID, AnonGID: a.AnonGID}
+	return p.cb.Nfs.FsExport(&fs[0], a.Path, &access, a.AuthType, a.Options)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -693,5 +727,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
 
 		"exports":       nilAssign(c.Nfs.Exports, handleNfsExports),
+		"export_fs":     nilAssign(c.Nfs.FsExport, handleExportFs),
 	}
 }
