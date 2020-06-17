@@ -684,6 +684,23 @@ func handleExportAuthTypes(p *Plugin, params json.RawMessage) (interface{}, erro
 	return p.cb.Nfs.ExportAuthTypes()
 }
 
+func handleVolRaidCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volRaidCreateArgs struct {
+		Name      string   `json:"name"`
+		Type      RaidType `json:"raid_type"`
+		Disks     []Disk   `json:"disks"`
+		StripSize uint32   `json:"strip_size"`
+		Flags     uint64   `json:"flags"`
+	}
+
+	var args volRaidCreateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_raid_create", uE)
+	}
+
+	return p.cb.Hba.VolRaidCreate(args.Name, args.Type, args.Disks, args.StripSize)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -748,5 +765,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"export_fs":     nilAssign(c.Nfs.FsExport, handleExportFs),
 		"export_remove": nilAssign(c.Nfs.FsUnExport, handleFsUnexport),
 		"export_auth":   nilAssign(c.Nfs.ExportAuthTypes, handleExportAuthTypes),
+
+		"volume_raid_create":         nilAssign(c.Hba.VolRaidCreate, handleVolRaidCreate),
 	}
 }
