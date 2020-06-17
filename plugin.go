@@ -241,12 +241,35 @@ type NfsOps struct {
 	FsExport        FsExportCb
 	FsUnExport      FsUnExportCb
 }
+
+// VolRaidInfoCb callback for volume raid info
+type VolRaidInfoCb func(vol *Volume) (*VolumeRaidInfo, error)
+
+// PoolMemberInfoCb callback for pool member info
+type PoolMemberInfoCb func(pool *Pool) (*PoolMemberInfo, error)
+
+// VolRaidCreateCapGetCb callback for getting raid capacity
+type VolRaidCreateCapGetCb func(system *System) (*SupportedRaidCapability, error)
+
+// VolRaidCreateCb callback for creating a volume on HBA raid
+type VolRaidCreateCb func(name string,
+	raidType RaidType, disks []Disk, stripSize uint32) (*Volume, error)
+
+// HbaRaidOps callbacks for HBA raid
+type HbaRaidOps struct {
+	VolRaidInfo         VolRaidInfoCb
+	PoolMemberInfo      PoolMemberInfoCb
+	VolRaidCreateCapGet VolRaidCreateCapGetCb
+	VolRaidCreate       VolRaidCreateCb
+}
+
 // PluginCallBacks callbacks for plugin to implement
 type PluginCallBacks struct {
 	Mgmt ManagementOps
 	San  SanOps
 	File FsOps
 	Nfs  NfsOps
+	Hba  HbaRaidOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)
