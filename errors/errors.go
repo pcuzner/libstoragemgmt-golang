@@ -43,6 +43,9 @@ const (
 	// NoSupport operation not supported
 	NoSupport int32 = 153
 
+	// NotFoundFs specfified file system not found
+	NotFoundFs int32 = 201
+
 	// PluginNotExist ... Plugin doesn't apprear to exist
 	PluginNotExist int32 = 311
 
