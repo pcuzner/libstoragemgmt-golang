@@ -620,6 +620,18 @@ func handleFsChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return p.cb.File.FsChildDepRm(args.Fs, args.Files)
 }
 
+func handleNfsExports(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var s search
+	if uE := json.Unmarshal(params, &s); uE != nil {
+		return nil, invalidArgs("exports", uE)
+	}
+
+	if len(s.Key) > 0 {
+		return p.cb.Nfs.Exports(s.Key, s.Value)
+	}
+	return p.cb.Nfs.Exports()
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -679,5 +691,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"fs_snapshot_restore":    nilAssign(c.File.FsSnapShotRestore, handleFsSnapShotRestore),
 		"fs_child_dependency":    nilAssign(c.File.FsHasChildDep, handleFsHasChildDep),
 		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
+
+		"exports":       nilAssign(c.Nfs.Exports, handleNfsExports),
 	}
 }
