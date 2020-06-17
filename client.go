@@ -187,10 +187,10 @@ func (c *ClientConnection) NfsExportAuthTypes() ([]string, error) {
 
 // FsExport creates or modifies a NFS export.
 func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
-	access *NfsAccess, authType *string, options *string, nfsExport *NfsExport) error {
+	access *NfsAccess, authType *string, options *string) (*NfsExport, error) {
 
 	if len(access.Ro) == 0 && len(access.Rw) == 0 {
-		return &errors.LsmError{
+		return nil, &errors.LsmError{
 			Code:    errors.InvalidArgument,
 			Message: "at least 1 host should exist in access.ro or access.rw",
 			Data:    ""}
@@ -198,7 +198,7 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 
 	for _, i := range access.Root {
 		if !contains(access.Rw, i) && !contains(access.Ro, i) {
-			return &errors.LsmError{
+			return nil, &errors.LsmError{
 				Code: errors.InvalidArgument,
 				Message: fmt.Sprintf(
 					"host '%s' contained in access.root should also be in access.rw or access.ro", i),
@@ -208,7 +208,7 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 
 	for _, i := range access.Rw {
 		if contains(access.Ro, i) {
-			return &errors.LsmError{
+			return nil, &errors.LsmError{
 				Code:    errors.InvalidArgument,
 				Message: fmt.Sprintf("host '%s' in both access.ro and access.rw", i),
 				Data:    ""}
@@ -226,7 +226,11 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 		"auth_type":   authType,
 		"options":     options,
 	}
-	return c.tp.invoke("export_fs", args, nfsExport)
+	var nfsExport NfsExport
+	if err := c.tp.invoke("export_fs", args, &nfsExport); err != nil {
+		return nil, err
+	}
+	return &nfsExport, nil
 }
 
 // FsUnExport removes a file system export.
