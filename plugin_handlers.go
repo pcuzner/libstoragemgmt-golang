@@ -680,6 +680,10 @@ func handleFsUnexport(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return nil, p.cb.Nfs.FsUnExport(args.Export)
 }
 
+func handleExportAuthTypes(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.Nfs.ExportAuthTypes()
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -743,5 +747,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"exports":       nilAssign(c.Nfs.Exports, handleNfsExports),
 		"export_fs":     nilAssign(c.Nfs.FsExport, handleExportFs),
 		"export_remove": nilAssign(c.Nfs.FsUnExport, handleFsUnexport),
+		"export_auth":   nilAssign(c.Nfs.ExportAuthTypes, handleExportAuthTypes),
 	}
 }
