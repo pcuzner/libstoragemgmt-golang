@@ -862,6 +862,22 @@ func handleVolWriteCacheSet(p *Plugin, params json.RawMessage) (interface{}, err
 
 	return nil, p.cb.Cache.VolWriteCacheSet(args.Volume, args.Wcp)
 }
+
+func handleVolReadCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volReadCacheSetArgs struct {
+		Volume *Volume         `json:"volume"`
+		Rcp    ReadCachePolicy `json:"rcp"`
+		Flags  uint64          `json:"flags"`
+	}
+
+	var args volReadCacheSetArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_read_cache_policy_update", uE)
+	}
+
+	return nil, p.cb.Cache.VolReadCacheSet(args.Volume, args.Rcp)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -939,5 +955,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"volume_cache_info":                 nilAssign(c.Cache.VolCacheInfo, handleVolCacheInfo),
 		"volume_physical_disk_cache_update": nilAssign(c.Cache.VolPhyDiskCacheSet, handleVolPhyDiskCacheSet),
 		"volume_write_cache_policy_update":  nilAssign(c.Cache.VolWriteCacheSet, handleVolWriteCacheSet),
+		"volume_read_cache_policy_update":   nilAssign(c.Cache.VolReadCacheSet, handleVolReadCacheSet),
 	}
 }
