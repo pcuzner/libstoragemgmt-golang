@@ -263,12 +263,16 @@ type VolRaidCreateCapGetCb func(system *System) (*SupportedRaidCapability, error
 type VolRaidCreateCb func(name string,
 	raidType RaidType, disks []Disk, stripSize uint32) (*Volume, error)
 
+// BatteriesCb returns array of batteries
+type BatteriesCb func() ([]Battery, error)
+
 // HbaRaidOps callbacks for HBA raid
 type HbaRaidOps struct {
 	VolRaidInfo         VolRaidInfoCb
 	PoolMemberInfo      PoolMemberInfoCb
 	VolRaidCreateCapGet VolRaidCreateCapGetCb
 	VolRaidCreate       VolRaidCreateCb
+	Batteries           BatteriesCb
 }
 
 // PluginCallBacks callbacks for plugin to implement

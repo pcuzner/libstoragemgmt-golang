@@ -787,6 +787,10 @@ func handleVolRaidInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return rc, nil
 }
 
+func handleBatteries(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.Hba.Batteries()
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -858,5 +862,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"volume_raid_create_cap_get": nilAssign(c.Hba.VolRaidCreateCapGet, handleVolRaidCreateCapGet),
 		"pool_member_info":           nilAssign(c.Hba.PoolMemberInfo, handlePoolMemberInfo),
 		"volume_raid_info":           nilAssign(c.Hba.VolRaidInfo, handleVolRaidInfo),
+		"batteries":                  nilAssign(c.Hba.Batteries, handleBatteries),
+
 	}
 }
