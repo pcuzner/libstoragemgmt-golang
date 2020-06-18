@@ -313,12 +313,22 @@ type PluginRegister struct {
 
 // PluginInit initializes the plugin with the specified callbacks
 func PluginInit(callbacks *PluginCallBacks, cmdLineArgs []string, desc string, ver string) (*Plugin, error) {
-	if len(cmdLineArgs) == 2 {
-		fd, err := strconv.ParseInt(cmdLineArgs[1], 10, 32)
-		if err != nil {
-			return nil, err
-		}
 
+	var fd int64 = -1
+	var fdStr string
+
+	fdStr = os.Getenv("LSM_GO_FD")
+
+	if len(fdStr) == 0 && len(cmdLineArgs) == 2 {
+		fdStr = cmdLineArgs[1]
+	}
+
+	fd, err := strconv.ParseInt(fdStr, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	if fd != -1 {
 		// Only information I could find which pretains to how to do this.
 		// https://play.golang.org/p/0uEcuPk291
 		f := os.NewFile(uintptr(fd), "client")
