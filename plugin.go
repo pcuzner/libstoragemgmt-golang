@@ -122,6 +122,9 @@ type VolChildDepRmCb func(vol *Volume) (*string, error)
 // TargetPortsCb returns target ports
 type TargetPortsCb func() ([]TargetPort, error)
 
+// VolIdentLedOnCb turn identification led on
+type VolIdentLedOnCb func(volume *Volume) error
+
 // ManagementOps are the callbacks that plugins must implement
 type ManagementOps struct {
 	TimeOutSet       TmoSetCb
@@ -160,6 +163,7 @@ type SanOps struct {
 	AgsGrantedToVol       AgsGrantedToVolCb
 	IscsiChapAuthSet      IscsiChapAuthSetCb
 	TargetPorts           TargetPortsCb
+	VolIdentLedOn         VolIdentLedOnCb
 }
 
 // FsCb callback returns filesystems
