@@ -404,13 +404,13 @@ func handleIscsiChapAuthSet(p *Plugin, params json.RawMessage) (interface{}, err
 	return nil, p.cb.San.IscsiChapAuthSet(args.InitID, args.InUser, args.InPassword, args.OutUser, args.OutPassword)
 }
 
-type argsChildDep struct {
+type volumeArg struct {
 	Vol   *Volume `json:"volume"`
 	Flags uint64  `json:"flags"`
 }
 
 func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error) {
-	var args argsChildDep
+	var args volumeArg
 	if uE := json.Unmarshal(params, &args); uE != nil {
 		return nil, invalidArgs("volume_child_dependency", uE)
 	}
@@ -419,7 +419,7 @@ func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error
 }
 
 func handleVolChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
-	var args argsChildDep
+	var args volumeArg
 	if uE := json.Unmarshal(params, &args); uE != nil {
 		return nil, invalidArgs("volume_child_dependency_rm", uE)
 	}
