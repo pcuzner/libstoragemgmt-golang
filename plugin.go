@@ -281,9 +281,13 @@ type SysReadCachePctSetCb func(system *System, readPercent uint32) error
 // VolCacheInfoCb callback for cache information for specified volume
 type VolCacheInfoCb func(volume *Volume) (*VolumeCacheInfo, error)
 
+// VolPhyDiskCacheSetCb callback for setting the physcial disk cache policy
+type VolPhyDiskCacheSetCb func(volume *Volume, pdc PhysicalDiskCache) error
+
 type CacheOps struct {
 	SysReadCachePctSet SysReadCachePctSetCb
 	VolCacheInfo       VolCacheInfoCb
+	VolPhyDiskCacheSet VolPhyDiskCacheSetCb
 }
 
 // PluginCallBacks callbacks for plugin to implement
