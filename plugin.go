@@ -125,6 +125,9 @@ type TargetPortsCb func() ([]TargetPort, error)
 // VolIdentLedOnCb turn identification led on
 type VolIdentLedOnCb func(volume *Volume) error
 
+// VolIdentLedOffCb turn identification led off
+type VolIdentLedOffCb func(volume *Volume) error
+
 // ManagementOps are the callbacks that plugins must implement
 type ManagementOps struct {
 	TimeOutSet       TmoSetCb
@@ -164,6 +167,7 @@ type SanOps struct {
 	IscsiChapAuthSet      IscsiChapAuthSetCb
 	TargetPorts           TargetPortsCb
 	VolIdentLedOn         VolIdentLedOnCb
+	VolIdentLedOff        VolIdentLedOffCb
 }
 
 // FsCb callback returns filesystems

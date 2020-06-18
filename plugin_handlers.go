@@ -439,6 +439,14 @@ func handleVolIdentLedOn(p *Plugin, params json.RawMessage) (interface{}, error)
 	return nil, p.cb.San.VolIdentLedOn(args.Vol)
 }
 
+func handleVolIdentLedOff(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args volumeArg
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_ident_led_off", uE)
+	}
+	return nil, p.cb.San.VolIdentLedOff(args.Vol)
+}
+
 func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
 	var s search
 	if uE := json.Unmarshal(params, &s); uE != nil {
@@ -826,6 +834,7 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"iscsi_chap_auth":                    nilAssign(c.San.IscsiChapAuthSet, handleIscsiChapAuthSet),
 		"target_ports":                       nilAssign(c.San.TargetPorts, handleTargetPorts),
 		"volume_ident_led_on":                nilAssign(c.San.VolIdentLedOn, handleVolIdentLedOn),
+		"volume_ident_led_off":               nilAssign(c.San.VolIdentLedOn, handleVolIdentLedOff),
 
 		"fs":                     nilAssign(c.File.FileSystems, handleFs),
 		"fs_create":              nilAssign(c.File.FsCreate, handleFsCreate),
