@@ -3,7 +3,6 @@
 package libstoragemgmt
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -309,7 +308,7 @@ type PluginCallBacks struct {
 	Cache CacheOps
 }
 
-type handler func(p *Plugin, params json.RawMessage) (interface{}, error)
+type handler func(p *Plugin, params *requestMsg) (interface{}, error)
 
 // Plugin represents plugin
 type Plugin struct {
@@ -392,7 +391,7 @@ func (p *Plugin) Run() {
 		var response interface{}
 		if f, ok := p.callTable[request.Method]; ok == true && f != nil {
 			//fmt.Printf("Executing %s(%s)\n", request.Method, string(request.Params))
-			response, err = f(p, request.Params)
+			response, err = f(p, request)
 			if err != nil {
 				p.tp.sendError(err)
 			} else {
