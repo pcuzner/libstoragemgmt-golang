@@ -404,13 +404,13 @@ func handleIscsiChapAuthSet(p *Plugin, params json.RawMessage) (interface{}, err
 	return nil, p.cb.San.IscsiChapAuthSet(args.InitID, args.InUser, args.InPassword, args.OutUser, args.OutPassword)
 }
 
-type argsChildDep struct {
+type volumeArg struct {
 	Vol   *Volume `json:"volume"`
 	Flags uint64  `json:"flags"`
 }
 
 func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error) {
-	var args argsChildDep
+	var args volumeArg
 	if uE := json.Unmarshal(params, &args); uE != nil {
 		return nil, invalidArgs("volume_child_dependency", uE)
 	}
@@ -419,7 +419,7 @@ func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error
 }
 
 func handleVolChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
-	var args argsChildDep
+	var args volumeArg
 	if uE := json.Unmarshal(params, &args); uE != nil {
 		return nil, invalidArgs("volume_child_dependency_rm", uE)
 	}
@@ -429,6 +429,22 @@ func handleVolChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error)
 
 func handleTargetPorts(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.San.TargetPorts()
+}
+
+func handleVolIdentLedOn(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args volumeArg
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_ident_led_on", uE)
+	}
+	return nil, p.cb.San.VolIdentLedOn(args.Vol)
+}
+
+func handleVolIdentLedOff(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var args volumeArg
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_ident_led_off", uE)
+	}
+	return nil, p.cb.San.VolIdentLedOff(args.Vol)
 }
 
 func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
@@ -620,6 +636,248 @@ func handleFsChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return p.cb.File.FsChildDepRm(args.Fs, args.Files)
 }
 
+func handleNfsExports(p *Plugin, params json.RawMessage) (interface{}, error) {
+	var s search
+	if uE := json.Unmarshal(params, &s); uE != nil {
+		return nil, invalidArgs("exports", uE)
+	}
+
+	if len(s.Key) > 0 {
+		return p.cb.Nfs.Exports(s.Key, s.Value)
+	}
+	return p.cb.Nfs.Exports()
+}
+
+func handleExportFs(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type exportArgs struct {
+		FsID     *string  `json:"fs_id"`
+		Path     *string  `json:"export_path"`
+		Root     []string `json:"root_list"`
+		Rw       []string `json:"rw_list"`
+		Ro       []string `json:"ro_list"`
+		AnonUID  int64    `json:"anon_uid"`
+		AnonGID  int64    `json:"anon_gid"`
+		AuthType *string  `json:"auth_type"`
+		Options  *string  `json:"options"`
+		Flags    uint64   `json:"flags"`
+	}
+
+	var a exportArgs
+	if uE := json.Unmarshal(params, &a); uE != nil {
+		return nil, invalidArgs("export_fs", uE)
+	}
+
+	// This seems like a blunder in the original API or maybe the preferred way to do it.
+	fs, err := p.cb.File.FileSystems("id", *a.FsID)
+	if err != nil {
+		return nil, err
+	}
+	if len(fs) != 1 {
+		return nil, &errors.LsmError{
+			Code:    errors.NotFoundFs,
+			Message: fmt.Sprintf("file system with ID=%s not found %d!", *a.FsID, len(fs))}
+	}
+
+	access := NfsAccess{Root: a.Root, Rw: a.Rw, Ro: a.Ro, AnonUID: a.AnonUID, AnonGID: a.AnonGID}
+	return p.cb.Nfs.FsExport(&fs[0], a.Path, &access, a.AuthType, a.Options)
+}
+
+func handleFsUnexport(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type unexportArgs struct {
+		Export *NfsExport `json:"export"`
+		Flags  uint64     `json:"flags"`
+	}
+
+	var args unexportArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("export_remove", uE)
+	}
+
+	return nil, p.cb.Nfs.FsUnExport(args.Export)
+}
+
+func handleExportAuthTypes(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.Nfs.ExportAuthTypes()
+}
+
+func handleVolRaidCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volRaidCreateArgs struct {
+		Name      string   `json:"name"`
+		Type      RaidType `json:"raid_type"`
+		Disks     []Disk   `json:"disks"`
+		StripSize uint32   `json:"strip_size"`
+		Flags     uint64   `json:"flags"`
+	}
+
+	var args volRaidCreateArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_raid_create", uE)
+	}
+
+	return p.cb.Hba.VolRaidCreate(args.Name, args.Type, args.Disks, args.StripSize)
+}
+
+func handleVolRaidCreateCapGet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volRaidCreateCapGetArgs struct {
+		Sys   *System `json:"system"`
+		Flags uint64  `json:"flags"`
+	}
+
+	var args volRaidCreateCapGetArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_raid_create_cap_get", uE)
+	}
+
+	result, err := p.cb.Hba.VolRaidCreateCapGet(args.Sys)
+	if err != nil {
+		return nil, err
+	}
+
+	var rc [2]interface{}
+	rc[0] = result.Types
+	rc[1] = result.StripeSizes
+	return rc, nil
+}
+
+func handlePoolMemberInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type poolMemberInfoArgs struct {
+		Pool  *Pool  `json:"pool"`
+		Flags uint64 `json:"flags"`
+	}
+
+	var args poolMemberInfoArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("pool_member_info", uE)
+	}
+
+	result, err := p.cb.Hba.PoolMemberInfo(args.Pool)
+	if err != nil {
+		return nil, err
+	}
+
+	var rc [3]interface{}
+	rc[0] = result.Raid
+	rc[1] = result.Member
+	rc[2] = result.ID
+	return rc, nil
+}
+
+func handleVolRaidInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volRaidInfoArgs struct {
+		Volume *Volume `json:"volume"`
+		Flags  uint64  `json:"flags"`
+	}
+
+	var args volRaidInfoArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_raid_info", uE)
+	}
+
+	result, err := p.cb.Hba.VolRaidInfo(args.Volume)
+	if err != nil {
+		return nil, err
+	}
+
+	var rc [5]int32
+	rc[0] = int32(result.Type)
+	rc[1] = int32(result.StripSize)
+	rc[2] = int32(result.DiskCount)
+	rc[3] = int32(result.MinIOSize)
+	rc[4] = int32(result.OptIOSize)
+	return rc, nil
+}
+
+func handleBatteries(p *Plugin, params json.RawMessage) (interface{}, error) {
+	return p.cb.Hba.Batteries()
+}
+
+func handleSystemReadCachePctSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type sysReadCachePctArgs struct {
+		System  *System `json:"system"`
+		Percent uint32  `json:"read_pct"`
+		Flags   uint64  `json:"flags"`
+	}
+
+	var args sysReadCachePctArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("system_read_cache_pct_update", uE)
+	}
+
+	return nil, p.cb.Cache.SysReadCachePctSet(args.System, args.Percent)
+}
+
+func handleVolCacheInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	type volCacheInfoArgs struct {
+		Volume *Volume `json:"volume"`
+		Flags  uint64  `json:"flags"`
+	}
+
+	var args volCacheInfoArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_cache_info", uE)
+	}
+
+	info, err := p.cb.Cache.VolCacheInfo(args.Volume)
+	if err != nil {
+		return nil, err
+	}
+
+	var ret [5]uint32
+	ret[0] = uint32(info.WriteSetting)
+	ret[1] = uint32(info.WriteStatus)
+	ret[2] = uint32(info.ReadSetting)
+	ret[3] = uint32(info.ReadStatus)
+	ret[4] = uint32(info.PhysicalDiskStatus)
+
+	return ret, nil
+}
+
+func handleVolPhyDiskCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volPhyDiskCacheSetArgs struct {
+		Volume *Volume           `json:"volume"`
+		Pdc    PhysicalDiskCache `json:"pdc"`
+		Flags  uint64            `json:"flags"`
+	}
+
+	var args volPhyDiskCacheSetArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_physical_disk_cache_update", uE)
+	}
+
+	return nil, p.cb.Cache.VolPhyDiskCacheSet(args.Volume, args.Pdc)
+}
+
+func handleVolWriteCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volWriteCacheSetArgs struct {
+		Volume *Volume          `json:"volume"`
+		Wcp    WriteCachePolicy `json:"wcp"`
+		Flags  uint64           `json:"flags"`
+	}
+
+	var args volWriteCacheSetArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_write_cache_policy_update", uE)
+	}
+
+	return nil, p.cb.Cache.VolWriteCacheSet(args.Volume, args.Wcp)
+}
+
+func handleVolReadCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type volReadCacheSetArgs struct {
+		Volume *Volume         `json:"volume"`
+		Rcp    ReadCachePolicy `json:"rcp"`
+		Flags  uint64          `json:"flags"`
+	}
+
+	var args volReadCacheSetArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_read_cache_policy_update", uE)
+	}
+
+	return nil, p.cb.Cache.VolReadCacheSet(args.Volume, args.Rcp)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -666,6 +924,8 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"access_groups_granted_to_volume":    nilAssign(c.San.AgsGrantedToVol, handleAgsGrantedToVol),
 		"iscsi_chap_auth":                    nilAssign(c.San.IscsiChapAuthSet, handleIscsiChapAuthSet),
 		"target_ports":                       nilAssign(c.San.TargetPorts, handleTargetPorts),
+		"volume_ident_led_on":                nilAssign(c.San.VolIdentLedOn, handleVolIdentLedOn),
+		"volume_ident_led_off":               nilAssign(c.San.VolIdentLedOn, handleVolIdentLedOff),
 
 		"fs":                     nilAssign(c.File.FileSystems, handleFs),
 		"fs_create":              nilAssign(c.File.FsCreate, handleFsCreate),
@@ -679,5 +939,22 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"fs_snapshot_restore":    nilAssign(c.File.FsSnapShotRestore, handleFsSnapShotRestore),
 		"fs_child_dependency":    nilAssign(c.File.FsHasChildDep, handleFsHasChildDep),
 		"fs_child_dependency_rm": nilAssign(c.File.FsChildDepRm, handleFsChildDepRm),
+
+		"exports":       nilAssign(c.Nfs.Exports, handleNfsExports),
+		"export_fs":     nilAssign(c.Nfs.FsExport, handleExportFs),
+		"export_remove": nilAssign(c.Nfs.FsUnExport, handleFsUnexport),
+		"export_auth":   nilAssign(c.Nfs.ExportAuthTypes, handleExportAuthTypes),
+
+		"volume_raid_create":         nilAssign(c.Hba.VolRaidCreate, handleVolRaidCreate),
+		"volume_raid_create_cap_get": nilAssign(c.Hba.VolRaidCreateCapGet, handleVolRaidCreateCapGet),
+		"pool_member_info":           nilAssign(c.Hba.PoolMemberInfo, handlePoolMemberInfo),
+		"volume_raid_info":           nilAssign(c.Hba.VolRaidInfo, handleVolRaidInfo),
+		"batteries":                  nilAssign(c.Hba.Batteries, handleBatteries),
+
+		"system_read_cache_pct_update":      nilAssign(c.Cache.SysReadCachePctSet, handleSystemReadCachePctSet),
+		"volume_cache_info":                 nilAssign(c.Cache.VolCacheInfo, handleVolCacheInfo),
+		"volume_physical_disk_cache_update": nilAssign(c.Cache.VolPhyDiskCacheSet, handleVolPhyDiskCacheSet),
+		"volume_write_cache_policy_update":  nilAssign(c.Cache.VolWriteCacheSet, handleVolWriteCacheSet),
+		"volume_read_cache_policy_update":   nilAssign(c.Cache.VolReadCacheSet, handleVolReadCacheSet),
 	}
 }

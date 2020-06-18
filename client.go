@@ -187,10 +187,10 @@ func (c *ClientConnection) NfsExportAuthTypes() ([]string, error) {
 
 // FsExport creates or modifies a NFS export.
 func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
-	access *NfsAccess, authType *string, options *string, nfsExport *NfsExport) error {
+	access *NfsAccess, authType *string, options *string) (*NfsExport, error) {
 
 	if len(access.Ro) == 0 && len(access.Rw) == 0 {
-		return &errors.LsmError{
+		return nil, &errors.LsmError{
 			Code:    errors.InvalidArgument,
 			Message: "at least 1 host should exist in access.ro or access.rw",
 			Data:    ""}
@@ -198,7 +198,7 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 
 	for _, i := range access.Root {
 		if !contains(access.Rw, i) && !contains(access.Ro, i) {
-			return &errors.LsmError{
+			return nil, &errors.LsmError{
 				Code: errors.InvalidArgument,
 				Message: fmt.Sprintf(
 					"host '%s' contained in access.root should also be in access.rw or access.ro", i),
@@ -208,7 +208,7 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 
 	for _, i := range access.Rw {
 		if contains(access.Ro, i) {
-			return &errors.LsmError{
+			return nil, &errors.LsmError{
 				Code:    errors.InvalidArgument,
 				Message: fmt.Sprintf("host '%s' in both access.ro and access.rw", i),
 				Data:    ""}
@@ -226,7 +226,11 @@ func (c *ClientConnection) FsExport(fs *FileSystem, exportPath *string,
 		"auth_type":   authType,
 		"options":     options,
 	}
-	return c.tp.invoke("export_fs", args, nfsExport)
+	var nfsExport NfsExport
+	if err := c.tp.invoke("export_fs", args, &nfsExport); err != nil {
+		return nil, err
+	}
+	return &nfsExport, nil
 }
 
 // FsUnExport removes a file system export.
@@ -853,34 +857,34 @@ func paramError(msg string) error {
 
 // VolRaidCreate creates RAIDed volume directly from disks, only for hardware RAID.
 func (c *ClientConnection) VolRaidCreate(name string,
-	raidType RaidType, disks []Disk, stripSize uint32, returnedVolume *Volume) error {
+	raidType RaidType, disks []Disk, stripSize uint32) (*Volume, error) {
 
 	if len(disks) == 0 {
-		return paramError("no disks included")
+		return nil, paramError("no disks included")
 	}
 
 	if raidType == Raid1 && len(disks) != 2 {
-		return paramError("RAID 1 only allows 2 disks")
+		return nil, paramError("RAID 1 only allows 2 disks")
 	}
 
 	if raidType == Raid5 && len(disks) < 3 {
-		return paramError("RAID 5 requires 3 or more disks")
+		return nil, paramError("RAID 5 requires 3 or more disks")
 	}
 
 	if raidType == Raid6 && len(disks) < 4 {
-		return paramError("RAID 6 requires 4 or more disks")
+		return nil, paramError("RAID 6 requires 4 or more disks")
 	}
 
 	if raidType == Raid10 && (len(disks)%2 != 0 || len(disks) < 4) {
-		return paramError("RAID 10 requires even disks count and 4 or more disks")
+		return nil, paramError("RAID 10 requires even disks count and 4 or more disks")
 	}
 
 	if raidType == Raid50 && (len(disks)%2 != 0 || len(disks) < 6) {
-		return paramError("RAID 50 requires even disks count and 6 or more disks")
+		return nil, paramError("RAID 50 requires even disks count and 6 or more disks")
 	}
 
 	if raidType == Raid60 && (len(disks)%2 != 0 || len(disks) < 8) {
-		return paramError("RAID 60 requires even disks count and 8 or more disks")
+		return nil, paramError("RAID 60 requires even disks count and 8 or more disks")
 	}
 
 	args := map[string]interface{}{
@@ -889,7 +893,11 @@ func (c *ClientConnection) VolRaidCreate(name string,
 		"disks":      disks,
 		"strip_size": stripSize, //stripe
 	}
-	return c.tp.invoke("volume_raid_create", args, returnedVolume)
+	var returnedVolume Volume
+	if err := c.tp.invoke("volume_raid_create", args, &returnedVolume); err != nil {
+		return nil, err
+	}
+	return &returnedVolume, nil
 }
 
 func (c *ClientConnection) identLED(volume *Volume, method string) error {

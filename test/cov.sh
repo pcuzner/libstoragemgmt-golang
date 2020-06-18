@@ -10,6 +10,9 @@ fi
 
 export LSM_GO_URI="simc://"
 
+# For exercising golang plugin
+# export LSM_GO_URI="simgo://ignore?forward=sim"
+
 go test -count 1 github.com/libstorage/libstoragemgmt-golang/test -coverpkg=../. -cover -coverprofile client.out || exit 1
 go test -count 1 github.com/libstorage/libstoragemgmt-golang/test -coverpkg=.././localdisk -cover -coverprofile localdisk.out || exit 1
 

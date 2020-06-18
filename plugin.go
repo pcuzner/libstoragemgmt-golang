@@ -122,6 +122,12 @@ type VolChildDepRmCb func(vol *Volume) (*string, error)
 // TargetPortsCb returns target ports
 type TargetPortsCb func() ([]TargetPort, error)
 
+// VolIdentLedOnCb turn identification led on
+type VolIdentLedOnCb func(volume *Volume) error
+
+// VolIdentLedOffCb turn identification led off
+type VolIdentLedOffCb func(volume *Volume) error
+
 // ManagementOps are the callbacks that plugins must implement
 type ManagementOps struct {
 	TimeOutSet       TmoSetCb
@@ -160,6 +166,8 @@ type SanOps struct {
 	AgsGrantedToVol       AgsGrantedToVolCb
 	IscsiChapAuthSet      IscsiChapAuthSetCb
 	TargetPorts           TargetPortsCb
+	VolIdentLedOn         VolIdentLedOnCb
+	VolIdentLedOff        VolIdentLedOffCb
 }
 
 // FsCb callback returns filesystems
@@ -221,11 +229,84 @@ type FsOps struct {
 	FsChildDepRm      FsChildDepRmCb
 }
 
+// ExportsCb returns all exported file systems
+type ExportsCb func(search ...string) ([]NfsExport, error)
+
+// ExportAuthTypesCb returns array of strings that state what authentication types are supported
+type ExportAuthTypesCb func() ([]string, error)
+
+// FsExportCb exports a file system over NFS
+type FsExportCb func(fs *FileSystem, exportPath *string,
+	access *NfsAccess, authType *string, options *string) (*NfsExport, error)
+
+// FsUnExportCb removes a NFS export
+type FsUnExportCb func(export *NfsExport) error
+
+// NfsOps orientated callbacks
+type NfsOps struct {
+	Exports         ExportsCb
+	ExportAuthTypes ExportAuthTypesCb
+	FsExport        FsExportCb
+	FsUnExport      FsUnExportCb
+}
+
+// VolRaidInfoCb callback for volume raid info
+type VolRaidInfoCb func(vol *Volume) (*VolumeRaidInfo, error)
+
+// PoolMemberInfoCb callback for pool member info
+type PoolMemberInfoCb func(pool *Pool) (*PoolMemberInfo, error)
+
+// VolRaidCreateCapGetCb callback for getting raid capacity
+type VolRaidCreateCapGetCb func(system *System) (*SupportedRaidCapability, error)
+
+// VolRaidCreateCb callback for creating a volume on HBA raid
+type VolRaidCreateCb func(name string,
+	raidType RaidType, disks []Disk, stripSize uint32) (*Volume, error)
+
+// BatteriesCb returns array of batteries
+type BatteriesCb func() ([]Battery, error)
+
+// HbaRaidOps callbacks for HBA raid
+type HbaRaidOps struct {
+	VolRaidInfo         VolRaidInfoCb
+	PoolMemberInfo      PoolMemberInfoCb
+	VolRaidCreateCapGet VolRaidCreateCapGetCb
+	VolRaidCreate       VolRaidCreateCb
+	Batteries           BatteriesCb
+}
+
+// SysReadCachePctSetCb callback for changing the read cache percentage for the specified system
+type SysReadCachePctSetCb func(system *System, readPercent uint32) error
+
+// VolCacheInfoCb callback for cache information for specified volume
+type VolCacheInfoCb func(volume *Volume) (*VolumeCacheInfo, error)
+
+// VolPhyDiskCacheSetCb callback for setting the physcial disk cache policy
+type VolPhyDiskCacheSetCb func(volume *Volume, pdc PhysicalDiskCache) error
+
+// VolWriteCacheSetCb callback for setting the volume write cache policy
+type VolWriteCacheSetCb func(volume *Volume, wcp WriteCachePolicy) error
+
+// VolReadCacheSetCb callback for setting the read cache policy
+type VolReadCacheSetCb func(volume *Volume, rcp ReadCachePolicy) error
+
+// CacheOps callbacks for caching
+type CacheOps struct {
+	SysReadCachePctSet SysReadCachePctSetCb
+	VolCacheInfo       VolCacheInfoCb
+	VolPhyDiskCacheSet VolPhyDiskCacheSetCb
+	VolWriteCacheSet   VolWriteCacheSetCb
+	VolReadCacheSet    VolReadCacheSetCb
+}
+
 // PluginCallBacks callbacks for plugin to implement
 type PluginCallBacks struct {
-	Mgmt ManagementOps
-	San  SanOps
-	File FsOps
+	Mgmt  ManagementOps
+	San   SanOps
+	File  FsOps
+	Nfs   NfsOps
+	Hba   HbaRaidOps
+	Cache CacheOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)
@@ -249,12 +330,22 @@ type PluginRegister struct {
 
 // PluginInit initializes the plugin with the specified callbacks
 func PluginInit(callbacks *PluginCallBacks, cmdLineArgs []string, desc string, ver string) (*Plugin, error) {
-	if len(cmdLineArgs) == 2 {
-		fd, err := strconv.ParseInt(cmdLineArgs[1], 10, 32)
-		if err != nil {
-			return nil, err
-		}
 
+	var fd int64 = -1
+	var fdStr string
+
+	fdStr = os.Getenv("LSM_GO_FD")
+
+	if len(fdStr) == 0 && len(cmdLineArgs) == 2 {
+		fdStr = cmdLineArgs[1]
+	}
+
+	fd, err := strconv.ParseInt(fdStr, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	if fd != -1 {
 		// Only information I could find which pretains to how to do this.
 		// https://play.golang.org/p/0uEcuPk291
 		f := os.NewFile(uintptr(fd), "client")
