@@ -275,13 +275,21 @@ type HbaRaidOps struct {
 	Batteries           BatteriesCb
 }
 
+// SysReadCachePctSetCb callback for changing the read cache percentage for the specified system
+type SysReadCachePctSetCb func(system *System, readPercent uint32) error
+
+type CacheOps struct {
+	SysReadCachePctSet SysReadCachePctSetCb
+}
+
 // PluginCallBacks callbacks for plugin to implement
 type PluginCallBacks struct {
-	Mgmt ManagementOps
-	San  SanOps
-	File FsOps
-	Nfs  NfsOps
-	Hba  HbaRaidOps
+	Mgmt  ManagementOps
+	San   SanOps
+	File  FsOps
+	Nfs   NfsOps
+	Hba   HbaRaidOps
+	Cache CacheOps
 }
 
 type handler func(p *Plugin, params json.RawMessage) (interface{}, error)

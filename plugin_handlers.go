@@ -791,6 +791,21 @@ func handleBatteries(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Hba.Batteries()
 }
 
+func handleSystemReadCachePctSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+	type sysReadCachePctArgs struct {
+		System  *System `json:"system"`
+		Percent uint32  `json:"read_pct"`
+		Flags   uint64  `json:"flags"`
+	}
+
+	var args sysReadCachePctArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("system_read_cache_pct_update", uE)
+	}
+
+	return nil, p.cb.Cache.SysReadCachePctSet(args.System, args.Percent)
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -864,5 +879,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"volume_raid_info":           nilAssign(c.Hba.VolRaidInfo, handleVolRaidInfo),
 		"batteries":                  nilAssign(c.Hba.Batteries, handleBatteries),
 
+		"system_read_cache_pct_update":      nilAssign(c.Cache.SysReadCachePctSet, handleSystemReadCachePctSet),
 	}
 }
