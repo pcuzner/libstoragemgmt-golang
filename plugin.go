@@ -278,8 +278,12 @@ type HbaRaidOps struct {
 // SysReadCachePctSetCb callback for changing the read cache percentage for the specified system
 type SysReadCachePctSetCb func(system *System, readPercent uint32) error
 
+// VolCacheInfoCb callback for cache information for specified volume
+type VolCacheInfoCb func(volume *Volume) (*VolumeCacheInfo, error)
+
 type CacheOps struct {
 	SysReadCachePctSet SysReadCachePctSetCb
+	VolCacheInfo       VolCacheInfoCb
 }
 
 // PluginCallBacks callbacks for plugin to implement

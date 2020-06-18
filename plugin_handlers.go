@@ -806,6 +806,33 @@ func handleSystemReadCachePctSet(p *Plugin, params json.RawMessage) (interface{}
 	return nil, p.cb.Cache.SysReadCachePctSet(args.System, args.Percent)
 }
 
+func handleVolCacheInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+
+	type volCacheInfoArgs struct {
+		Volume *Volume `json:"volume"`
+		Flags  uint64  `json:"flags"`
+	}
+
+	var args volCacheInfoArgs
+	if uE := json.Unmarshal(params, &args); uE != nil {
+		return nil, invalidArgs("volume_cache_info", uE)
+	}
+
+	info, err := p.cb.Cache.VolCacheInfo(args.Volume)
+	if err != nil {
+		return nil, err
+	}
+
+	var ret [5]uint32
+	ret[0] = uint32(info.WriteSetting)
+	ret[1] = uint32(info.WriteStatus)
+	ret[2] = uint32(info.ReadSetting)
+	ret[3] = uint32(info.ReadStatus)
+	ret[4] = uint32(info.PhysicalDiskStatus)
+
+	return ret, nil
+}
+
 func nilAssign(present interface{}, cb handler) handler {
 
 	// This seems like an epic fail of golang as I got burned by doing present == nil
@@ -880,5 +907,6 @@ func buildTable(c *PluginCallBacks) map[string]handler {
 		"batteries":                  nilAssign(c.Hba.Batteries, handleBatteries),
 
 		"system_read_cache_pct_update":      nilAssign(c.Cache.SysReadCachePctSet, handleSystemReadCachePctSet),
+		"volume_cache_info":                 nilAssign(c.Cache.VolCacheInfo, handleVolCacheInfo),
 	}
 }
