@@ -19,6 +19,8 @@ import (
 
 var URI = getEnv("LSM_GO_URI", "sim://")
 
+// var URI = getEnv("LSM_GO_URI", "simgo://ignore?forward=sim")
+
 const PASSWORD = ""
 const TMO uint32 = 30000
 
