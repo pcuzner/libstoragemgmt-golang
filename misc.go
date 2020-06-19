@@ -102,14 +102,14 @@ func ensureExclusiveSs(ss *FileSystemSnapShot, job *string, err error) (*FileSys
 type LsmBool bool
 
 // UnmarshalJSON used for custom JSON serialization
-func (bit *LsmBool) UnmarshalJSON(b []byte) error {
-	*bit = LsmBool(string(b) == "1")
+func (bit LsmBool) UnmarshalJSON(b []byte) error {
+	bit = LsmBool(string(b) == "1")
 	return nil
 }
 
 // MarshalJSON used to custom JSON serialization
-func (bit *LsmBool) MarshalJSON() ([]byte, error) {
-	if *bit {
+func (bit LsmBool) MarshalJSON() ([]byte, error) {
+	if bit {
 		return []byte("1"), nil
 	}
 	return []byte("0"), nil
