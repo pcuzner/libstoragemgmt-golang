@@ -3,6 +3,7 @@
 package libstoragemgmt
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -114,3 +115,17 @@ func (bit LsmBool) MarshalJSON() ([]byte, error) {
 	}
 	return []byte("0"), nil
 }
+
+// MarshalJSON custom marshal for BlockRange
+// ref. http://choly.ca/post/go-json-marshalling/
+func (b *BlockRange) MarshalJSON() ([]byte, error) {
+	type Alias BlockRange
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "BlockRange",
+		Alias: (*Alias)(b),
+	})
+}
+

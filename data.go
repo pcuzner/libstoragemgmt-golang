@@ -2,8 +2,6 @@
 
 package libstoragemgmt
 
-import "encoding/json"
-
 // PluginInfo - Information about a specific plugin
 type PluginInfo struct {
 	Version     string
@@ -863,19 +861,6 @@ type BlockRange struct {
 	SrcBlkAddr uint64 `json:"src_block"`
 	DstBlkAddr uint64 `json:"dest_block"`
 	BlkCount   uint64 `json:"block_count"`
-}
-
-// MarshalJSON custom marshal for BlockRange
-// ref. http://choly.ca/post/go-json-marshalling/
-func (b *BlockRange) MarshalJSON() ([]byte, error) {
-	type Alias BlockRange
-	return json.Marshal(&struct {
-		Class string `json:"class"`
-		*Alias
-	}{
-		Class: "BlockRange",
-		Alias: (*Alias)(b),
-	})
 }
 
 // FileSystemSnapShot defines information relating to a file system snapshot
