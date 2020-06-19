@@ -129,3 +129,134 @@ func (b *BlockRange) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// MarshalJSON used to custom JSON serialization
+func (s *System) MarshalJSON() ([]byte, error) {
+	type Alias System
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "System",
+		Alias: (*Alias)(s),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (v *Volume) MarshalJSON() ([]byte, error) {
+	type Alias Volume
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "Volume",
+		Alias: (*Alias)(v),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (p *Pool) MarshalJSON() ([]byte, error) {
+	type Alias Pool
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "Pool",
+		Alias: (*Alias)(p),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (d *Disk) MarshalJSON() ([]byte, error) {
+	type Alias Disk
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "Disk",
+		Alias: (*Alias)(d),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (f *FileSystem) MarshalJSON() ([]byte, error) {
+	type Alias FileSystem
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "FileSystem",
+		Alias: (*Alias)(f),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (n *NfsExport) MarshalJSON() ([]byte, error) {
+	type Alias NfsExport
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "NfsExport",
+		Alias: (*Alias)(n),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (ag *AccessGroup) MarshalJSON() ([]byte, error) {
+	type Alias AccessGroup
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "AccessGroup",
+		Alias: (*Alias)(ag),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (tp *TargetPort) MarshalJSON() ([]byte, error) {
+	type Alias TargetPort
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "TargetPort",
+		Alias: (*Alias)(tp),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (tp *Battery) MarshalJSON() ([]byte, error) {
+	type Alias Battery
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "Battery",
+		Alias: (*Alias)(tp),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (c *Capabilities) MarshalJSON() ([]byte, error) {
+	type Alias Capabilities
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "Capabilities",
+		Alias: (*Alias)(c),
+	})
+}
+
+// MarshalJSON used to custom JSON serialization
+func (f *FileSystemSnapShot) MarshalJSON() ([]byte, error) {
+	type Alias FileSystemSnapShot
+	return json.Marshal(&struct {
+		Class string `json:"class"`
+		*Alias
+	}{
+		Class: "FsSnapshot",
+		Alias: (*Alias)(f),
+	})
+}

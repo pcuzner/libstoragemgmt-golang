@@ -3,10 +3,12 @@
 package libstoragemgmt
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -1438,6 +1440,47 @@ func TestDiskLedStatusBitField(t *testing.T) {
 	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000001), lsm.DiskLedStatusUnknown)
 	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000004), lsm.DiskLedStatusIdentOff)
 	assert.Equal(t, lsm.DiskLedStatusBitField(0x0000000000000040), lsm.DiskLedStatusFaultUnknown)
+}
+
+func TestVolumeEnableSerDes(t *testing.T) {
+	var vol lsm.Volume
+	volJSON, err := json.Marshal(&vol)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(string(volJSON), `"admin_state":0`))
+
+	vol.Enabled = true
+	volJSON, err = json.Marshal(&vol)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(string(volJSON), `"admin_state":1`))
+
+	var volDes lsm.Volume
+	assert.Nil(t, json.Unmarshal(volJSON, &volDes))
+	assert.Equal(t, "Volume", volDes.Class)
+}
+
+func TestClassSerDes(t *testing.T) {
+	objs := map[string]interface{}{
+		"System":       &lsm.System{},
+		"Volume":       &lsm.Volume{},
+		"Pool":         &lsm.Pool{},
+		"Disk":         &lsm.Disk{},
+		"FileSystem":   &lsm.FileSystem{},
+		"NfsExport":    &lsm.NfsExport{},
+		"AccessGroup":  &lsm.AccessGroup{},
+		"TargetPort":   &lsm.TargetPort{},
+		"Battery":      &lsm.Battery{},
+		"Capabilities": &lsm.Capabilities{},
+		"BlockRange":   &lsm.BlockRange{},
+		"FsSnapshot":   &lsm.FileSystemSnapShot{},
+	}
+
+	for k, v := range objs {
+		JSON, err := json.Marshal(v)
+		assert.Nil(t, err)
+		expected := fmt.Sprintf(`"class":"%s"`, k)
+		fmt.Printf("JSON=%s\n", JSON)
+		assert.True(t, strings.Contains(string(JSON), expected))
+	}
 }
 
 func setup() {
