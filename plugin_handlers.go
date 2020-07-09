@@ -16,16 +16,16 @@ func invalidArgs(msg string, e error) error {
 		Message: fmt.Sprintf("%s: invalid arguments(s) %w\n", msg, e)}
 }
 
-func handleRegister(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleRegister(p *Plugin, msg *requestMsg) (interface{}, error) {
 
 	var register PluginRegister
-	if uE := json.Unmarshal(params, &register); uE != nil {
-		return nil, invalidArgs("plugin_register", uE)
+	if uE := json.Unmarshal(msg.Params, &register); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return nil, p.cb.Mgmt.PluginRegister(&register)
 }
 
-func handleUnRegister(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleUnRegister(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return nil, p.cb.Mgmt.PluginUnregister()
 }
 
@@ -34,27 +34,27 @@ type tmoSetArgs struct {
 	Flags uint64 `json:"flags"`
 }
 
-func handlePluginInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handlePluginInfo(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return []string{p.desc, p.ver}, nil
 }
 
-func handleTmoSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleTmoSet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var timeout tmoSetArgs
-	if uE := json.Unmarshal(params, &timeout); uE != nil {
-		return nil, invalidArgs("time_out_set", uE)
+	if uE := json.Unmarshal(msg.Params, &timeout); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return nil, p.cb.Mgmt.TimeOutSet(timeout.MS)
 }
 
-func handleTmoGet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleTmoGet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.Mgmt.TimeOutGet(), nil
 }
 
-func handleSystems(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleSystems(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.Mgmt.Systems()
 }
 
-func handleDisks(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleDisks(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.San.Disks()
 }
 
@@ -64,10 +64,10 @@ type search struct {
 	Flags uint64 `json:"flags"`
 }
 
-func handlePools(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handlePools(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var s search
-	if uE := json.Unmarshal(params, &s); uE != nil {
-		return nil, invalidArgs("pools", uE)
+	if uE := json.Unmarshal(msg.Params, &s); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	if len(s.Key) > 0 {
@@ -77,10 +77,10 @@ func handlePools(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Mgmt.Pools()
 }
 
-func handleVolumes(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumes(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var s search
-	if uE := json.Unmarshal(params, &s); uE != nil {
-		return nil, invalidArgs("volumes", uE)
+	if uE := json.Unmarshal(msg.Params, &s); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	if len(s.Key) > 0 {
@@ -94,10 +94,10 @@ type capArgs struct {
 	Sys System `json:"system"`
 }
 
-func handleCapabilities(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleCapabilities(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args capArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("time_out_set", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return p.cb.Mgmt.Capabilities(&args.Sys)
 }
@@ -106,10 +106,10 @@ type jobArgs struct {
 	ID string `json:"job_id"`
 }
 
-func handleJobStatus(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleJobStatus(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args jobArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("job_status", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	job, err := p.cb.Mgmt.JobStatus(args.ID)
@@ -125,10 +125,10 @@ func handleJobStatus(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return result, nil
 }
 
-func handleJobFree(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleJobFree(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args jobArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("job_status", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.Mgmt.JobFree(args.ID)
@@ -151,7 +151,7 @@ func exclusiveOr(item interface{}, job *string, err error) (interface{}, error) 
 	return result, nil
 }
 
-func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeCreate(p *Plugin, msg *requestMsg) (interface{}, error) {
 
 	type volumeCreateArgs struct {
 		Pool         *Pool               `json:"pool"`
@@ -162,15 +162,15 @@ func handleVolumeCreate(p *Plugin, params json.RawMessage) (interface{}, error) 
 	}
 
 	var args volumeCreateArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_create", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	volume, jobID, error := p.cb.San.VolumeCreate(args.Pool, args.Name, args.SizeBytes, args.Provisioning)
 	return exclusiveOr(volume, jobID, error)
 }
 
-func handleVolumeReplicate(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeReplicate(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volumeReplicateArgs struct {
 		Pool    *Pool               `json:"pool"`
 		RepType VolumeReplicateType `json:"rep_type"`
@@ -180,15 +180,15 @@ func handleVolumeReplicate(p *Plugin, params json.RawMessage) (interface{}, erro
 	}
 
 	var args volumeReplicateArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_replicate", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	volume, jobID, error := p.cb.San.VolumeReplicate(args.Pool, args.RepType, &args.SrcVol, args.Name)
 	return exclusiveOr(volume, jobID, error)
 }
 
-func handleVolumeReplicateRange(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeReplicateRange(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volumeReplicateRangeArgs struct {
 		RepType VolumeReplicateType `json:"rep_type"`
 		Ranges  []BlockRange        `json:"ranges"`
@@ -198,27 +198,27 @@ func handleVolumeReplicateRange(p *Plugin, params json.RawMessage) (interface{},
 	}
 
 	var a volumeReplicateRangeArgs
-	if uE := json.Unmarshal(params, &a); uE != nil {
-		return nil, invalidArgs("volume_replicate", uE)
+	if uE := json.Unmarshal(msg.Params, &a); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.VolumeReplicateRange(a.RepType, &a.SrcVol, &a.DstVol, a.Ranges)
 }
 
-func handleVolRepRangeBlockSize(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolRepRangeBlockSize(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type args struct {
 		System *System `json:"system"`
 		Flags  uint64  `json:"flags"`
 	}
 
 	var a args
-	if uE := json.Unmarshal(params, &a); uE != nil {
-		return nil, invalidArgs("volume_replicate_range_block_size", uE)
+	if uE := json.Unmarshal(msg.Params, &a); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return p.cb.San.VolumeRepRangeBlkSize(a.System)
 }
 
-func handleVolumeResize(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeResize(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type args struct {
 		Volume *Volume `json:"volume"`
 		Size   uint64  `json:"new_size_bytes"`
@@ -226,8 +226,8 @@ func handleVolumeResize(p *Plugin, params json.RawMessage) (interface{}, error) 
 	}
 
 	var a args
-	if uE := json.Unmarshal(params, &a); uE != nil {
-		return nil, invalidArgs("volume_resize", uE)
+	if uE := json.Unmarshal(msg.Params, &a); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	fmt.Printf("args = %+v\n", a)
@@ -241,33 +241,33 @@ type volumeArgument struct {
 	Flags  uint64  `json:"flags"`
 }
 
-func handleVolumeEnable(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeEnable(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args volumeArgument
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_enable", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.San.VolumeEnable(args.Volume)
 }
 
-func handleVolumeDisable(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeDisable(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args volumeArgument
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_disable", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.San.VolumeDisable(args.Volume)
 }
 
-func handleVolumeDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeDelete(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volumeDeleteArgs struct {
 		Volume *Volume `json:"volume"`
 		Flags  uint64  `json:"flags"`
 	}
 
 	var args volumeDeleteArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_delete", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.VolumeDelete(args.Volume)
@@ -279,43 +279,43 @@ type maskArgs struct {
 	Flags uint64       `json:"flags"`
 }
 
-func handleVolumeMask(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeMask(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args maskArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_mask", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.San.VolumeMask(args.Vol, args.Ag)
 }
 
-func handleVolumeUnMask(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolumeUnMask(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args maskArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_unmask", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.San.VolumeUnMask(args.Vol, args.Ag)
 }
 
-func handleVolsMaskedToAg(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolsMaskedToAg(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type argsAg struct {
 		Ag    *AccessGroup `json:"access_group"`
 		Flags uint64       `json:"flags"`
 	}
 
 	var args argsAg
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volumes_accessible_by_access_group", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.VolsMaskedToAg(args.Ag)
 }
 
-func handleAccessGroups(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleAccessGroups(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.San.AccessGroups()
 }
 
-func handleAccessGroupCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleAccessGroupCreate(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type agCreateArgs struct {
 		Name     string        `json:"name"`
 		InitID   string        `json:"init_id"`
@@ -325,22 +325,22 @@ func handleAccessGroupCreate(p *Plugin, params json.RawMessage) (interface{}, er
 	}
 
 	var args agCreateArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("access_group_create", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.AccessGroupCreate(args.Name, args.InitID, args.InitType, args.System)
 }
 
-func handleAccessGroupDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleAccessGroupDelete(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type agDeleteArgs struct {
 		Ag    *AccessGroup `json:"access_group"`
 		Flags uint64       `json:"flags"`
 	}
 
 	var args agDeleteArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("access_group_delete", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.San.AccessGroupDelete(args.Ag)
@@ -353,40 +353,40 @@ type accessGroupInitArgs struct {
 	Flags    uint64        `json:"flags"`
 }
 
-func handleAccessGroupInitAdd(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleAccessGroupInitAdd(p *Plugin, msg *requestMsg) (interface{}, error) {
 
 	var args accessGroupInitArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("access_group_initiator_add", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.AccessGroupInitAdd(args.Ag, args.ID, args.InitType)
 }
 
-func handleAccessGroupInitDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleAccessGroupInitDelete(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args accessGroupInitArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("access_group_initiator_delete", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.AccessGroupInitDelete(args.Ag, args.ID, args.InitType)
 }
 
-func handleAgsGrantedToVol(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleAgsGrantedToVol(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type argsVol struct {
 		Vol   *Volume `json:"volume"`
 		Flags uint64  `json:"flags"`
 	}
 
 	var args argsVol
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("access_groups_granted_to_volume", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.AgsGrantedToVol(args.Vol)
 }
 
-func handleIscsiChapAuthSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleIscsiChapAuthSet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type argsIscsi struct {
 		InitID      string  `json:"init_id"`
 		InUser      *string `json:"in_user"`
@@ -397,8 +397,8 @@ func handleIscsiChapAuthSet(p *Plugin, params json.RawMessage) (interface{}, err
 	}
 
 	var args argsIscsi
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("iscsi_chap_auth", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.San.IscsiChapAuthSet(args.InitID, args.InUser, args.InPassword, args.OutUser, args.OutPassword)
@@ -409,48 +409,48 @@ type volumeArg struct {
 	Flags uint64  `json:"flags"`
 }
 
-func handleVolHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolHasChildDep(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args volumeArg
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_child_dependency", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.VolHasChildDep(args.Vol)
 }
 
-func handleVolChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolChildDepRm(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args volumeArg
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_child_dependency_rm", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.San.VolChildDepRm(args.Vol)
 }
 
-func handleTargetPorts(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleTargetPorts(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.San.TargetPorts()
 }
 
-func handleVolIdentLedOn(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolIdentLedOn(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args volumeArg
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_ident_led_on", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return nil, p.cb.San.VolIdentLedOn(args.Vol)
 }
 
-func handleVolIdentLedOff(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolIdentLedOff(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var args volumeArg
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_ident_led_off", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return nil, p.cb.San.VolIdentLedOff(args.Vol)
 }
 
-func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFs(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var s search
-	if uE := json.Unmarshal(params, &s); uE != nil {
-		return nil, invalidArgs("fs", uE)
+	if uE := json.Unmarshal(msg.Params, &s); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	if len(s.Key) > 0 {
@@ -459,7 +459,7 @@ func handleFs(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.File.FileSystems()
 }
 
-func handleFsCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsCreate(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsCreateArgs struct {
 		Pool      *Pool  `json:"pool"`
 		Name      string `json:"name"`
@@ -468,28 +468,28 @@ func handleFsCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	var args fsCreateArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_create", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	fs, jobID, error := p.cb.File.FsCreate(args.Pool, args.Name, args.SizeBytes)
 	return exclusiveOr(fs, jobID, error)
 }
 
-func handleFsDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsDelete(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsDeleteArgs struct {
 		Fs    *FileSystem `json:"fs"`
 		Flags uint64      `json:"flags"`
 	}
 
 	var args fsDeleteArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_delete", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 	return p.cb.File.FsDelete(args.Fs)
 }
 
-func handleFsResize(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsResize(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsResizeArgs struct {
 		Fs    *FileSystem `json:"fs"`
 		Size  uint64      `json:"new_size_bytes"`
@@ -497,8 +497,8 @@ func handleFsResize(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	var args fsResizeArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_resize", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	fs, job, err := p.cb.File.FsResize(args.Fs, args.Size)
@@ -506,7 +506,7 @@ func handleFsResize(p *Plugin, params json.RawMessage) (interface{}, error) {
 
 }
 
-func handleFsClone(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsClone(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsCloneArgs struct {
 		Fs    *FileSystem         `json:"src_fs"`
 		Name  string              `json:"dest_fs_name"`
@@ -515,8 +515,8 @@ func handleFsClone(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	var args fsCloneArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_clone", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	fs, job, err := p.cb.File.FsClone(args.Fs, args.Name, args.Ss)
@@ -524,7 +524,7 @@ func handleFsClone(p *Plugin, params json.RawMessage) (interface{}, error) {
 
 }
 
-func handleFsFileClone(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsFileClone(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsFileCloneArgs struct {
 		Fs    *FileSystem         `json:"fs"`
 		Src   string              `json:"src_file_name"`
@@ -534,14 +534,14 @@ func handleFsFileClone(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	var args fsFileCloneArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_clone", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.File.FsFileClone(args.Fs, args.Src, args.Dst, args.Ss)
 }
 
-func handleFsSnapShotCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsSnapShotCreate(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsSnapShotCreateArgs struct {
 		Fs    *FileSystem `json:"fs"`
 		Name  string      `json:"snapshot_name"`
@@ -549,15 +549,15 @@ func handleFsSnapShotCreate(p *Plugin, params json.RawMessage) (interface{}, err
 	}
 
 	var args fsSnapShotCreateArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_snapshot_create", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	fs, job, err := p.cb.File.FsSnapShotCreate(args.Fs, args.Name)
 	return exclusiveOr(fs, job, err)
 }
 
-func handleFsSnapShotDelete(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsSnapShotDelete(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsSnapShotDeleteArgs struct {
 		Fs    *FileSystem         `json:"fs"`
 		Ss    *FileSystemSnapShot `json:"snapshot"`
@@ -565,14 +565,14 @@ func handleFsSnapShotDelete(p *Plugin, params json.RawMessage) (interface{}, err
 	}
 
 	var args fsSnapShotDeleteArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_snapshot_delete", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.File.FsSnapShotDelete(args.Fs, args.Ss)
 }
 
-func handleFsSnapShots(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsSnapShots(p *Plugin, msg *requestMsg) (interface{}, error) {
 
 	type fsSnapShotArgs struct {
 		Fs    *FileSystem `json:"fs"`
@@ -580,14 +580,14 @@ func handleFsSnapShots(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	var args fsSnapShotArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_snapshots", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.File.FsSnapShots(args.Fs)
 }
 
-func handleFsSnapShotRestore(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsSnapShotRestore(p *Plugin, msg *requestMsg) (interface{}, error) {
 
 	type fsSnapShotRestoreArgs struct {
 		Fs           *FileSystem         `json:"fs"`
@@ -599,14 +599,14 @@ func handleFsSnapShotRestore(p *Plugin, params json.RawMessage) (interface{}, er
 	}
 
 	var args fsSnapShotRestoreArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_snapshot_restore", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.File.FsSnapShotRestore(args.Fs, args.Ss, args.All, args.Files, args.RestoreFiles)
 }
 
-func handleFsHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsHasChildDep(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsHasChildDepsArgs struct {
 		Fs    *FileSystem `json:"fs"`
 		Files []string    `json:"files"`
@@ -614,14 +614,14 @@ func handleFsHasChildDep(p *Plugin, params json.RawMessage) (interface{}, error)
 	}
 
 	var args fsHasChildDepsArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_child_dependency", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.File.FsHasChildDep(args.Fs, args.Files)
 }
 
-func handleFsChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsChildDepRm(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type fsHasChildDepsArgs struct {
 		Fs    *FileSystem `json:"fs"`
 		Files []string    `json:"files"`
@@ -629,17 +629,17 @@ func handleFsChildDepRm(p *Plugin, params json.RawMessage) (interface{}, error) 
 	}
 
 	var args fsHasChildDepsArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("fs_child_dependency_rm", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.File.FsChildDepRm(args.Fs, args.Files)
 }
 
-func handleNfsExports(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleNfsExports(p *Plugin, msg *requestMsg) (interface{}, error) {
 	var s search
-	if uE := json.Unmarshal(params, &s); uE != nil {
-		return nil, invalidArgs("exports", uE)
+	if uE := json.Unmarshal(msg.Params, &s); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	if len(s.Key) > 0 {
@@ -648,7 +648,7 @@ func handleNfsExports(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Nfs.Exports()
 }
 
-func handleExportFs(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleExportFs(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type exportArgs struct {
 		FsID     *string  `json:"fs_id"`
 		Path     *string  `json:"export_path"`
@@ -663,8 +663,8 @@ func handleExportFs(p *Plugin, params json.RawMessage) (interface{}, error) {
 	}
 
 	var a exportArgs
-	if uE := json.Unmarshal(params, &a); uE != nil {
-		return nil, invalidArgs("export_fs", uE)
+	if uE := json.Unmarshal(msg.Params, &a); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	// This seems like a blunder in the original API or maybe the preferred way to do it.
@@ -682,25 +682,25 @@ func handleExportFs(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return p.cb.Nfs.FsExport(&fs[0], a.Path, &access, a.AuthType, a.Options)
 }
 
-func handleFsUnexport(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleFsUnexport(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type unexportArgs struct {
 		Export *NfsExport `json:"export"`
 		Flags  uint64     `json:"flags"`
 	}
 
 	var args unexportArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("export_remove", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.Nfs.FsUnExport(args.Export)
 }
 
-func handleExportAuthTypes(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleExportAuthTypes(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.Nfs.ExportAuthTypes()
 }
 
-func handleVolRaidCreate(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolRaidCreate(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volRaidCreateArgs struct {
 		Name      string   `json:"name"`
 		Type      RaidType `json:"raid_type"`
@@ -710,22 +710,22 @@ func handleVolRaidCreate(p *Plugin, params json.RawMessage) (interface{}, error)
 	}
 
 	var args volRaidCreateArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_raid_create", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return p.cb.Hba.VolRaidCreate(args.Name, args.Type, args.Disks, args.StripSize)
 }
 
-func handleVolRaidCreateCapGet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolRaidCreateCapGet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volRaidCreateCapGetArgs struct {
 		Sys   *System `json:"system"`
 		Flags uint64  `json:"flags"`
 	}
 
 	var args volRaidCreateCapGetArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_raid_create_cap_get", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	result, err := p.cb.Hba.VolRaidCreateCapGet(args.Sys)
@@ -739,15 +739,15 @@ func handleVolRaidCreateCapGet(p *Plugin, params json.RawMessage) (interface{}, 
 	return rc, nil
 }
 
-func handlePoolMemberInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handlePoolMemberInfo(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type poolMemberInfoArgs struct {
 		Pool  *Pool  `json:"pool"`
 		Flags uint64 `json:"flags"`
 	}
 
 	var args poolMemberInfoArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("pool_member_info", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	result, err := p.cb.Hba.PoolMemberInfo(args.Pool)
@@ -762,15 +762,15 @@ func handlePoolMemberInfo(p *Plugin, params json.RawMessage) (interface{}, error
 	return rc, nil
 }
 
-func handleVolRaidInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolRaidInfo(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volRaidInfoArgs struct {
 		Volume *Volume `json:"volume"`
 		Flags  uint64  `json:"flags"`
 	}
 
 	var args volRaidInfoArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_raid_info", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	result, err := p.cb.Hba.VolRaidInfo(args.Volume)
@@ -787,11 +787,11 @@ func handleVolRaidInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
 	return rc, nil
 }
 
-func handleBatteries(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleBatteries(p *Plugin, msg *requestMsg) (interface{}, error) {
 	return p.cb.Hba.Batteries()
 }
 
-func handleSystemReadCachePctSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleSystemReadCachePctSet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type sysReadCachePctArgs struct {
 		System  *System `json:"system"`
 		Percent uint32  `json:"read_pct"`
@@ -799,14 +799,14 @@ func handleSystemReadCachePctSet(p *Plugin, params json.RawMessage) (interface{}
 	}
 
 	var args sysReadCachePctArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("system_read_cache_pct_update", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.Cache.SysReadCachePctSet(args.System, args.Percent)
 }
 
-func handleVolCacheInfo(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolCacheInfo(p *Plugin, msg *requestMsg) (interface{}, error) {
 
 	type volCacheInfoArgs struct {
 		Volume *Volume `json:"volume"`
@@ -814,8 +814,8 @@ func handleVolCacheInfo(p *Plugin, params json.RawMessage) (interface{}, error) 
 	}
 
 	var args volCacheInfoArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_cache_info", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	info, err := p.cb.Cache.VolCacheInfo(args.Volume)
@@ -833,7 +833,7 @@ func handleVolCacheInfo(p *Plugin, params json.RawMessage) (interface{}, error) 
 	return ret, nil
 }
 
-func handleVolPhyDiskCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolPhyDiskCacheSet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volPhyDiskCacheSetArgs struct {
 		Volume *Volume           `json:"volume"`
 		Pdc    PhysicalDiskCache `json:"pdc"`
@@ -841,14 +841,14 @@ func handleVolPhyDiskCacheSet(p *Plugin, params json.RawMessage) (interface{}, e
 	}
 
 	var args volPhyDiskCacheSetArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_physical_disk_cache_update", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.Cache.VolPhyDiskCacheSet(args.Volume, args.Pdc)
 }
 
-func handleVolWriteCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolWriteCacheSet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volWriteCacheSetArgs struct {
 		Volume *Volume          `json:"volume"`
 		Wcp    WriteCachePolicy `json:"wcp"`
@@ -856,14 +856,14 @@ func handleVolWriteCacheSet(p *Plugin, params json.RawMessage) (interface{}, err
 	}
 
 	var args volWriteCacheSetArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_write_cache_policy_update", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.Cache.VolWriteCacheSet(args.Volume, args.Wcp)
 }
 
-func handleVolReadCacheSet(p *Plugin, params json.RawMessage) (interface{}, error) {
+func handleVolReadCacheSet(p *Plugin, msg *requestMsg) (interface{}, error) {
 	type volReadCacheSetArgs struct {
 		Volume *Volume         `json:"volume"`
 		Rcp    ReadCachePolicy `json:"rcp"`
@@ -871,8 +871,8 @@ func handleVolReadCacheSet(p *Plugin, params json.RawMessage) (interface{}, erro
 	}
 
 	var args volReadCacheSetArgs
-	if uE := json.Unmarshal(params, &args); uE != nil {
-		return nil, invalidArgs("volume_read_cache_policy_update", uE)
+	if uE := json.Unmarshal(msg.Params, &args); uE != nil {
+		return nil, invalidArgs(msg.Method, uE)
 	}
 
 	return nil, p.cb.Cache.VolReadCacheSet(args.Volume, args.Rcp)

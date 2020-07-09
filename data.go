@@ -2,8 +2,6 @@
 
 package libstoragemgmt
 
-import "encoding/json"
-
 // PluginInfo - Information about a specific plugin
 type PluginInfo struct {
 	Version     string
@@ -79,16 +77,16 @@ const (
 
 // Volume represents a storage volume, aka. a logical unit
 type Volume struct {
-	Class       string   `json:"class"`
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Enabled     *LsmBool `json:"admin_state"`
-	BlockSize   uint64   `json:"block_size"`
-	NumOfBlocks uint64   `json:"num_of_blocks"`
-	PluginData  *string  `json:"plugin_data"`
-	Vpd83       string   `json:"vpd83"`
-	SystemID    string   `json:"system_id"`
-	PoolID      string   `json:"pool_id"`
+	Class       string  `json:"class"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Enabled     LsmBool `json:"admin_state"`
+	BlockSize   uint64  `json:"block_size"`
+	NumOfBlocks uint64  `json:"num_of_blocks"`
+	PluginData  *string `json:"plugin_data"`
+	Vpd83       string  `json:"vpd83"`
+	SystemID    string  `json:"system_id"`
+	PoolID      string  `json:"pool_id"`
 }
 
 // JobStatusType is enumerated type returned from Job control
@@ -863,19 +861,6 @@ type BlockRange struct {
 	SrcBlkAddr uint64 `json:"src_block"`
 	DstBlkAddr uint64 `json:"dest_block"`
 	BlkCount   uint64 `json:"block_count"`
-}
-
-// MarshalJSON custom marshal for BlockRange
-// ref. http://choly.ca/post/go-json-marshalling/
-func (b *BlockRange) MarshalJSON() ([]byte, error) {
-	type Alias BlockRange
-	return json.Marshal(&struct {
-		Class string `json:"class"`
-		*Alias
-	}{
-		Class: "BlockRange",
-		Alias: (*Alias)(b),
-	})
 }
 
 // FileSystemSnapShot defines information relating to a file system snapshot
