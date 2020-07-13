@@ -4,6 +4,7 @@ package localdisk
 
 // #include <stdio.h>
 // #include <libstoragemgmt/libstoragemgmt.h>
+// #cgo LDFLAGS: /usr/lib64/libstoragemgmt.so
 // #include <stdlib.h>
 // #include <string.h>
 import "C"
